@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>𓆤 DRGNFLEYE AGENCY 𓆤</title>
+  <link rel="icon" type="image/png" href="DRGNFLEYE_fav_01.png" />
+  <link rel="apple-touch-icon" href="DRGNFLEYE_fav_01.png" />
+
+  <!-- Three.js non-module build (works in Safari without a server) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #ffffff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+
+    /* ── LOADER OVERLAY ── */
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: grid;
+    }
+
+    .sq {
+      background: #0a0a0a;
+      border: 1px solid #ffffff;
+      transform: scale(1);
+      transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1),
+                  opacity   0.55s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    .sq.hide {
+      transform: scale(0);
+      opacity: 0;
+    }
+
+    /* ── PAGE CONTENT ── */
+    #page {
+      opacity: 0;
+      transition: opacity 0.6s ease 0.1s;
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0;
+      background: transparent;
+      color: #0a0a0a;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    #page.visible { opacity: 1; }
+
+    /* re-enable pointer events on interactive overlay content */
+    /* (gallery-wrap is now fixed independently) */
+
+    #page h1 {
+      font-size: clamp(2rem, 6vw, 5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+    }
+
+    #page p {
+      margin-top: 0.4rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #666;
+    }
+
+    /* ── 3D VIEWER ── */
+    #viewer-wrap {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      z-index: 0;
+      cursor: grab;
+    }
+    #viewer-wrap:active { cursor: grabbing; }
+    #viewer-wrap canvas { display: block; }
+
+    /* ── HOVER VIDEO BACKGROUND ── */
+    #bg-video-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    #bg-video-wrap.visible {
+      opacity: 1;
+    }
+    #bg-video-wrap video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    @keyframes hint-pulse {
+      0%, 100% { opacity: 0.25; }
+      50%       { opacity: 0.9; }
+    }
+
+    #glb-hint {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: #aaa;
+      text-transform: uppercase;
+      pointer-events: none;
+      animation: hint-pulse 3s ease-in-out infinite;
+      transition: bottom 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    /* Rise with gallery when open */
+    #glb-hint.gallery-open {
+      bottom: calc(var(--gallery-h, 120px) + 1.5rem);
+    }
+
+    /* ── LOGO ── */
+    #site-logo {
+      position: fixed;
+      top: 4vw;
+      left: calc(1.5rem + 2.25rem + 0.75rem);
+      width: clamp(120px, 14vw, 200px);
+      z-index: 2;
+      pointer-events: none;
+    }
+    #site-logo img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: filter 0.6s ease;
+    }
+    body.video-active #site-logo img {
+      filter: invert(1);
+    }
+
+    /* ── SIDE NAV ── */
+    #side-nav {
+      position: fixed;
+      top: 4vw;
+      right: 1.5rem;
+      z-index: 8000;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 0;
+      pointer-events: auto;
+      line-height: 0.92;
+      transition: top 0.55s cubic-bezier(0.76, 0, 0.24, 1),
+                  right 0.55s cubic-bezier(0.76, 0, 0.24, 1),
+                  transform 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+
+    /* When gallery is open — nav lives in the right 35% column */
+    #side-nav.work-open {
+      top: 50%;
+      transform: translateY(-50%);
+      right: 1.5rem;
+    }
+    #side-nav.work-open #nav-work    { font-size: 10vw; }
+    #side-nav.work-open #nav-about   { font-size: 9vw; }
+    #side-nav.work-open #nav-contact { font-size: 7vw; }
+
+    /* When about panel is open — align nav to panel topbar, add right margin */
+    #side-nav.about-open {
+      top: 3.5rem; /* match about topbar height */
+      right: 1.5rem;
+      transform: none;
+    }
+
+    /* When contact panel is open — align nav just below panel, same margins as about */
+    #side-nav.contact-open {
+      top: 13rem;
+      right: 1.5rem;
+      transform: none;
+      max-height: calc(100vh - 13rem - 1.5rem);
+    }
+
+    /* Tighter sizes when contact panel is open */
+    #side-nav.contact-open #nav-work    { font-size: 11vw; }
+    #side-nav.contact-open #nav-about   { font-size: 10vw; }
+    #side-nav.contact-open #nav-contact { font-size: 7.5vw; }
+
+    #side-nav a {
+      font-family: Impact, 'Arial Narrow', sans-serif;
+      font-weight: 400;
+      text-transform: uppercase;
+      color: #0a0a0a;
+      text-decoration: none;
+      display: block;
+      transition: opacity 0.2s ease, color 0.6s ease;
+      line-height: 0.92;
+    }
+    body.video-active #side-nav a {
+      color: #ffffff;
+    }
+
+    #side-nav a { transition: height 0.35s cubic-bezier(0.76, 0, 0.24, 1), max-height 0.35s cubic-bezier(0.76, 0, 0.24, 1), opacity 0.2s ease; display: block; padding-bottom: 0.15em; padding-right: 0.08em; }
+    .nav-inner { display: block; transform-origin: top right; transition: transform 0.35s cubic-bezier(0.76, 0, 0.24, 1); }
+
+    #nav-work    { font-size: 13vw; }
+    #nav-about   { font-size: 11.5vw; }
+    #nav-contact { font-size: 9vw; }
+
+    /* Tighter sizes when about panel is open so nav fits fully in viewport */
+    #side-nav.about-open #nav-work    { font-size: 12vw; }
+    #side-nav.about-open #nav-about   { font-size: 11vw; }
+    #side-nav.about-open #nav-contact { font-size: 8.5vw; }
+
+    #status-msg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #999;
+      text-align: center;
+      padding: 1rem;
+      line-height: 1.8;
+      pointer-events: none;
+    }
+
+    /* ── WORK GALLERY ── */
+    #gallery-wrap {
+      position: fixed;
+      top: 1.5rem;
+      left: 0;
+      width: 65vw;
+      height: calc(100vh - 1.5rem);
+      z-index: 2;
+      background: transparent;
+      transform: translateY(100%);
+      transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+      overflow: hidden;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 1.5rem;
+    }
+
+    #gallery-wrap.visible {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    #gallery-nav {
+      display: flex;
+      align-items: flex-start;
+      width: 100%;
+      gap: 0.75rem;
+    }
+
+    #gallery {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    #gallery-right-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .gallery-page-arrow {
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid #ffffff;
+      color: #ffffff;
+      width: 2.25rem;
+      height: 2.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.3s;
+      mix-blend-mode: difference;
+    }
+    .gallery-page-arrow:hover { background: #ffffff; }
+    .gallery-page-arrow:disabled { opacity: 0; pointer-events: none; }
+
+    .thumb {
+      width: 100%;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .thumb-img {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      overflow: hidden;
+    }
+
+    .thumb-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .thumb:hover .thumb-img img {
+      transform: scale(1.04);
+      opacity: 0.85;
+    }
+
+    .thumb-info {
+      padding: 0.6rem 0 0;
+      mix-blend-mode: difference;
+    }
+
+    .thumb-title {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 1.3;
+    }
+
+    .thumb-sub {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #ffffff;
+      margin-top: 0.15rem;
+      line-height: 1.4;
+    }
+
+    .gallery-arrow,
+    .gallery-hover-zone { display: none; }
+
+    /* ── CONTACT PANEL ── */
+    #contact-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 7778;
+      background: #0a0a0a;
+      color: #f0ede6;
+      transform: translateY(-100%);
+      transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+    }
+    #contact-panel.open {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    #contact-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid #222;
+    }
+    #contact-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #555;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    #contact-close {
+      background: none;
+      border: 1px solid #333;
+      color: #f0ede6;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    #contact-close:hover { background: #f0ede6; color: #0a0a0a; }
+
+    #contact-form-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 1.5rem;
+      padding: 1.5rem 2rem 2rem;
+    }
+
+    .contact-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      flex: 1;
+    }
+    .contact-field label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #555;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    .contact-field input,
+    .contact-field textarea {
+      background: #1a1a1a;
+      border: none;
+      border-bottom: 1px solid #333;
+      color: #f0ede6;
+      font-size: 0.85rem;
+      font-family: 'Helvetica Neue', sans-serif;
+      padding: 0.5rem 0.25rem;
+      outline: none;
+      width: 100%;
+      transition: border-color 0.2s;
+      resize: none;
+    }
+    .contact-field input:focus,
+    .contact-field textarea:focus {
+      border-bottom-color: #f0ede6;
+    }
+
+    #contact-send {
+      background: none;
+      border: 1px solid #f0ede6;
+      color: #f0ede6;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      font-family: 'Helvetica Neue', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+      padding: 0.65rem 1.25rem;
+      transition: background 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+    #contact-send:hover { background: #f0ede6; color: #0a0a0a; }
+    #contact-send:hover #contact-send-arrow { background: #0a0a0a; }
+    #contact-send:hover #contact-send-arrow::after { border-left-color: #0a0a0a; }
+    #contact-send-arrow {
+      display: inline-block;
+      width: 60px;
+      height: 1px;
+      background: #f0ede6;
+      position: relative;
+      vertical-align: middle;
+    }
+    #contact-send-arrow::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: -3px;
+      border: 4px solid transparent;
+      border-left: 6px solid #f0ede6;
+    }
+
+    /* ── ABOUT PANEL ── */
+    #about-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 65vw;
+      height: 100vh;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(0px);
+      color: #f0ede6;
+      z-index: 7777;
+      transform: translateX(-100%);
+      transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+      display: flex;
+      flex-direction: column;
+      pointer-events: none;
+    }
+    #about-panel.open {
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+
+    #about-topbar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid #222;
+    }
+    #about-breadcrumb {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #555;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    #about-close {
+      background: none;
+      border: 1px solid #333;
+      color: #f0ede6;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    #about-close:hover { background: #f0ede6; color: #0a0a0a; }
+
+    #about-body {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
+      padding: 3rem 2rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    #about-logos {
+      width: 100%;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid #222;
+    }
+
+    /* Agency name block */
+    #about-title {
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      color: #f0ede6;
+      line-height: 1;
+    }
+    #about-subtitle {
+      margin-top: 0.75rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #888;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    #about-subtitle span { display: block; margin-bottom: 0.2rem; }
+
+    /* Two-column text */
+    #about-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+    }
+    @media (max-width: 750px) {
+      #about-two-col { grid-template-columns: 1fr; }
+      #about-logos { grid-template-columns: repeat(3, 1fr); }
+      #about-panel { width: 100vw; }
+    }
+    .about-section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #e03030;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    .about-body-text {
+      font-size: 0.88rem;
+      line-height: 1.75;
+      color: #999;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    #lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 8888;
+      display: flex;
+      flex-direction: column;
+      pointer-events: none;
+    }
+
+    /* dark backdrop — fades in */
+    #lb-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0);
+      transition: background 0.45s ease;
+    }
+    #lightbox.open #lb-backdrop {
+      background: rgba(0,0,0,0.55);
+      pointer-events: auto;
+    }
+
+    /* panel slides up from bottom */
+    #lb-panel {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 100vh;
+      background: #0a0a0a;
+      color: #f0ede6;
+      transform: translateY(100%);
+      transition: transform 0.55s cubic-bezier(0.76, 0, 0.24, 1);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    #lightbox.open #lb-panel {
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    /* top bar */
+    #lb-topbar {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid #222;
+    }
+    #lb-project-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: #555;
+    }
+    #lb-topbar-btns {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    #lb-next {
+      background: none;
+      border: 1px solid #333;
+      color: #f0ede6;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+    #lb-next:hover { background: #f0ede6; color: #0a0a0a; }
+
+    #lb-close {
+      background: none;
+      border: 1px solid #333;
+      color: #f0ede6;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 0.4rem 1rem;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    #lb-close:hover { background: #f0ede6; color: #0a0a0a; }
+
+    /* scrollable body inside panel */
+    #lb-body {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      scrollbar-width: thin;
+      scrollbar-color: #333 transparent;
+    }
+
+    /* breadcrumb */
+    #lb-breadcrumb {
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #555;
+      font-family: 'Helvetica Neue', sans-serif;
+    }
+
+    /* full-bleed images — zero gap, edge to edge */
+    .lb-full-img {
+      width: 100%;
+      line-height: 0;
+    }
+    .lb-full-img img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* info block */
+    #lb-info {
+      padding: 2rem 2rem 2.5rem;
+      background: #0a0a0a;
+    }
+
+    #lb-title {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      color: #f0ede6;
+      line-height: 1;
+      margin-bottom: 0.75rem;
+    }
+
+    #lb-artist-line,
+    #lb-collab-line {
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 0.2rem;
+    }
+
+    .lb-label {
+      color: #555;
+      font-size: 0.7rem;
+    }
+
+    /* two-column text */
+    #lb-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 650px) {
+      #lb-two-col { grid-template-columns: 1fr; }
+    }
+
+    .lb-section-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #e03030;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .lb-body-text {
+      font-size: 0.88rem;
+      line-height: 1.75;
+      color: #999;
+    }
+
+    /* YouTube embed */
+    #lb-video-wrap {
+      width: 100%;
+      background: #000;
+      padding: 0;
+    }
+    #lb-video-inner {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 */
+    }
+    #lb-video-inner iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* ── LIGHTBOX TRANSITION OVERLAY ── */
+    #lb-transition {
+      position: absolute;
+      inset: 0;
+      z-index: 9000;
+      display: grid;
+      pointer-events: none;
+      opacity: 0;
+    }
+    #lb-transition.active { pointer-events: auto; opacity: 1; }
+
+    .lb-sq {
+      background: #ffffff;
+      border: 1px solid #0a0a0a;
+      transform: scale(0);
+      transition: transform 0.45s cubic-bezier(0.76, 0, 0.24, 1),
+                  opacity   0.45s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    .lb-sq.show { transform: scale(1); opacity: 1; }
+    .lb-sq.hide { transform: scale(0); opacity: 0; }
+
+    /* counter */
+    #counter {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      font-family: 'Helvetica Neue', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      color: #444;
+      transition: opacity 0.4s;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── HOVER VIDEO BACKGROUND ── -->
+  <div id="bg-video-wrap">
+    <video id="bg-video" src="bg_video_holder.mp4" loop muted playsinline preload="auto"></video>
+  </div>
+
+  <div id="loader"></div>
+  <div id="counter">LOADING</div>
+
+  <div id="viewer-wrap">
+    <div id="status-msg">Loading model…</div>
+  </div>
+
+  <div id="site-logo">
+    <img src="DRGNFLEYE_Logo_square_01.svg" alt="DRGNFLEYE Agency" />
+  </div>
+
+  <!-- Drag to rotate hint — fixed bottom center -->
+  <p id="glb-hint">drag to rotate</p>
+
+  <!-- Right-side nav -->
+  <nav id="side-nav">
+    <a href="#" id="nav-work">WORK</a>
+    <a href="#" id="nav-about">ABOUT</a>
+    <a href="#" id="nav-contact">CONTACT</a>
+  </nav>
+
+  <div id="page"></div>
+
+  <!-- ── WORK GALLERY ── -->
+  <div id="gallery-wrap">
+    <div id="gallery-nav">
+      <button id="gallery-prev" class="gallery-page-arrow" aria-label="Previous">&#8592;</button>
+      <div id="gallery"></div>
+      <div id="gallery-right-btns">
+        <button id="gallery-close" class="gallery-page-arrow">✕</button>
+        <button id="gallery-next" class="gallery-page-arrow" aria-label="Next">&#8594;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CONTACT PANEL ── -->
+  <div id="contact-panel">
+    <div id="contact-topbar">
+      <span id="contact-label">DRGNFLEYE AGENCY &nbsp;|&nbsp; Contact</span>
+      <button id="contact-close">✕ &nbsp;CLOSE</button>
+    </div>
+    <div id="contact-form-row">
+      <div class="contact-field">
+        <label for="contact-name">Name</label>
+        <input type="text" id="contact-name" placeholder="" />
+      </div>
+      <div class="contact-field">
+        <label for="contact-email">Email</label>
+        <input type="email" id="contact-email" placeholder="" />
+      </div>
+      <div class="contact-field">
+        <label for="contact-desc">Description of work</label>
+        <input type="text" id="contact-desc" placeholder="" />
+      </div>
+      <button id="contact-send">
+        <span id="contact-send-arrow"></span> SEND
+      </button>
+    </div>
+  </div>
+
+  <!-- ── ABOUT PANEL ── -->
+  <div id="about-panel">
+    <div id="about-topbar">
+      <span id="about-breadcrumb">DRGNFLEYE AGENCY &nbsp;|&nbsp; About + Philosophy</span>
+      <button id="about-close">✕ &nbsp;CLOSE</button>
+    </div>
+    <div id="about-body">
+
+      <!-- Client logos -->
+      <div id="about-logos">
+        <img src="clients_holder_01.jpg" alt="Clients" style="width:100%; height:auto; display:block; opacity:0.85;" />
+      </div>
+
+      <!-- Agency name + roles -->
+      <div>
+        <h2 id="about-title">DRGNFLEYE AGENCY</h2>
+        <div id="about-subtitle">
+          <span>Art Directors + Designers</span>
+          <span>Specialties : Art Direction, Marketing Campaigns,</span>
+        </div>
+      </div>
+
+      <!-- Two-column text -->
+      <div id="about-two-col">
+        <div>
+          <p class="about-section-label">About :</p>
+          <p class="about-body-text">Lorem ipsum dolor sit amet, consecteuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugait nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+        </div>
+        <div>
+          <p class="about-section-label">Philosophy :</p>
+          <p class="about-body-text">Lorem ipsum dolor sit amet, consecteuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugait nulla facilisis at vero eros et accumsan et iusto odio dignissim qui blandit praesent luptatum zzril delenit augue duis dolore te feugait nulla facilisi.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── LIGHTBOX ── -->
+  <div id="lightbox">
+    <div id="lb-backdrop"></div>
+    <div id="lb-panel">
+
+      <!-- Transition overlay — white squares on black -->
+      <div id="lb-transition"></div>
+
+      <!-- Fixed top bar -->
+      <div id="lb-topbar">
+        <span id="lb-breadcrumb">DRGNFLEYE AGENCY &nbsp;|&nbsp; Alissia // "Hypnotic Nights"</span>
+        <div id="lb-topbar-btns">
+          <button id="lb-next">NEXT &nbsp;&#8594;</button>
+          <button id="lb-close">✕ &nbsp;CLOSE</button>
+        </div>
+      </div>
+
+      <!-- Scrollable body -->
+      <div id="lb-body">
+
+        <!-- 1. Hero image — full bleed -->
+        <div class="lb-full-img">
+          <img src="alissia_01.jpg" alt="Hypnotic Nights Hero" />
+        </div>
+
+        <!-- 2. Title + info block -->
+        <div id="lb-info">
+          <h2 id="lb-title">HYPNOTIC NIGHTS</h2>
+          <div id="lb-artist-line">
+            <span class="lb-label">Artist:</span> ALISSIA
+          </div>
+          <div id="lb-collab-line">
+            <span class="lb-label">Collaborators:</span> AMAZON MUSIC, ALISSIA, NILE RODGERS, EARTHGANG
+          </div>
+
+          <!-- Two-column text -->
+          <div id="lb-two-col">
+            <div class="lb-col">
+              <p class="lb-section-label">DESCRIPTION:</p>
+              <p class="lb-body-text">A short doc for Amazon Music, showcasing Producer of the Year Grammy nominee, Alissia's pivot from a producer to Artist with debut record "Hypnotic Nights" featuring Nile Rodgers and EARTHGANG.</p>
+
+              <p class="lb-section-label" style="margin-top:1.5rem">EXECUTION:</p>
+              <p class="lb-body-text">Role: Creative Director, Editor, Designer</p>
+
+              <p class="lb-section-label" style="margin-top:1.5rem">PRESS:</p>
+              <p class="lb-body-text">PAPER Mag</p>
+
+              <p class="lb-section-label" style="margin-top:1.5rem">EXTENDED TEAM:</p>
+              <p class="lb-body-text">Park Avenue Artists<br>Amazon Music</p>
+            </div>
+            <div class="lb-col">
+              <p class="lb-section-label">STRATEGY:</p>
+              <p class="lb-body-text">The "Hypnotic Nights" campaign established a unified visual world across the single's identity, a behind-the-scenes short doc, and a cohesive design system. The aesthetic leaned into moody contrast, deep shadows, and a signature pop of red to frame Alissia's regal, funk-driven presence. The short doc highlighted her role as a generational bridge—showcasing Nile Rodgers and EarthGang recording together in the same studio where CHIC created its signature sound. The rollout followed her historic Producer of the Year Grammy nomination, where she became only the ninth woman ever recognized in the category. Strategically, the campaign centered on intimacy and craft, combining storytelling-led content, interactive text activations, and NYC/LA posters to introduce a clear sonic-and-visual identity for this new era.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. YouTube embed -->
+        <div id="lb-video-wrap">
+          <div id="lb-video-inner">
+            <iframe
+              src="https://www.youtube.com/embed/DvAv4StoKd4"
+              title="Alissia — Hypnotic Nights feat. Nile Rodgers &amp; EARTHGANG"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        <!-- 4–7. Stacked full-bleed images -->
+        <div class="lb-full-img"><img src="alissia_02.jpg" alt="Alissia 02" /></div>
+        <div class="lb-full-img"><img src="alissia_03.jpg" alt="Alissia 03" /></div>
+        <div class="lb-full-img"><img src="alissia_04.jpg" alt="Alissia 04" /></div>
+        <div class="lb-full-img"><img src="alissia_05.jpg" alt="Alissia 05" /></div>
+
+      </div><!-- /lb-body -->
+    </div><!-- /lb-panel -->
+  </div><!-- /lightbox -->
+
+  <script>
+    /* ── LOADER ANIMATION ── */
+    const loader  = document.getElementById('loader');
+    const counter = document.getElementById('counter');
+    const page    = document.getElementById('page');
+    const SQ_SIZE = 80;
+
+    function buildGrid() {
+      const cols = Math.ceil(window.innerWidth  / SQ_SIZE);
+      const rows = Math.ceil(window.innerHeight / SQ_SIZE);
+      loader.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      loader.style.gridTemplateRows    = `repeat(${rows}, 1fr)`;
+      loader.innerHTML = '';
+      for (let i = 0; i < cols * rows; i++) {
+        const sq = document.createElement('div');
+        sq.className = 'sq';
+        loader.appendChild(sq);
+      }
+      return { cols, rows };
+    }
+
+    function dist(ax, ay, bx, by) {
+      return Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
+    }
+
+    function animateOut(cols, rows) {
+      const squares = loader.querySelectorAll('.sq');
+      const cx = cols / 2, cy = rows / 2;
+      const indexed = Array.from(squares).map((sq, i) => ({
+        sq, d: dist(i % cols, Math.floor(i / cols), cx, cy)
+      }));
+      const maxD = Math.max(...indexed.map(s => s.d));
+      const duration = 900;
+      let start = null;
+
+      function tick(ts) {
+        if (!start) start = ts;
+        const pct = Math.min((ts - start) / duration, 1);
+        // Only update counter with loader animation % if GLB hasn't started loading yet
+        if (counter.textContent === 'LOADING') {
+          counter.textContent = Math.round(pct * 100) + '%';
+        }
+        indexed.forEach(({ sq, d }) => {
+          if (pct >= (d / maxD) * 0.85 && !sq.classList.contains('hide'))
+            sq.classList.add('hide');
+        });
+        if (pct < 1) {
+          requestAnimationFrame(tick);
+        } else {
+          setTimeout(() => {
+            loader.style.display = 'none';
+            counter.style.opacity = '0';
+            page.classList.add('visible');
+          }, 350);
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    const { cols, rows } = buildGrid();
+    setTimeout(() => animateOut(cols, rows), 800);
+
+    /* ── THREE.JS GLB VIEWER WITH BAYER DITHER ── */
+    window.addEventListener('load', function() {
+      // Wait until page is visible so dimensions are correct
+      function initViewer() {
+        const wrap   = document.getElementById('viewer-wrap');
+        const status = document.getElementById('status-msg');
+
+        // Force layout recalc
+        const W = wrap.offsetWidth  || 420;
+        const H = wrap.offsetHeight || 420;
+
+      // ── Renderer (renders scene to a texture, not directly to screen)
+      const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+      renderer.setPixelRatio(1); // keep at 1 so dither pixels are crisp
+      renderer.setSize(W, H);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      wrap.insertBefore(renderer.domElement, status);
+
+      // ── Scene & Camera
+      const scene  = new THREE.Scene();
+      scene.background = new THREE.Color(0xffffff);
+      const camera = new THREE.PerspectiveCamera(45, W / H, 0.01, 1000);
+      camera.position.set(0, 0, 5.5);
+      camera.lookAt(0, 0, 0);
+
+      // ── Lights
+      scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+      const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+      dir.position.set(5, 10, 7);
+      scene.add(dir);
+      const fill = new THREE.DirectionalLight(0xffffff, 0.4);
+      fill.position.set(-5, -5, -5);
+      scene.add(fill);
+
+      // ── Pivot group for rotation
+      const pivot = new THREE.Group();
+      scene.add(pivot);
+
+      // ── Drag to rotate
+      let isDragging = false, prevX = 0, prevY = 0, rotX = 0, rotY = 0;
+      renderer.domElement.addEventListener('mousedown', e => { isDragging = true; prevX = e.clientX; prevY = e.clientY; });
+      renderer.domElement.addEventListener('touchstart', e => { isDragging = true; prevX = e.touches[0].clientX; prevY = e.touches[0].clientY; });
+      window.addEventListener('mouseup',  () => isDragging = false);
+      window.addEventListener('touchend', () => isDragging = false);
+      window.addEventListener('mousemove', e => {
+        if (!isDragging) return;
+        rotY += (e.clientX - prevX) * 0.01;
+        rotX += (e.clientY - prevY) * 0.01;
+        prevX = e.clientX; prevY = e.clientY;
+        pivot.rotation.y = rotY;
+        pivot.rotation.x = rotX;
+      });
+      window.addEventListener('touchmove', e => {
+        if (!isDragging) return;
+        rotY += (e.touches[0].clientX - prevX) * 0.01;
+        rotX += (e.touches[0].clientY - prevY) * 0.01;
+        prevX = e.touches[0].clientX; prevY = e.touches[0].clientY;
+        pivot.rotation.y = rotY;
+        pivot.rotation.x = rotX;
+      });
+      renderer.domElement.addEventListener('wheel', e => {
+        camera.position.z = Math.max(0.5, Math.min(10, camera.position.z + e.deltaY * 0.005));
+      });
+
+      // ── Render Target: scene renders here first
+      const renderTarget = new THREE.WebGLRenderTarget(W, H, {
+        minFilter: THREE.LinearFilter,
+        magFilter: THREE.LinearFilter,
+        format: THREE.RGBAFormat
+      });
+
+      // ── Bayer 8×8 Dither Post-Process Shader
+      // The 8×8 Bayer matrix gives 65 luminance levels for smooth gradients.
+      // Our twist: we keep two ink colors (dark + white bg) but add a subtle
+      // blue-tinted midtone so it feels original rather than pure 1-bit.
+      const ditherMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+          tDiffuse:   { value: renderTarget.texture },
+          resolution: { value: new THREE.Vector2(W, H) },
+          pixelSize:  { value: 3.0 },   // size of each dither cell in screen px
+          inkColor:   { value: new THREE.Color(0x0a0a0a) },
+          paperColor: { value: new THREE.Color(0xffffff) },
+        },
+        vertexShader: `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `,
+        fragmentShader: `
+          uniform sampler2D tDiffuse;
+          uniform vec2      resolution;
+          uniform float     pixelSize;
+          uniform vec3      inkColor;
+          uniform vec3      paperColor;
+          varying vec2 vUv;
+
+          // 8x8 Bayer threshold matrix (values 0-63, normalised to 0-1)
+          float bayer8(int x, int y) {
+            int m[64];
+            m[0]= 0; m[1]=32; m[2]= 8; m[3]=40; m[4]= 2; m[5]=34; m[6]=10; m[7]=42;
+            m[8]=48; m[9]=16; m[10]=56;m[11]=24; m[12]=50;m[13]=18; m[14]=58;m[15]=26;
+            m[16]=12;m[17]=44; m[18]= 4;m[19]=36; m[20]=14;m[21]=46; m[22]= 6;m[23]=38;
+            m[24]=60;m[25]=28; m[26]=52;m[27]=20; m[28]=62;m[29]=30; m[30]=54;m[31]=22;
+            m[32]= 3;m[33]=35; m[34]=11;m[35]=43; m[36]= 1;m[37]=33; m[38]= 9;m[39]=41;
+            m[40]=51;m[41]=19; m[42]=59;m[43]=27; m[44]=49;m[45]=17; m[46]=57;m[47]=25;
+            m[48]=15;m[49]=47; m[50]= 7;m[51]=39; m[52]=13;m[53]=45; m[54]= 5;m[55]=37;
+            m[56]=63;m[57]=31; m[58]=55;m[59]=23; m[60]=61;m[61]=29; m[62]=53;m[63]=21;
+            return float(m[y * 8 + x]) / 64.0;
+          }
+
+          void main() {
+            // Pixelate UV to dither grid
+            vec2 fragCoord = vUv * resolution;
+            vec2 pixelated = floor(fragCoord / pixelSize) * pixelSize;
+            vec2 sampledUV = pixelated / resolution;
+
+            vec4 color = texture2D(tDiffuse, sampledUV);
+
+            // Luminance (perceptual weights)
+            float lum = dot(color.rgb, vec3(0.299, 0.587, 0.114));
+
+            // Bayer matrix position
+            int bx = int(mod(fragCoord.x / pixelSize, 8.0));
+            int by = int(mod(fragCoord.y / pixelSize, 8.0));
+            float threshold = bayer8(bx, by);
+
+            // Dither decision — original twist: soft blend near edges
+            // gives a slightly softer look vs pure 1-bit
+            float dithered = step(threshold, lum);
+
+            // Mix ink and paper colors
+            vec3 result = mix(inkColor, paperColor, dithered);
+
+            // Always fully opaque — paper color handles the background
+            gl_FragColor = vec4(result, 1.0);
+          }
+        `
+      });
+
+      // ── Full-screen quad to display the dithered result
+      const quadGeo  = new THREE.PlaneGeometry(2, 2);
+      const quadMesh = new THREE.Mesh(quadGeo, ditherMaterial);
+      const quadScene  = new THREE.Scene();
+      const quadCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+      quadScene.add(quadMesh);
+
+      // ── Load GLTFLoader then model
+      const loaderScript = document.createElement('script');
+      loaderScript.src = 'https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js';
+      loaderScript.onload = function() {
+        const gltfLoader = new THREE.GLTFLoader();
+        gltfLoader.load(
+          'drgnfly.glb',
+          function(gltf) {
+            status.style.display = 'none';
+            counter.style.opacity = '0';
+            const model = gltf.scene;
+            const box    = new THREE.Box3().setFromObject(model);
+            const size   = box.getSize(new THREE.Vector3());
+            const centre = box.getCenter(new THREE.Vector3());
+            const maxDim = Math.max(size.x, size.y, size.z);
+            model.scale.setScalar(4.056 / maxDim);
+            model.position.sub(centre.multiplyScalar(4.056 / maxDim));
+            pivot.add(model);
+          },
+          function(xhr) {
+            if (xhr.total) {
+              const pct = Math.round(xhr.loaded / xhr.total * 100);
+              status.textContent = 'Loading ' + pct + '%';
+              counter.textContent = pct + '%';
+            }
+          },
+          function(err) {
+            console.error(err);
+            status.style.fontSize = '0.62rem';
+            status.innerHTML = '⚠️ Could not load drgnfly.glb<br><br>Make sure drgnfly.glb is in the<br>same folder as index.html';
+          }
+        );
+      };
+      document.head.appendChild(loaderScript);
+
+      // ── Render loop: scene → renderTarget → dither shader → screen
+      (function animate() {
+        requestAnimationFrame(animate);
+        pivot.rotation.y += 0.003;
+
+        // 1. Render scene into texture
+        renderer.setRenderTarget(renderTarget);
+        renderer.render(scene, camera);
+
+        // 2. Apply dither shader and render to screen
+        renderer.setRenderTarget(null);
+        renderer.render(quadScene, quadCamera);
+      })();
+
+      // ── Resize
+      window.addEventListener('resize', () => {
+        const w = wrap.offsetWidth, h = wrap.offsetHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        renderTarget.setSize(w, h);
+        ditherMaterial.uniforms.resolution.value.set(w, h);
+      });
+      } // end initViewer
+
+      // Delay init until after loader reveals the page so dimensions are correct
+      setTimeout(initViewer, 1400);
+    });
+    /* ── GALLERY PAGINATION ── */
+    const PROJECTS = [
+      { img: 'thumbnail_01.jpg', title: 'ALISSIA // "HYPNOTIC NIGHTS" // Amazon Music', sub: 'Art Direction · Campaign',          project: 0 },
+      { img: 'thumbnail_02.jpg', title: 'JLL // ROSEDALE CENTER // Shopping Takeover',  sub: 'Creative Direction · Experiential', project: 1 },
+      { img: 'thumbnail_01.jpg', title: 'Project Title // Client Name',                  sub: 'Role · Category',                   project: 2 },
+      { img: 'thumbnail_02.jpg', title: 'Project Title // Client Name',                  sub: 'Role · Category',                   project: 3 },
+      { img: 'thumbnail_01.jpg', title: 'Project Title // Client Name',                  sub: 'Role · Category',                   project: 4 },
+      { img: 'thumbnail_02.jpg', title: 'Project Title // Client Name',                  sub: 'Role · Category',                   project: 5 },
+      { img: 'thumbnail_01.jpg', title: 'Project Title // Client Name',                  sub: 'Role · Category',                   project: 6 },
+      { img: 'thumbnail_02.jpg', title: 'Project Title // Client Name',                  sub: 'Role · Category',                   project: 7 },
+      { img: 'thumbnail_01.jpg', title: 'Project Title // Client Name',                  sub: 'Role · Category',                   project: 8 },
+    ];
+    const PER_PAGE   = 3;
+    let galleryPage  = 0;
+    const galleryEl  = document.getElementById('gallery');
+    const prevBtn    = document.getElementById('gallery-prev');
+    const nextBtn2   = document.getElementById('gallery-next');
+
+    function renderGallery(direction = 0) {
+      const start = galleryPage * PER_PAGE;
+      const slice = PROJECTS.slice(start, start + PER_PAGE);
+
+      // Fade + slide out current content
+      if (direction !== 0) {
+        galleryEl.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+        galleryEl.style.opacity    = '0';
+        galleryEl.style.transform  = `translateX(${direction > 0 ? '-3%' : '3%'})`;
+      }
+
+      setTimeout(() => {
+        galleryEl.innerHTML = slice.map(p => `
+          <div class="thumb" data-project="${p.project}">
+            <div class="thumb-img"><img src="${p.img}" alt="${p.title}" /></div>
+            <div class="thumb-info">
+              <div class="thumb-title">${p.title}</div>
+              <div class="thumb-sub">${p.sub}</div>
+            </div>
+          </div>
+        `).join('');
+
+        // Re-attach lightbox click listeners
+        galleryEl.querySelectorAll('.thumb').forEach(el => {
+          el.addEventListener('click', () => openLightbox(+el.dataset.project));
+        });
+
+        prevBtn.disabled  = galleryPage === 0;
+        nextBtn2.disabled = start + PER_PAGE >= PROJECTS.length;
+
+        // Fade + slide in from opposite side
+        if (direction !== 0) {
+          galleryEl.style.transition = 'none';
+          galleryEl.style.opacity    = '0';
+          galleryEl.style.transform  = `translateX(${direction > 0 ? '3%' : '-3%'})`;
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              galleryEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+              galleryEl.style.opacity    = '1';
+              galleryEl.style.transform  = 'translateX(0)';
+            });
+          });
+        }
+
+        alignArrows();
+      }, direction !== 0 ? 200 : 0);
+    }
+
+    prevBtn.addEventListener('click',  () => { galleryPage--; renderGallery(-1); });
+    nextBtn2.addEventListener('click', () => { galleryPage++; renderGallery(1); });
+
+    function alignArrows() {
+      requestAnimationFrame(() => {
+        const img = galleryEl.querySelector('.thumb-img');
+        if (!img) return;
+        const imgH    = img.getBoundingClientRect().height;
+        const arrowH  = prevBtn.getBoundingClientRect().height;
+        // Left arrow: centered on image height
+        prevBtn.style.marginTop = Math.max(0, (imgH / 2) - (arrowH / 2)) + 'px';
+        // Right column: flush with top of image (no margin)
+        const rightBtns = document.getElementById('gallery-right-btns');
+        if (rightBtns) rightBtns.style.marginTop = '0px';
+      });
+    }
+
+    // Re-align after each render and on resize
+    const _origRender = renderGallery;
+    window.addEventListener('resize', alignArrows);
+
+    // Reset page when gallery opens
+    document.getElementById('nav-work').addEventListener('click', () => {
+      galleryPage = 0;
+      renderGallery();
+    });
+
+    /* ── LIGHTBOX LOGIC ── */
+    const lightbox    = document.getElementById('lightbox');
+    const backdrop    = document.getElementById('lb-backdrop');
+    const closeBtn    = document.getElementById('lb-close');
+    const nextBtn     = document.getElementById('lb-next');
+    const lbBody      = document.getElementById('lb-body');
+    const lbTransition = document.getElementById('lb-transition');
+
+    const thumbs = document.querySelectorAll('.thumb');
+    const totalProjects = PROJECTS.length;
+    let currentProject = 0;
+    let isTransitioning = false;
+
+    // ── Build the transition grid to fill lb-panel
+    function buildTransitionGrid() {
+      const panel = document.getElementById('lb-panel');
+      const SQ = 80;
+      const cols = Math.ceil(panel.offsetWidth  / SQ);
+      const rows = Math.ceil(panel.offsetHeight / SQ);
+      lbTransition.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      lbTransition.style.gridTemplateRows    = `repeat(${rows}, 1fr)`;
+      lbTransition.innerHTML = '';
+      for (let i = 0; i < cols * rows; i++) {
+        const sq = document.createElement('div');
+        sq.className = 'lb-sq';
+        lbTransition.appendChild(sq);
+      }
+      return { cols, rows };
+    }
+
+    function lbDist(ax, ay, bx, by) {
+      return Math.sqrt((ax - bx) ** 2 + (ay - by) ** 2);
+    }
+
+    // Animate squares IN (cover), call midCallback at peak, then animate OUT (reveal)
+    function runTransition(midCallback) {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      const { cols, rows } = buildTransitionGrid();
+      const squares = lbTransition.querySelectorAll('.lb-sq');
+      const cx = cols / 2, cy = rows / 2;
+      const indexed = Array.from(squares).map((sq, i) => ({
+        sq, d: lbDist(i % cols, Math.floor(i / cols), cx, cy)
+      }));
+      const maxD = Math.max(...indexed.map(s => s.d));
+      const duration = 650;
+
+      lbTransition.classList.add('active');
+
+      // Phase 1: squares ripple IN from centre
+      let startIn = null;
+      function tickIn(ts) {
+        if (!startIn) startIn = ts;
+        const pct = Math.min((ts - startIn) / duration, 1);
+        indexed.forEach(({ sq, d }) => {
+          if (pct >= (d / maxD) * 0.8 && !sq.classList.contains('show'))
+            sq.classList.add('show');
+        });
+        if (pct < 1) {
+          requestAnimationFrame(tickIn);
+        } else {
+          // All covered — run the content swap
+          midCallback();
+          lbBody.scrollTop = 0;
+
+          // Phase 2: squares ripple OUT from centre
+          let startOut = null;
+          function tickOut(ts2) {
+            if (!startOut) startOut = ts2;
+            const pct2 = Math.min((ts2 - startOut) / duration, 1);
+            indexed.forEach(({ sq, d }) => {
+              if (pct2 >= (d / maxD) * 0.8 && !sq.classList.contains('hide')) {
+                sq.classList.remove('show');
+                sq.classList.add('hide');
+              }
+            });
+            if (pct2 < 1) {
+              requestAnimationFrame(tickOut);
+            } else {
+              lbTransition.classList.remove('active');
+              lbTransition.innerHTML = '';
+              isTransitioning = false;
+            }
+          }
+          requestAnimationFrame(tickOut);
+        }
+      }
+      requestAnimationFrame(tickIn);
+    }
+
+    function openLightbox(idx) {
+      currentProject = idx;
+      lbBody.scrollTop = 0;
+      lightbox.style.pointerEvents = 'auto';
+      lightbox.classList.add('open');
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('open');
+      lightbox.style.pointerEvents = 'none';
+    }
+
+    function nextProject() {
+      const nextIdx = (currentProject + 1) % totalProjects;
+      runTransition(() => {
+        currentProject = nextIdx;
+        // Future: swap project content here when multiple projects exist
+      });
+    }
+
+    thumbs.forEach(el => {
+      el.addEventListener('click', () => openLightbox(+el.dataset.project));
+    });
+
+    // Initial render now that openLightbox is defined
+    renderGallery();
+    setTimeout(alignArrows, 150);
+
+    nextBtn.addEventListener('click', nextProject);
+    closeBtn.addEventListener('click', closeLightbox);
+    backdrop.addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight' && lightbox.classList.contains('open')) nextProject();
+    });
+  </script>
+  <script>
+    /* ── NAV HOVER STRETCH ── */
+    (function () {
+      const navEl         = document.getElementById('side-nav');
+      const links         = [...navEl.querySelectorAll('a')];
+      const galleryWrapEl = document.getElementById('gallery-wrap');
+      const GALLERY_H     = galleryWrapEl.getBoundingClientRect().height || 120;
+      const EASING_MS     = 550; // match gallery CSS transition duration
+
+      let lockedLink  = null;
+      let rafId       = null;
+      let animStart   = null;
+      let animFrom    = null; // starting bottomBound
+      let animTo      = null; // target bottomBound
+      let currentBound = null;
+
+      // Wrap text in inner span for scaleY, set explicit heights on links
+      links.forEach(link => {
+        const text = link.textContent;
+        link.innerHTML = `<span class="nav-inner">${text}</span>`;
+        const h = link.getBoundingClientRect().height;
+        link.style.height = h + 'px';
+        link._naturalH = h;
+      });
+
+      function easeInOut(t) {
+        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+      }
+
+      function applyStretch(link, bottomBound) {
+        const navRect       = navEl.getBoundingClientRect();
+        const availableH    = bottomBound - navRect.top;
+        // Reserve natural height for ALL other words — only give excess to hovered word
+        const othersH       = links.reduce((s, l) => l !== link ? s + l._naturalH : s, 0);
+        const maxForLink    = availableH - othersH;
+        const newH          = Math.max(link._naturalH, maxForLink);
+        const scaleY        = newH / link._naturalH;
+
+        link.style.height = newH + 'px';
+        const inner = link.querySelector('.nav-inner');
+        inner.style.transformOrigin = 'top right';
+        inner.style.display = 'block';
+        inner.style.transition = 'none';
+        inner.style.transform = `scaleY(${scaleY})`;
+      }
+
+      function stretchLink(link) {
+        const bottomBound = currentBound !== null ? currentBound : window.innerHeight * 0.92;
+        applyStretch(link, bottomBound);
+        // Re-enable CSS transition after initial paint
+        requestAnimationFrame(() => {
+          const inner = link.querySelector('.nav-inner');
+          if (inner) inner.style.transition = 'transform 0.35s cubic-bezier(0.76, 0, 0.24, 1)';
+        });
+      }
+
+      function resetLink(link) {
+        link.style.height = link._naturalH + 'px';
+        const inner = link.querySelector('.nav-inner');
+        inner.style.transition = 'transform 0.35s cubic-bezier(0.76, 0, 0.24, 1)';
+        inner.style.transform = 'scaleY(1)';
+      }
+
+      function resetAll() { links.forEach(resetLink); }
+
+      // Animate bottomBound from `from` to `to` over EASING_MS,
+      // continuously re-applying stretch to lockedLink each frame
+      function animateBound(from, to) {
+        if (rafId) cancelAnimationFrame(rafId);
+        animStart = null;
+        animFrom  = from;
+        animTo    = to;
+
+        function tick(ts) {
+          if (!animStart) animStart = ts;
+          const t       = Math.min((ts - animStart) / EASING_MS, 1);
+          const eased   = easeInOut(t);
+          currentBound  = animFrom + (animTo - animFrom) * eased;
+
+          if (lockedLink) applyStretch(lockedLink, currentBound);
+
+          if (t < 1) {
+            rafId = requestAnimationFrame(tick);
+          } else {
+            currentBound = animTo;
+            rafId = null;
+          }
+        }
+        rafId = requestAnimationFrame(tick);
+      }
+
+      links.forEach((link) => {
+        link.addEventListener('mouseenter', () => {
+          if (lockedLink) return;
+          resetAll();
+          stretchLink(link);
+        });
+
+        link.addEventListener('mouseleave', () => {
+          if (lockedLink) return;
+          resetAll();
+        });
+
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+
+          if (lockedLink === link) {
+            // Unlock — revert everything
+            lockedLink = null;
+            if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+            currentBound = window.innerHeight * 0.92;
+            galleryWrapEl.classList.remove('visible');
+            document.getElementById('glb-hint').classList.remove('gallery-open');
+            document.getElementById('about-panel').classList.remove('open');
+            document.getElementById('contact-panel').classList.remove('open');
+            navEl.classList.remove('about-open');
+            navEl.classList.remove('contact-open');
+            navEl.classList.remove('work-open');
+            // Stop video when gallery closes
+            document.getElementById('bg-video-wrap').classList.remove('visible');
+            document.body.classList.remove('video-active');
+            setTimeout(() => { document.getElementById('bg-video').pause(); }, 700);
+            resetAll();
+            requestAnimationFrame(() => {
+              links.forEach(l => {
+                l.style.height = 'auto';
+                l._naturalH = l.getBoundingClientRect().height;
+                l.style.height = l._naturalH + 'px';
+              });
+            });
+          } else {
+            // Switch lock to this link — always reset all first
+            lockedLink = link;
+            document.getElementById('about-panel').classList.remove('open');
+            document.getElementById('contact-panel').classList.remove('open');
+            document.getElementById('glb-hint').classList.remove('gallery-open');
+            navEl.classList.remove('about-open');
+            navEl.classList.remove('contact-open');
+            navEl.classList.remove('work-open');
+            galleryWrapEl.classList.remove('visible');
+            resetAll();
+
+            if (link.id === 'nav-work') {
+              galleryWrapEl.classList.add('visible');
+              navEl.classList.add('work-open');
+              // Recalculate natural heights after font-size change
+              requestAnimationFrame(() => {
+                links.forEach(l => {
+                  l.style.height = 'auto';
+                  l._naturalH = l.getBoundingClientRect().height;
+                  l.style.height = l._naturalH + 'px';
+                });
+                stretchLink(link);
+              });
+            } else if (link.id === 'nav-about') {
+              galleryWrapEl.classList.remove('visible');
+              if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+              currentBound = window.innerHeight * 0.92;
+              document.getElementById('about-panel').classList.add('open');
+              navEl.classList.add('about-open');
+              // Recalculate natural heights after font-size change
+              requestAnimationFrame(() => {
+                links.forEach(l => {
+                  l.style.height = 'auto';
+                  l._naturalH = l.getBoundingClientRect().height;
+                  l.style.height = l._naturalH + 'px';
+                });
+                stretchLink(link);
+              });
+            } else {
+              // CONTACT or other
+              galleryWrapEl.classList.remove('visible');
+              if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+              currentBound = window.innerHeight * 0.92;
+              if (link.id === 'nav-contact') {
+                document.getElementById('contact-panel').classList.add('open');
+                navEl.classList.add('contact-open');
+                requestAnimationFrame(() => {
+                  const panelH = document.getElementById('contact-panel').getBoundingClientRect().height;
+                  currentBound = window.innerHeight - 24; // 1.5rem ≈ 24px bottom margin
+                  links.forEach(l => {
+                    l.style.height = 'auto';
+                    l._naturalH = l.getBoundingClientRect().height;
+                    l.style.height = l._naturalH + 'px';
+                  });
+                  stretchLink(link);
+                });
+              } else {
+                stretchLink(link);
+              }
+            }
+          }
+        });
+      });
+
+      // Init currentBound
+      currentBound = window.innerHeight * 0.92;
+    })();
+  </script>
+  <script>
+    document.getElementById('contact-close').addEventListener('click', () => {
+      document.getElementById('contact-panel').classList.remove('open');
+      document.getElementById('side-nav').classList.remove('contact-open');
+      document.getElementById('nav-contact').click();
+      const videoWrap = document.getElementById('bg-video-wrap');
+      const video     = document.getElementById('bg-video');
+      videoWrap.classList.remove('visible');
+      document.body.classList.remove('video-active');
+      setTimeout(() => { video.pause(); }, 700);
+    });
+
+    document.getElementById('about-close').addEventListener('click', () => {
+      document.getElementById('about-panel').classList.remove('open');
+      document.getElementById('side-nav').classList.remove('about-open');
+      const aboutLink = document.getElementById('nav-about');
+      aboutLink.click();
+      const videoWrap = document.getElementById('bg-video-wrap');
+      const video     = document.getElementById('bg-video');
+      videoWrap.classList.remove('visible');
+      document.body.classList.remove('video-active');
+      setTimeout(() => { video.pause(); }, 700);
+    });
+
+    document.getElementById('gallery-close').addEventListener('click', () => {
+      document.getElementById('nav-work').click();
+      // Kill video since gallery is closing
+      const videoWrap = document.getElementById('bg-video-wrap');
+      const video     = document.getElementById('bg-video');
+      videoWrap.classList.remove('visible');
+      document.body.classList.remove('video-active');
+      setTimeout(() => { video.pause(); }, 700);
+    });
+
+    /* ── NAV HOVER VIDEO ── */
+    (function () {
+      const navWork   = document.getElementById('nav-work');
+      const videoWrap = document.getElementById('bg-video-wrap');
+      const video     = document.getElementById('bg-video');
+      navWork.addEventListener('mouseover', () => {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+        videoWrap.classList.add('visible');
+        document.body.classList.add('video-active');
+      });
+
+      navWork.addEventListener('mouseout', (e) => {
+        if (navWork.contains(e.relatedTarget)) return;
+        if (document.getElementById('gallery-wrap').classList.contains('visible')) return;
+        videoWrap.classList.remove('visible');
+        document.body.classList.remove('video-active');
+        setTimeout(() => { video.pause(); }, 700);
+      });
+
+      const navAbout   = document.getElementById('nav-about');
+      const navContact = document.getElementById('nav-contact');
+
+      function activateVideo() {
+        video.currentTime = 0;
+        video.play().catch(() => {});
+        videoWrap.classList.add('visible');
+        document.body.classList.add('video-active');
+      }
+
+      function deactivateVideo(panelId, el, e) {
+        if (el.contains(e.relatedTarget)) return;
+        if (document.getElementById(panelId).classList.contains('open')) return;
+        videoWrap.classList.remove('visible');
+        document.body.classList.remove('video-active');
+        setTimeout(() => { video.pause(); }, 700);
+      }
+
+      navAbout.addEventListener('mouseover', activateVideo);
+      navAbout.addEventListener('mouseout', (e) => deactivateVideo('about-panel', navAbout, e));
+
+      navContact.addEventListener('mouseover', activateVideo);
+      navContact.addEventListener('mouseout', (e) => deactivateVideo('contact-panel', navContact, e));
+    })();
+  </script>
+</body>
+</html>
