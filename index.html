@@ -111,10 +111,6 @@
       height: 100%;
       object-fit: cover;
       display: block;
-      transition: filter 0.4s ease;
-    }
-    #bg-video-wrap video.inverted-for-gallery {
-      filter: invert(1);
     }
 
     @keyframes hint-pulse {
@@ -1084,7 +1080,7 @@
 
   <!-- ── HOVER VIDEO BACKGROUND ── -->
   <div id="bg-video-wrap">
-    <video id="bg-video" src="drgnflye_loop_01.mp4" loop muted playsinline preload="auto"></video>
+    <video id="bg-video" src="Dragonflye_inv.mp4" loop muted playsinline preload="auto"></video>
   </div>
 
   <div id="loader"></div>
@@ -2138,7 +2134,6 @@
             navEl.classList.remove('work-open');
             document.getElementById('gallery-list-panel').classList.remove('open');
             document.getElementById('gallery-list-toggle').classList.remove('active');
-            document.getElementById('bg-video').classList.remove('inverted-for-gallery');
             // Stop video when gallery closes
             document.getElementById('bg-video-wrap').classList.remove('visible');
             document.body.classList.remove('video-active');
@@ -2157,13 +2152,11 @@
             document.getElementById('site-logo').classList.remove('hidden-for-gallery');
             document.getElementById('gallery-list-panel').classList.remove('open');
             document.getElementById('gallery-list-toggle').classList.remove('active');
-            document.getElementById('bg-video').classList.remove('inverted-for-gallery');
 
             if (link.id === 'nav-work') {
               galleryWrapEl.classList.add('visible');
               navEl.classList.add('work-open');
               document.getElementById('site-logo').classList.add('hidden-for-gallery');
-              document.getElementById('bg-video').classList.add('inverted-for-gallery');
             } else if (link.id === 'nav-about') {
               document.getElementById('about-panel').classList.add('open');
               navEl.classList.add('about-open');
