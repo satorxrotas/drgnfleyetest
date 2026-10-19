@@ -2373,6 +2373,9 @@
       0: {
         stageLayout: true,     // scroll-scene layout — delete this line to go back to the regular page
         stageFilmTitle: 'Short Doc',
+        moreFilms: [
+          { type: 'youtube', id: 'S8UEQopqX5w', label: 'Music Video' },   // "Hypnotic Night" feat. Nile Rodgers & EARTHGANG (Official Performance)
+        ],
         hero: 'alissia_01.jpg',
         title: 'HYPNOTIC NIGHTS',
         breadcrumb: 'Alissia // "Hypnotic Nights"',
@@ -2387,9 +2390,14 @@
         images: ['alissia_02.jpg', 'alissia_03.jpg', 'alissia_04.jpg', 'alissia_05.jpg'],
         imageRows: [
           { items: ['alissia_poster.jpg', 'alissia_wildposting.jpg'], ch: 'POSTERS', label: 'NYC / LA Posters' },
+          { items: ['alissia_bts_bass_studio.jpg', 'alissia_bts_nile.jpg', 'alissia_bts_elevator.jpg', 'alissia_bts_party.jpg'], ch: 'BTS', label: 'Behind The Scenes' },
+          { items: ['alissia_bts_stage_band.jpg', 'alissia_bts_stage_red.jpg'], ch: 'BTS' },
+          { items: ['alissia_bts_bass_floor.jpg', 'alissia_bts_monitor.jpg'], ch: 'BTS' },
         ],
         videoRows: [
           [{ src: 'alissia_hn_trailer.mp4', poster: 'alissia_hn_trailer_poster.jpg' }],
+          [{ src: 'alissia_nyc.mp4', poster: 'alissia_nyc_poster.jpg' }],
+          [{ src: 'alissia_hn_bts.mp4', poster: 'alissia_hn_bts_poster.jpg' }],
         ],
       },
       2: {
@@ -2687,7 +2695,7 @@
       },
       13: {
         stageLayout: true,     // scroll-scene layout — delete this line to go back to the regular page
-        hero: 'alexisley_portrait_thumb.jpg',
+        hero: 'alexisley_hero.mp4',   // WTCS trailer (was alexisley_portrait_thumb.jpg)
         title: 'ALEX ISLEY // WARNER RECORDS',
         breadcrumb: 'Alex Isley // Warner Records // "When The City Sleeps"',
         artist: 'ALEX ISLEY',
@@ -2709,6 +2717,7 @@
           { items: ['alexisley_jhs_stage_close.jpg', 'alexisley_jhs_performance.jpg', 'alexisley_jhs_backstage.jpg'], ch: 'LIVE' },
         ],
         videoRows: [
+          [{ src: 'alexisley_sweetest_lullabye.mp4', poster: 'alexisley_sweetest_lullabye_poster.jpg' }],   // "Sweetest Lullabye" visualizer
           [{ src: 'alexisley_jhs_maybe_again.mp4', poster: 'alexisley_jhs_maybe_again_poster.jpg' }],
           [{ src: 'alexisley_this_christmas.mp4', poster: 'alexisley_this_christmas_poster.jpg' }],
         ],
@@ -3756,6 +3765,7 @@
         const addEmbed = (v, portrait, title) => { if (v && v.id) add({ embed: { type: v.type === 'vimeo' ? 'vimeo' : 'youtube', id: String(v.id) }, portrait: !!portrait, title: title || d.title }); };
         if (typeof d.hero === 'string' && d.hero) addSrc(d.hero, true);
         if (d.video) addEmbed(d.video, false, d.title);
+        (d.moreFilms || []).forEach(v => addEmbed(v, false, v.label || d.title));
         (d.videoShowcase || []).forEach(v => {
           addEmbed({ type: 'youtube', id: v.id }, false, v.title);
           (v.videos || []).forEach(e => addSrc(e, false));
@@ -3796,7 +3806,9 @@
       // (stageFilmFirst: true moves it up to right after the opening screen)
       if (d.video && d.video.id) {
         const film = { ch: d.stageFilmLabel || 'FILM', kind: 'film', video: d.video, label: d.stageFilmTitle || 'Film', dur: 1.4 };
-        if (d.stageFilmFirst) beats.unshift(film); else beats.push(film);
+        // d.moreFilms: further YouTube / Vimeo films shown right after it, in the same chapter
+        const films = [film, ...(d.moreFilms || []).filter(v => v && v.id).map(v => ({ ch: film.ch, kind: 'film', video: v, label: v.label || '', dur: 1.4 }))];
+        if (d.stageFilmFirst) beats.unshift(...films); else beats.push(...films);
       }
       // embedded clip rows (Vimeo / YouTube): one scene per row
       (d.embedRows || []).forEach((row, i) => {
@@ -4081,12 +4093,14 @@
         const sum = aspects.reduce((a, b) => a + b, 0);
         const extra = row.parentElement.querySelector('.lbs-download') ? 70 : 0;
         // on phones, rows of 4+ pictures wrap into two lines so each stays a usable size
-        const lines = mobile && imgs.length >= 4 ? 2 : 1;
+        // (and a short row of wide pictures stacks one above another, so each gets the full width)
+        const lines = !mobile || imgs.length < 2 ? 1 : imgs.length >= 4 ? 2 : sum > 2.2 ? imgs.length : 1;
         const perLine = Math.ceil(imgs.length / lines);
-        const lineSum = sum / lines;
+        const lineSums = Array.from({ length: lines }, (_, l) => aspects.slice(l * perLine, (l + 1) * perLine).reduce((a, b) => a + b, 0));
+        const lineSum = Math.max(...lineSums);
         const h = Math.max(60, Math.min((room - 60 - extra - gapPx * (lines - 1)) / lines, (vw * (mobile ? 0.9 : 0.8) - gapPx * (perLine - 1)) / lineSum));
         row.style.flexWrap = lines > 1 ? 'wrap' : '';
-        row.style.width = lines > 1 ? (Math.max(...[0, 1].map(l => aspects.slice(l * perLine, (l + 1) * perLine).reduce((a, b) => a + b, 0))) * h + gapPx * (perLine - 1) + 1) + 'px' : '';
+        row.style.width = lines > 1 ? (lineSum * h + gapPx * (perLine - 1) + 1) + 'px' : '';
         row.style.gap = gapPx + 'px';
         imgs.forEach((im, j) => { im.style.height = h + 'px'; im.style.width = (h * aspects[j]) + 'px'; });
       });
