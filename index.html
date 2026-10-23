@@ -1321,6 +1321,15 @@
       will-change: transform, opacity;
     }
     .lbs-beat--side { text-align: left; width: min(28rem, 32vw); }
+    /* CASE STUDY slide: execution + strategy in two columns */
+    .lbs-beat.lbs-beat--case { width: min(36rem, 84vw); font-size: clamp(0.86rem, 0.92vw, 1.02rem); line-height: 1.55; }
+    .lbs-beat.lbs-beat--case2 { width: min(66rem, 88vw); text-align: left; }
+    .lbs-case--two { display: grid; grid-template-columns: 1fr 1.25fr; gap: 3.2rem; align-items: start; }
+    .lbs-case-col .lbs-beat-label { margin-bottom: 0.7rem; }
+    @media (max-width: 750px) {
+      .lbs-beat.lbs-beat--case2 { width: 86vw; text-align: center; font-size: 0.86rem; line-height: 1.5; }
+      .lbs-case--two { grid-template-columns: 1fr; gap: 1.2rem; }
+    }
     .lbs-beat.lbs-beat--long { width: min(44rem, 84vw); font-size: clamp(0.88rem, 0.95vw, 1.05rem); line-height: 1.55; }
     .lbs-beat-label {
       display: block;
@@ -2539,6 +2548,7 @@
         ],
       },
       5: {
+        stageLayout: true,     // scroll-scene layout — delete this line to go back to the regular page
         hero: 'tiktok_sbb_hero.mp4',   // banner video (was Tiktok_01.jpg)
         title: 'TIKTOK // SUPPORT BLACK BUSINESSES | CAMPAIGN',
         breadcrumb: 'TIKTOK // SUPPORT BLACK BUSINESSES | CAMPAIGN',
@@ -2623,6 +2633,7 @@
         tiktokEmbed: null,
       },
       8: {
+        stageLayout: true,     // scroll-scene layout — delete this line to go back to the regular page
         hero: 'LaCleanic_01.jpg',
         title: 'La Cleanic x Doc Martens | PARIS FASHION WEEK | BRAND ANALYSIS',
         breadcrumb: 'La Cleanic x Doc Martens | PARIS FASHION WEEK | BRAND ANALYSIS',
@@ -2739,6 +2750,7 @@
         tiktokEmbed: null,
       },
       11: {
+        stageLayout: true,     // scroll-scene layout — delete this line to go back to the regular page
         hero: 'lukafoundation_hero.mp4',   // was thumbnail_12.jpg
         title: 'THE LUKA DON\u010cI\u0106 FOUNDATION',
         breadcrumb: 'The Luka Don\u010di\u0107 Foundation // Inside Youth Basketball',
@@ -2853,6 +2865,7 @@
         tiktokEmbed: null,
       },
       15: {
+        stageLayout: true,     // scroll-scene layout — delete this line to go back to the regular page
         hero: 'alissia_paak_hero.mp4',   // "Can’t Get Enough" trailer (was alissia_paak_hero.png)
         title: 'ALISSIA W/ ANDERSON .PAAK',
         breadcrumb: 'Alissia w/ Anderson .Paak // "Can\u2019t Get Enough"',
@@ -3878,6 +3891,7 @@
         if (typeof d.hero === 'string' && d.hero) addSrc(d.hero, true);
         if (d.video) addEmbed(d.video, false, d.title);
         (d.moreFilms || []).forEach(v => addEmbed(v, false, v.label || d.title));
+        if (d.videoImagePair) { addEmbed(d.videoImagePair.video, false, d.title); addSrc(d.videoImagePair.image, false); }
         (d.videoShowcase || []).forEach(v => {
           addEmbed({ type: 'youtube', id: v.id }, false, v.title);
           (v.videos || []).forEach(e => addSrc(e, false));
@@ -3900,10 +3914,19 @@
       const chunks = exec.length ? [exec.reduce((acc, p) => acc + (/<\/strong>$/i.test(acc) ? '<br>' : ' ') + p)] : [];
       if (d.extendedTeam && !d.impact && chunks.length)
         chunks[chunks.length - 1] += `<span class="lbs-beat-label lbs-beat-label--sub">Extended Team</span>${d.extendedTeam}`;
-      chunks.forEach((c, i) => beats.push({ ch: 'EXECUTION', label: i === 0 ? 'Execution' : '', html: c }));
+      // CASE STUDY: execution and strategy share one slide — side by side on desktop, stacked on phones
       const strat = stageParas(d.strategy);
-      if (strat.length) beats.push({ ch: 'STRATEGY', html: strat.join('<br><br>'), label: 'Strategy' });
-      if (d.impact) beats.push({ ch: 'STRATEGY', label: 'Impact', html: d.impact
+      const caseCols = [];
+      if (chunks.length) caseCols.push(`<div class="lbs-case-col"><span class="lbs-beat-label">Execution</span>${chunks.join('<br><br>')}</div>`);
+      if (strat.length) caseCols.push(`<div class="lbs-case-col"><span class="lbs-beat-label">Strategy</span>${strat.join('<br><br>')}</div>`);
+      const caseLen = caseCols.join('').replace(/<[^>]+>/g, '').length;
+      if (caseCols.length > 1 && window.innerWidth <= 750 && caseLen > 650) {
+        // phones: a long case study would have to shrink below readable size on one screen,
+        // so it plays as two slides in a row, still inside the one CASE STUDY chapter
+        caseCols.forEach(c => beats.push({ ch: 'CASE STUDY', isCase: true, cols: 1, html: `<div class="lbs-case">${c}</div>` }));
+      } else if (caseCols.length) beats.push({ ch: 'CASE STUDY', isCase: true, cols: caseCols.length,
+        html: `<div class="lbs-case${caseCols.length > 1 ? ' lbs-case--two' : ''}">${caseCols.join('')}</div>` });
+      if (d.impact) beats.push({ ch: 'CASE STUDY', label: 'Impact', html: d.impact
         + (d.extendedTeam ? `<span class="lbs-beat-label lbs-beat-label--sub">Extended Team</span>${d.extendedTeam}` : '') });
       const manifesto = stageParas(d.manifesto).reduce((acc, p) => {   // a short sign-off ("— NIKE") stays with the paragraph before it
         if (acc.length && p.replace(/<[^>]+>/g, '').length < 40) acc[acc.length - 1] += '<br><br>' + p; else acc.push(p);
@@ -3920,6 +3943,7 @@
         const film = { ch: d.stageFilmLabel || 'FILM', kind: 'film', video: d.video, label: d.stageFilmTitle || 'Film', dur: 1.4 };
         // d.moreFilms: further YouTube / Vimeo films shown right after it, in the same chapter
         const films = [film, ...(d.moreFilms || []).filter(v => v && v.id).map(v => ({ ch: film.ch, kind: 'film', video: v, label: v.label || '', dur: 1.4 }))];
+        if (d.videoImagePair && d.videoImagePair.video) films.push({ ch: film.ch, kind: 'film', video: d.videoImagePair.video, label: '', dur: 1.4 });
         if (d.stageFilmFirst) beats.unshift(...films); else beats.push(...films);
       }
       // embedded clip rows (Vimeo / YouTube): one scene per row
@@ -3939,6 +3963,13 @@
         const beat = { ch, kind: 'media', imgs: items, label, download: !Array.isArray(row) && row.download };
         (ch === 'PRESS' ? pressRows : beats).push(beat);
       });
+      // older projects: the image next to a film, the image after the film, and a mosaic not already split into rows
+      const rowed = new Set((d.imageRows || []).flatMap(r => Array.isArray(r) ? r : (r.items || [])).map(e => typeof e === 'string' ? e : e.src));
+      const extra = [d.videoImagePair && d.videoImagePair.image, d.afterVideoImage].filter(x => x && !rowed.has(x));
+      const mosaic = (d.mosaicImages || []).filter(x => !rowed.has(x));
+      const galleryCh = d.stageImagesLabel || 'KEY ART';
+      [...extra, ...mosaic].reduce((rows, src, n) => { if (n % 3 === 0) rows.push([]); rows[rows.length - 1].push(src); return rows; }, [])
+        .forEach((items, n) => beats.push({ ch: galleryCh, kind: 'media', imgs: items, label: n === 0 && !beats.some(b => b.ch === galleryCh) ? titleCase(galleryCh) : '' }));
       beats.push(...pressRows);                       // press-chapter images sit right before the logos
       if (d.pressLogos && d.pressLogos.length) beats.push({ ch: 'PRESS', kind: 'press', imgs: d.pressLogos, label: 'Press' });
       else if (d.press) beats.push({ ch: 'PRESS', html: d.press, label: 'Press' });
@@ -3965,8 +3996,8 @@
       beats.forEach(b => {
         if (!b.kind || b.kind === 'quote') {
           const len = String(b.html).replace(/<[^>]+>/g, '').length;
-          b.long = len > 560;
-          if (!b.dur) b.dur = len > 560 ? 1.35 : len > 380 ? 1.15 : BEAT_GAP;   // longer sections hold a bit longer
+          b.long = len > 560 && !b.isCase;
+          if (!b.dur) b.dur = len > 1100 ? 1.6 : len > 560 ? 1.35 : len > 380 ? 1.15 : BEAT_GAP;   // longer sections hold a bit longer
         }
       });
       beats.forEach(b => { b.s = at; b.dur = b.dur || BEAT_GAP; at += b.dur; });   // song scenes hold a little longer
@@ -4029,7 +4060,7 @@
               if (b.kind === 'embeds') return `<div class="lbs-beat lbs-beat--song lbs-beat--embeds">${label}
                 <div class="lbs-embed-row${b.portrait ? ' lbs-embed-row--portrait' : ''}">${b.items.map(v => `<div class="lbs-embed">${heroEmbedBlock(v, '', d.title)}</div>`).join('')}</div></div>`;
               if (b.kind === 'press') return `<div class="lbs-beat lbs-beat--press">${label}<div class="lbs-press-row">${b.imgs.map(src => `<img src="${src}" alt="Press mention" />`).join('')}</div></div>`;
-              return `<div class="lbs-beat${b.kind === 'quote' ? ' lbs-beat--quote' : ''}${b.long ? ' lbs-beat--long' : ''}">${label}${b.html}</div>`;
+              return `<div class="lbs-beat${b.kind === 'quote' ? ' lbs-beat--quote' : ''}${b.long ? ' lbs-beat--long' : ''}${b.isCase ? ' lbs-beat--case' + (b.cols > 1 ? ' lbs-beat--case2' : '') : ''}">${label}${b.html}</div>`;
             }).join('')}
             ${P.beats.filter(b => b.kind === 'song').map(b => `<div class="lbs-songbg" style="background:${b.song.bgColor || '#0a0a0a'}"></div>`).join('')}
             <div class="lbs-viewer-bg"></div>
