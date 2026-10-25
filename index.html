@@ -1214,7 +1214,7 @@
     .lbs-song-logo { display: block; margin: 0 auto 1.4rem; height: 78px; width: auto; max-width: 80vw; object-fit: contain; }
     .lbs-song-title { font: 700 1.4rem/1.1 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase; color: #fff; margin-bottom: 1.2rem; }
     .lbs-song-video { margin: 0 auto; }
-    .lbs-beat--song .lbs-beat-label { color: #fff; }
+    .lbs-beat--song .lbs-beat-label, .lbs-beat--songx .lbs-beat-label { color: #fff; }
     @media (max-width: 750px) { .lbs-song-logo { height: 46px; margin-bottom: 1rem; } }
     .lbs-beat-label--sub { margin-top: 1.4rem; }
     /* embedded clip rows (Vimeo / YouTube) */
@@ -2808,13 +2808,15 @@
           // download.href: paste the font's download link here — until then the button does nothing when clicked
           { items: ['indiashawn_ks_brush_display.png'], download: { label: 'Download', href: '' }, ch: 'IDENTITY', label: 'Typeface' },
           { items: ['indiashawn_ccb_hoodie_front.png', 'indiashawn_ccb_hoodie_back.png'], ch: 'IDENTITY', label: 'Merch' },
-          { items: [{ src: 'indiashawn_ccb_bts.mp4', poster: 'indiashawn_ccb_bts_poster.jpg', asp: 1.7778, caption: 'Cotton Candy Blvd \u00b7 BTS' }], ch: 'BTS', label: 'Behind The Scenes' },
           { items: ['indiashawn_site_mobile_1.gif', 'indiashawn_site_mobile_2.gif'], compact: true, ch: 'WEBSITE', label: 'Website' },
           { items: ['indiashawn_site_desktop_1.gif', 'indiashawn_site_desktop_2.gif', 'indiashawn_site_desktop_3.gif'], ch: 'WEBSITE' },
         ],
         videoShowcase: [
           { title: 'GONE (DIRECTOR\u2019S CUT)', id: 'o9RWKpvSAJI', logo: 'indiashawn_logo_gone.png', bgColor: '#588fd9', videos: ['indiashawn_gone_anim.mp4'] },
-          { title: 'COTTON CANDY BLVD (FT. LUCKY DAYE)', id: 'EjnaLmCLnTk', logo: 'indiashawn_logo_cottoncandy.png', bgColor: '#f4b5d6', videos: ['indiashawn_cottoncandy_anim.mp4', { src: 'indiashawn_cottoncandy_promo.mp4', sound: true }], images: ['indiashawn_cottoncandy_grid.gif'] },
+          { title: 'COTTON CANDY BLVD (FT. LUCKY DAYE)', id: 'EjnaLmCLnTk', logo: 'indiashawn_logo_cottoncandy.png', bgColor: '#f4b5d6', videos: ['indiashawn_cottoncandy_anim.mp4', { src: 'indiashawn_cottoncandy_promo.mp4', sound: true }], images: ['indiashawn_cottoncandy_grid.gif'],
+            stageExtras: [   // shown after the music video on its pink — add more pieces here
+              { src: 'indiashawn_ccb_bts.mp4', poster: 'indiashawn_ccb_bts_poster.jpg', asp: 1.7778, caption: 'Behind The Scenes' },
+            ] },
           { title: 'KILL SWITCH (WITH LUKE JAMES)', id: 'HYDHwK4vDcs', logo: 'indiashawn_logo_killswitch.png', bgColor: '#ea5849', videos: ['indiashawn_killswitch_anim.mp4', { img: 'indiashawn_killswitch_poster.jpg' }], images: [{ src: 'indiashawn_killswitch_magazine.png', matchPair: true }] },
         ],
         tiktokEmbed: null,
@@ -3911,6 +3913,7 @@
           addEmbed({ type: 'youtube', id: v.id }, false, v.title);
           (v.videos || []).forEach(e => addSrc(e, false));
           (v.images || []).forEach(e => addSrc(e, false));
+          (v.stageExtras || []).forEach(e => addSrc(e, e.sound !== undefined ? e.sound : true));
         });
         (d.embedRows || []).forEach(row => (Array.isArray(row) ? row : (row.items || [])).forEach(v => addEmbed(v, !Array.isArray(row) && row.portrait)));
         (d.youtubeGrid || []).forEach(id => addEmbed({ type: 'youtube', id }));
@@ -3949,7 +3952,14 @@
       }, []).join('<br><br>');
       if (manifesto) beats.push({ ch: 'MANIFESTO', html: manifesto, label: 'Manifesto', kind: 'quote' });
       // song sections: logo + music video on the song's colour
-      (d.videoShowcase || []).forEach((v, i) => beats.push({ ch: d.stageSongsLabel || 'VIDEOS', kind: 'song', song: v, label: i === 0 ? 'Music Videos' : '', dur: 1.4 }));
+      (d.videoShowcase || []).forEach((v, i) => {
+        const ch = d.stageSongsLabel || 'VIDEOS';
+        const song = { ch, kind: 'song', song: v, label: i === 0 ? 'Music Videos' : '', dur: 1.4 };
+        beats.push(song);
+        // v.stageExtras: more pieces from this song's world (BTS, promos…). Each rises from behind the
+        // music video on the song's own colour, and the last one fades out into the next section.
+        (v.stageExtras || []).forEach(x => beats.push({ ch, kind: 'media', songx: true, songOf: song, imgs: [x], label: x.label || '', dur: 1.25 }));
+      });
       // a single still (images: [one]) that isn't part of the gallery becomes a key-art scene
       if (!d.videoShowcase && d.images && d.images.length === 1) beats.push({ ch: d.stageImagesLabel || 'KEY ART', kind: 'media', imgs: d.images, label: d.stageImagesTitle || '' });
       // the main film (YouTube / Vimeo) gets its own scene
@@ -4057,7 +4067,7 @@
               const label = b.label ? `<span class="lbs-beat-label">${b.label}</span>` : '';
               if (b.kind === 'media') {
                 const dl = b.download ? `<div class="lbs-download"><a class="lb-download-btn" href="${b.download.href || '#'}"${b.download.href ? ' download target="_blank" rel="noopener"' : ' onclick="return false;" aria-disabled="true"'}>${b.download.label || 'Download'} <span class="lb-download-arrow" aria-hidden="true"></span></a></div>` : '';
-                return `<div class="lbs-beat lbs-beat--media">${label}<div class="lbs-media-row">${b.imgs.map(it => {
+                return `<div class="lbs-beat lbs-beat--media${b.songx ? ' lbs-beat--songx' : ''}">${label}<div class="lbs-media-row">${b.imgs.map(it => {
                   const src = typeof it === 'string' ? it : it.src;
                   const asp = (typeof it === 'object' && it.asp ? ` data-asp="${it.asp}"` : '') + (typeof it === 'object' && it.natH ? ` data-nath="${it.natH}"` : '');
                   const el = /\.(mp4|webm|mov)$/i.test(src)
@@ -4309,12 +4319,29 @@
           const q = sRange(t, exitAt, exitAt + 0.4);
           g = { s: 1 + 0.5 * sIn(q), o: 1 - q };
           const bgEl = b.kind === 'song' ? songBgs[songIdx++] : null;
-          if (bgEl) bgEl.style.opacity = (sRange(t, b.s - 0.1, b.s + 0.25) * (1 - sRange(t, exitAt + 0.1, exitAt + 0.45))).toFixed(3);
+          // the song's colour stays up through its extras and leaves with the last one
+          const xs = P.beats.filter(x => x.songOf === b), lastX = xs[xs.length - 1];
+          let bgOut = lastX ? lastX.s + lastX.dur - 0.3 : exitAt + 0.1;
+          // when another song follows, hold this colour until the next one has fully faded in (no dark dip)
+          const after = P.beats[P.beats.indexOf(lastX || b) + 1];
+          if (after && after.kind === 'song') bgOut = Math.max(bgOut, after.s + 0.25);
+          if (bgEl) bgEl.style.opacity = (sRange(t, b.s - 0.1, b.s + 0.25) * (1 - sRange(t, bgOut, bgOut + 0.35))).toFixed(3);
+        }
+        let xs0 = 1;
+        if (b.songx) {
+          // rises out from behind the scene before it (that scene pushes forward past the camera)
+          const rise = sOut(sRange(t, b.s - 0.3, b.s + 0.35));
+          xs0 = 0.55 + 0.45 * rise;
+          const next = P.beats[k + 1];
+          const q = sRange(t, exitAt, exitAt + 0.4);
+          g = next && next.songx ? { s: 1 + 0.5 * sIn(q), o: 1 - q }      // hands over to the next extra
+            : { s: 1 - 0.04 * q, o: 1 - q };                                  // last one: a plain fade
+          el.style.zIndex = '4';
         }
         // anything taller than the space above the bar is scaled down to fit
         const fit = Math.min(1, room / Math.max(1, el.offsetHeight));
-        const s = (0.86 + 0.14 * ein) * g.s * fit;
-        const o = ein * g.o;
+        const s = (b.songx ? xs0 : 0.86 + 0.14 * ein) * g.s * fit;
+        const o = (b.songx ? sRange(t, b.s - 0.3, b.s + 0.2) : ein) * g.o;
         if (vidKind || b.kind === 'media') {
           el.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
           const hidden = o < 0.05;
