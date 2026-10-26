@@ -2820,6 +2820,7 @@
               { src: 'indiashawn_ccb_skit_02.mp4', poster: 'indiashawn_ccb_skit_02_poster.jpg', asp: 1.7778, caption: 'Skit' },
               { src: 'indiashawn_ccb_skit_03.mp4', poster: 'indiashawn_ccb_skit_03_poster.jpg', asp: 1.7778, caption: 'Skit' },
               { src: 'indiashawn_ccb_twins.mp4', poster: 'indiashawn_ccb_twins_poster.jpg', asp: 1.7778, caption: 'Twins' },
+              { youtube: 'q0Bdj5ujsiI', label: 'Lyric Video' },   // "Cotton Candy Blvd (Lyric Video)" — IndiaShawnVEVO
             ] },
           { title: 'KILL SWITCH (WITH LUKE JAMES)', id: 'HYDHwK4vDcs', logo: 'indiashawn_logo_killswitch.png', bgColor: '#ea5849', videos: ['indiashawn_killswitch_anim.mp4', { img: 'indiashawn_killswitch_poster.jpg' }], images: [{ src: 'indiashawn_killswitch_magazine.png', matchPair: true }] },
         ],
@@ -3917,7 +3918,9 @@
           addEmbed({ type: 'youtube', id: v.id }, false, v.title);
           (v.videos || []).forEach(e => addSrc(e, false));
           (v.images || []).forEach(e => addSrc(e, false));
-          (v.stageExtras || []).forEach(e => addSrc(e, e.sound !== undefined ? e.sound : true));
+          (v.stageExtras || []).forEach(e => e.youtube || e.vimeo
+            ? addEmbed({ type: e.vimeo ? 'vimeo' : 'youtube', id: e.youtube || e.vimeo }, false, e.label || v.title)
+            : addSrc(e, e.sound !== undefined ? e.sound : true));
         });
         (d.embedRows || []).forEach(row => (Array.isArray(row) ? row : (row.items || [])).forEach(v => addEmbed(v, !Array.isArray(row) && row.portrait)));
         (d.youtubeGrid || []).forEach(id => addEmbed({ type: 'youtube', id }));
@@ -3962,7 +3965,9 @@
         beats.push(song);
         // v.stageExtras: more pieces from this song's world (BTS, promos…). Each rises from behind the
         // music video on the song's own colour, and the last one fades out into the next section.
-        (v.stageExtras || []).forEach(x => beats.push({ ch, kind: 'media', songx: true, songOf: song, imgs: [x], label: x.label || '', dur: 1.25 }));
+        (v.stageExtras || []).forEach(x => beats.push(x.youtube || x.vimeo
+          ? { ch, kind: 'film', songx: true, songOf: song, video: { type: x.vimeo ? 'vimeo' : 'youtube', id: x.youtube || x.vimeo }, label: x.label || '', dur: 1.4 }
+          : { ch, kind: 'media', songx: true, songOf: song, imgs: [x], label: x.label || '', dur: 1.25 }));
       });
       // a single still (images: [one]) that isn't part of the gallery becomes a key-art scene
       if (!d.videoShowcase && d.images && d.images.length === 1) beats.push({ ch: d.stageImagesLabel || 'KEY ART', kind: 'media', imgs: d.images, label: d.stageImagesTitle || '' });
