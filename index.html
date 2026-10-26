@@ -2041,9 +2041,83 @@
       color: #444;
       transition: opacity 0.4s;
     }
+
+    /* ── ARCHIVED PROJECTS — kept in the index + flying gallery, but a click opens this callout ── */
+    #inquire {
+      position: fixed; inset: 0; z-index: 9600;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      background: rgba(10,10,10,0.55);
+      -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      opacity: 0; pointer-events: none;
+      transition: opacity .35s cubic-bezier(.22,.61,.36,1);
+    }
+    #inquire.open { opacity: 1; pointer-events: auto; }
+    #inquire .iq-card {
+      position: relative;
+      width: min(520px, 100%);
+      background: #0a0a0a; color: #fff;
+      border: 1px solid #e10600;
+      padding: 44px 40px 36px;
+      transform: translateY(18px) scale(.98);
+      transition: transform .45s cubic-bezier(.22,.61,.36,1);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    #inquire.open .iq-card { transform: none; }
+    #inquire .iq-proj {
+      font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+      color: rgba(255,255,255,.5); margin-bottom: 22px; padding-right: 28px;
+    }
+    #inquire .iq-tag {
+      display: inline-block; font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+      color: #e10600; border: 1px solid #e10600; padding: 4px 8px; margin-bottom: 16px;
+    }
+    #inquire h3 {
+      font-size: clamp(22px, 5vw, 30px); font-weight: 700; line-height: 1.05;
+      letter-spacing: -.01em; text-transform: uppercase; margin-bottom: 16px;
+    }
+    #inquire .iq-body { font-size: 15px; line-height: 1.5; color: rgba(255,255,255,.82); margin-bottom: 28px; }
+    #inquire .iq-privacy {
+      font-size: 12px; letter-spacing: .04em; color: rgba(255,255,255,.55);
+      border-top: 1px solid rgba(255,255,255,.14); padding-top: 18px; margin-bottom: 18px;
+    }
+    #inquire .iq-mail {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      background: #e10600; color: #fff; text-decoration: none;
+      font-size: 15px; font-weight: 700; letter-spacing: .02em;
+      padding: 16px 18px; transition: background .2s;
+    }
+    #inquire .iq-mail:hover { background: #ff1f14; }
+    #inquire .iq-mail span:last-child { transition: transform .2s; }
+    #inquire .iq-mail:hover span:last-child { transform: translateX(4px); }
+    #inquire .iq-close {
+      position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
+      background: none; border: 0; color: #fff; cursor: pointer; font-size: 22px; line-height: 1;
+      opacity: .7;
+    }
+    #inquire .iq-close:hover { opacity: 1; }
+    #inquire .iq-close:focus { outline: none; }
+    #inquire .iq-close:focus-visible { outline: 1px solid #e10600; }
+    @media (max-width: 480px) {
+      #inquire .iq-card { padding: 38px 22px 24px; }
+      #inquire .iq-mail { font-size: 14px; padding: 15px 14px; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- ── INQUIRE CALLOUT (archived projects) ── -->
+  <div id="inquire" role="dialog" aria-modal="true" aria-labelledby="iq-title" aria-hidden="true">
+    <div class="iq-card">
+      <button class="iq-close" type="button" aria-label="Close">&times;</button>
+      <div class="iq-proj" id="iq-proj"></div>
+      <div class="iq-tag">Archive</div>
+      <h3 id="iq-title">Interested in this project?</h3>
+      <p class="iq-body">This work is available to view upon request. Get in touch to learn more about the creative approach and execution.</p>
+      <p class="iq-privacy">For privacy reasons, inquire for more</p>
+      <a class="iq-mail" id="iq-mail" href="mailto:hello@davidmaxwell.work"><span>hello@davidmaxwell.work</span><span>&rarr;</span></a>
+    </div>
+  </div>
 
   <!-- ── HOVER VIDEO BACKGROUND ── -->
   <div id="bg-video-wrap">
@@ -3354,7 +3428,7 @@
       { img: 'slowburn_logo_thumb.png', title: 'BABY ROSE & BADBADNOTGOOD // "Slow Burn"',       sub: 'Director · Creative Director · Writer',  project: 3, hoverImg: 'thumbnail_04.jpg', hidden: true },
       { img: 'unitedmasters_logo_thumb.png', title: 'UNITED MASTERS // THE FUTURE OF MUSIC', sub: 'Creative Strategy · Creative Direction · Production · Editing',  project: 4, hoverImg: 'thumbnail_05.jpg', hidden: true },
       { img: 'tiktok_sbb_logo_thumb.png', title: 'TIKTOK // SUPPORT BLACK BUSINESSES | CAMPAIGN', sub: 'Creative Director · Art Director',  project: 5, hoverImg: 'thumbnail_06.jpg', hidden: true },
-      { img: 'nike_logo_thumb.png', title: 'NIKE | PLAY NEW TIKTOK ONBOARDING | CAMPAIGN', sub: 'Strategist · Art Director',      project: 6, hoverImg: 'thumbnail_07.jpg' },
+      { img: 'nike_logo_thumb.png', title: 'NIKE | PLAY NEW TIKTOK ONBOARDING | CAMPAIGN', sub: 'Strategist · Art Director',      project: 6, hoverImg: 'thumbnail_07.jpg', archived: true },
       { img: 'nikerams_logo_thumb.png', title: 'NIKE | L.A RAMS X RANDY\u2019S DONUTS | ACTIVATION', sub: 'Creative · Activation',       project: 7, hoverImg: 'thumbnail_08.jpg' },
       { img: 'lacleanic_logo_thumb.png', title: 'La Cleanic x Doc Martens // Paris Fashion Week', sub: 'Founder · Designer · Creative Director', project: 8, hoverImg: 'thumbnail_09.jpg', hidden: true },
       { img: 'airbnb_logo_thumb.png', title: 'AIRBNB // EXPERIENCES', sub: 'Creative Direction · Strategy · Social · Capture · Edit', project: 9, hoverImg: 'thumbnail_10.jpg' },
@@ -3365,7 +3439,7 @@
       { img: 'redbull_logo_thumb.png', title: 'RED BULL // DANCE BRACKET REEL // Campaign', sub: 'Art Direction · Digital Production · Web Design', project: 14, hoverImg: 'redbull_thumb.jpg' },
       { img: 'alissia_kpops_logo_thumb.png', title: 'ALISSIA W/ ANDERSON .PAAK // "Can\u2019t Get Enough"', sub: 'Creative Direction · Campaign Strategy', project: 15, hoverImg: 'alissia_paak_thumb.jpg' },
       { img: 'dreamworks_logo_thumb.png', title: 'SHREK: PUSS IN BOOTS // Campaign', sub: 'Art Direction · Writing · Strategy', project: 16, hoverImg: 'pussinboots_thumb.jpg' },
-      { img: 'fbstories_logo_thumb.png', title: 'FACEBOOK STORIES // Product Launch', sub: 'Designer · Digital Producer', project: 17, hoverImg: 'fbstories_thumb.jpg' },
+      { img: 'fbstories_logo_thumb.png', title: 'FACEBOOK STORIES // Product Launch', sub: 'Designer · Digital Producer', project: 17, hoverImg: 'fbstories_thumb.jpg', archived: true },
     ];
     const galleryEl  = document.getElementById('gallery');
     const galleryWrapEl2 = document.getElementById('gallery-wrap');
@@ -4823,7 +4897,26 @@
       requestAnimationFrame(tickIn);
     }
 
+    // archived projects stay in the index + flying gallery, but open the inquire callout instead
+    const isArchived = idx => !!(PROJECTS.find(p => p.project === idx) || {}).archived;
+    const inquireEl = document.getElementById('inquire');
+    function openInquire(idx) {
+      const p = PROJECTS.find(q => q.project === idx);
+      document.getElementById('iq-proj').textContent = p.title;
+      document.getElementById('iq-mail').href = 'mailto:hello@davidmaxwell.work?subject=' + encodeURIComponent('Inquiry: ' + p.title);
+      inquireEl.setAttribute('aria-hidden', 'false');
+      inquireEl.classList.add('open');
+      inquireEl.querySelector('.iq-close').focus({ preventScroll: true });
+    }
+    function closeInquire() {
+      inquireEl.classList.remove('open');
+      inquireEl.setAttribute('aria-hidden', 'true');
+    }
+    inquireEl.addEventListener('click', e => { if (e.target === inquireEl || e.target.closest('.iq-close')) closeInquire(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && inquireEl.classList.contains('open')) { e.stopImmediatePropagation(); closeInquire(); } }, true);
+
     function openLightbox(idx) {
+      if (isArchived(idx)) { openInquire(idx); return; }
       currentProject = idx;
       renderProjectDetail(idx);
       lbBody.scrollTop = 0;
@@ -4889,7 +4982,8 @@
     }
 
     function nextProject() {
-      const nextIdx = (currentProject + 1) % totalProjects;
+      let nextIdx = (currentProject + 1) % totalProjects;
+      while (isArchived(nextIdx)) nextIdx = (nextIdx + 1) % totalProjects;
       runTransition(() => {
         currentProject = nextIdx;
         renderProjectDetail(nextIdx);
@@ -4897,7 +4991,8 @@
     }
 
     function prevProject() {
-      const prevIdx = (currentProject - 1 + totalProjects) % totalProjects;
+      let prevIdx = (currentProject - 1 + totalProjects) % totalProjects;
+      while (isArchived(prevIdx)) prevIdx = (prevIdx - 1 + totalProjects) % totalProjects;
       runTransition(() => {
         currentProject = prevIdx;
         renderProjectDetail(prevIdx);
