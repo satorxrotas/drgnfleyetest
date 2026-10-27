@@ -1466,7 +1466,7 @@
       transform: translateX(-50%);
       z-index: 30;
       display: flex;
-      gap: 0.5rem;
+      gap: 1.5rem;
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -1475,29 +1475,27 @@
       opacity: 1;
       pointer-events: auto;
     }
+    /* PREV / NEXT — just the pixel arrows, no text or outline */
     .lb-bubble-nav {
-      background: #0a0a0a;
-      border: 1px solid #333;
+      background: none;
+      border: 0;
       color: #f0ede6;
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      padding: 0.6rem 1.1rem;
+      width: 2.75rem;
+      height: 2.75rem;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      font-family: 'Helvetica Neue', sans-serif;
-      transition: background 0.2s, color 0.2s;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.55);
+      transition: color 0.2s, transform 0.2s;
+      filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
     }
-    .lb-bubble-nav:hover {
-      background: #f0ede6;
-      color: #0a0a0a;
-    }
-    @media (max-width: 650px) {
-      .lb-bubble-nav {
-        font-size: 0.62rem;
-        padding: 0.55rem 0.85rem;
-      }
-    }
+    .lb-bubble-nav .px { width: 24px; height: 20px; }
+    .lb-bubble-nav:hover { color: #e10600; }
+    #lb-bubble-prev:hover { transform: translateX(-3px); }
+    #lb-bubble-next:hover { transform: translateX(3px); }
+    .lb-bubble-nav:focus { outline: none; }
+    .lb-bubble-nav:focus-visible { outline: 1px solid #e10600; }
 
     /* breadcrumb */
     #lb-breadcrumb-wrap {
@@ -2278,8 +2276,8 @@
 
       <!-- Floating prev/next nav — persistent since browser back/forward do nothing on this single-page site -->
       <div class="lb-bubble-nav-wrap">
-        <button id="lb-bubble-prev" class="lb-bubble-nav" aria-label="Previous project"><i class="px px-left px-sm" aria-hidden="true"></i> &nbsp;PREV</button>
-        <button id="lb-bubble-next" class="lb-bubble-nav" aria-label="Next project">NEXT &nbsp;<i class="px px-right px-sm" aria-hidden="true"></i></button>
+        <button id="lb-bubble-prev" class="lb-bubble-nav" aria-label="Previous project"><i class="px px-left" aria-hidden="true"></i></button>
+        <button id="lb-bubble-next" class="lb-bubble-nav" aria-label="Next project"><i class="px px-right" aria-hidden="true"></i></button>
       </div>
     </div><!-- /lb-panel -->
   </div><!-- /lightbox -->
