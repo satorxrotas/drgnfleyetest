@@ -2040,66 +2040,84 @@
       transition: opacity 0.4s;
     }
 
-    /* ── ARCHIVED PROJECTS — kept in the index + flying gallery, but a click opens this callout ── */
+    /* ── ARCHIVED PROJECTS — kept in the index + flying gallery, but a click opens this message box
+          over the dark dragonfly render ── */
     #inquire {
       position: fixed; inset: 0; z-index: 9600;
       display: flex; align-items: center; justify-content: center;
       padding: 16px;
-      background: rgba(10,10,10,0.55);
-      -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      background: #000;
       opacity: 0; pointer-events: none;
-      transition: opacity .35s cubic-bezier(.22,.61,.36,1);
+      transition: opacity .45s cubic-bezier(.22,.61,.36,1);
     }
     #inquire.open { opacity: 1; pointer-events: auto; }
+    #inquire .iq-bg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; filter: brightness(.55) saturate(1.1);
+      transform: scale(1.06); transition: transform 1.2s cubic-bezier(.22,.61,.36,1);
+    }
+    #inquire.open .iq-bg { transform: scale(1); }
+    #inquire::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at center, rgba(0,0,0,0) 30%, rgba(0,0,0,.55) 100%); }
     #inquire .iq-card {
-      position: relative;
-      width: min(520px, 100%);
-      background: #0a0a0a; color: #fff;
-      border: 1px solid #e10600;
-      padding: 44px 40px 36px;
-      transform: translateY(18px) scale(.98);
-      transition: transform .45s cubic-bezier(.22,.61,.36,1);
+      position: relative; z-index: 1;
+      width: min(340px, 100%);
+      background: rgba(22, 22, 26, 0.4);
+      -webkit-backdrop-filter: blur(8px) saturate(1.2); backdrop-filter: blur(8px) saturate(1.2);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 6px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
+      color: #fff; overflow: hidden;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      transform: translateY(16px) scale(.97); opacity: 0;
+      transition: transform .55s cubic-bezier(.22,.61,.36,1) .12s, opacity .45s ease .12s;
     }
-    #inquire.open .iq-card { transform: none; }
-    #inquire .iq-proj {
-      font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
-      color: rgba(255,255,255,.5); margin-bottom: 22px; padding-right: 28px;
-    }
-    #inquire .iq-tag {
-      display: inline-block; font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
-      color: #e10600; border: 1px solid #e10600; padding: 4px 8px; margin-bottom: 16px;
-    }
+    #inquire.open .iq-card { transform: none; opacity: 1; }
+    #inquire .iq-head { display: flex; align-items: flex-start; gap: 16px; padding: 22px 22px 14px; }
     #inquire h3 {
-      font-size: clamp(22px, 5vw, 30px); font-weight: 700; line-height: 1.05;
-      letter-spacing: -.01em; text-transform: uppercase; margin-bottom: 16px;
+      flex: 1; margin: 0;
+      color: #e10600; font-size: 18px; font-weight: 400; line-height: 1.2;
+      letter-spacing: -.01em; text-transform: uppercase;
     }
-    #inquire .iq-body { font-size: 15px; line-height: 1.5; color: rgba(255,255,255,.82); margin-bottom: 28px; }
-    #inquire .iq-privacy {
-      font-size: 12px; letter-spacing: .04em; color: rgba(255,255,255,.55);
-      border-top: 1px solid rgba(255,255,255,.14); padding-top: 18px; margin-bottom: 18px;
-    }
-    #inquire .iq-mail {
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      background: #e10600; color: #fff; text-decoration: none;
-      font-size: 15px; font-weight: 700; letter-spacing: .02em;
-      padding: 16px 18px; transition: background .2s;
-    }
-    #inquire .iq-mail:hover { background: #ff1f14; }
-    #inquire .iq-mail span:last-child { transition: transform .2s; }
-    #inquire .iq-mail:hover span:last-child { transform: translateX(4px); }
     #inquire .iq-close {
-      position: absolute; top: 14px; right: 14px; width: 32px; height: 32px;
-      background: none; border: 0; color: #fff; cursor: pointer; font-size: 22px; line-height: 1;
-      opacity: .7;
+      flex-shrink: 0; width: 28px; height: 28px; margin: -2px -6px 0 0;
+      background: none; border: 0; color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: color .2s;
     }
-    #inquire .iq-close:hover { opacity: 1; }
+    #inquire .iq-close:hover { color: #e10600; }
     #inquire .iq-close:focus { outline: none; }
     #inquire .iq-close:focus-visible { outline: 1px solid #e10600; }
-    @media (max-width: 480px) {
-      #inquire .iq-card { padding: 38px 22px 24px; }
-      #inquire .iq-mail { font-size: 14px; padding: 15px 14px; }
+    #inquire .iq-field { display: block; padding: 14px 22px 12px; border-bottom: 1px solid rgba(255,255,255,0.22); }
+    #inquire .iq-field label {
+      display: block; font-size: 11px; letter-spacing: .02em; text-transform: uppercase;
+      color: #fff; margin-bottom: 6px; cursor: text;
     }
+    #inquire .iq-field input, #inquire .iq-field textarea {
+      display: block; width: 100%; background: none; border: 0; outline: none; padding: 2px 0;
+      color: #fff; font: 14px/1.4 'Helvetica Neue', Helvetica, Arial, sans-serif; resize: none;
+    }
+    #inquire .iq-field textarea { height: 3.4em; font-size: 13px; }
+    #inquire .iq-field textarea::placeholder { color: rgba(255,255,255,.75); font-size: 11px; }
+    #inquire .iq-field:focus-within { background: rgba(255,255,255,.03); }
+    #inquire .iq-field:focus-within label { color: #e10600; }
+    #inquire .iq-field.iq-note { border-bottom: 0; }
+    #inquire .iq-field.is-bad label { color: #e10600; }
+    #inquire .iq-foot { padding: 6px 22px 22px; display: flex; align-items: center; gap: 14px; }
+    #inquire .iq-send {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-width: 138px; height: 34px; padding: 0 20px;
+      border-radius: 999px; border: 1px solid rgba(255,255,255,.28);
+      background: rgba(10,10,12,.55); color: #fff; cursor: pointer;
+      font: 700 12px/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase;
+      transition: background .2s, border-color .2s, color .2s;
+    }
+    #inquire .iq-send:hover { background: #e10600; border-color: #e10600; }
+    #inquire .iq-send .px-ne { width: 10px; height: 10px; transition: transform .2s; }
+    #inquire .iq-send:hover .px-ne { transform: translate(2px, -2px); }
+    #inquire .iq-status { font-size: 11px; line-height: 1.35; color: rgba(255,255,255,.7); }
+    .px-ne { --px: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%205%205%22%20fill%3D%22%23000%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%221%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%222%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%223%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%224%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%223%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%224%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%222%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%224%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%221%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%224%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3C/svg%3E"); }
+    @media (prefers-reduced-motion: reduce) { #inquire .iq-bg, #inquire .iq-card { transition: none; } }
 
     /* ── PIXEL ICONS — sitewide nav glyphs drawn on a pixel grid, matching the DRGNFLEYE logo ── */
     .px { display: inline-block; flex-shrink: 0; background: currentColor; vertical-align: middle;
@@ -2128,17 +2146,22 @@
 </head>
 <body>
 
-  <!-- ── INQUIRE CALLOUT (archived projects) ── -->
+  <!-- ── INQUIRE MESSAGE BOX (archived projects) — over the dark dragonfly render ── -->
   <div id="inquire" role="dialog" aria-modal="true" aria-labelledby="iq-title" aria-hidden="true">
-    <div class="iq-card">
-      <button class="iq-close" type="button" aria-label="Close"><i class="px px-x" aria-hidden="true"></i></button>
-      <div class="iq-proj" id="iq-proj"></div>
-      <div class="iq-tag">Archive</div>
-      <h3 id="iq-title">Interested in this project?</h3>
-      <p class="iq-body">This work is available to view upon request. Get in touch to learn more about the creative approach and execution.</p>
-      <p class="iq-privacy">For privacy reasons, inquire for more</p>
-      <a class="iq-mail" id="iq-mail" href="mailto:hello@davidmaxwell.work"><span>hello@davidmaxwell.work</span><span><i class="px px-right" aria-hidden="true"></i></span></a>
-    </div>
+    <video class="iq-bg" poster="drgnflye_loop_01_poster.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+    <form class="iq-card" id="iq-form" novalidate>
+      <div class="iq-head">
+        <h3 id="iq-title">Curious? Contact us to learn more about this project</h3>
+        <button class="iq-close" type="button" aria-label="Close"><i class="px px-x" aria-hidden="true"></i></button>
+      </div>
+      <div class="iq-field"><label for="iq-name">Name / Company</label><input id="iq-name" name="name" type="text" autocomplete="organization" /></div>
+      <div class="iq-field"><label for="iq-email">Email</label><input id="iq-email" name="email" type="email" autocomplete="email" /></div>
+      <div class="iq-field iq-note"><label for="iq-note">Note</label><textarea id="iq-note" name="note" placeholder="Tell us what you’d like to know…"></textarea></div>
+      <div class="iq-foot">
+        <button class="iq-send" type="submit">Send <i class="px px-ne" aria-hidden="true"></i></button>
+        <span class="iq-status" id="iq-status" aria-live="polite"></span>
+      </div>
+    </form>
   </div>
 
   <!-- ── HOVER VIDEO BACKGROUND ── -->
@@ -4912,19 +4935,43 @@
     // archived projects stay in the index + flying gallery, but open the inquire callout instead
     const isArchived = idx => !!(PROJECTS.find(p => p.project === idx) || {}).archived;
     const inquireEl = document.getElementById('inquire');
+    const IQ_BG_SRC = 'drgnflye_loop_01.mp4';      // the dark dragonfly render
+    let iqProject = '';
     function openInquire(idx) {
       const p = PROJECTS.find(q => q.project === idx);
-      document.getElementById('iq-proj').textContent = p.title;
-      document.getElementById('iq-mail').href = 'mailto:hello@davidmaxwell.work?subject=' + encodeURIComponent('Inquiry: ' + p.title);
+      iqProject = p ? p.title : '';
+      const v = inquireEl.querySelector('.iq-bg');
+      if (!v.getAttribute('src')) v.src = IQ_BG_SRC;
+      try { v.currentTime = 0; } catch (e) {}
+      const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
+      document.getElementById('iq-status').textContent = '';
+      inquireEl.querySelectorAll('.iq-field').forEach(f => f.classList.remove('is-bad'));
       inquireEl.setAttribute('aria-hidden', 'false');
       inquireEl.classList.add('open');
-      inquireEl.querySelector('.iq-close').focus({ preventScroll: true });
+      setTimeout(() => document.getElementById('iq-name').focus({ preventScroll: true }), 350);
     }
     function closeInquire() {
       inquireEl.classList.remove('open');
       inquireEl.setAttribute('aria-hidden', 'true');
+      setTimeout(() => { if (!inquireEl.classList.contains('open')) inquireEl.querySelector('.iq-bg').pause(); }, 500);
     }
-    inquireEl.addEventListener('click', e => { if (e.target === inquireEl || e.target.closest('.iq-close')) closeInquire(); });
+    // SEND opens the visitor's email app with the message filled in, addressed to the studio
+    document.getElementById('iq-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('iq-name').value.trim();
+      const email = document.getElementById('iq-email').value.trim();
+      const note = document.getElementById('iq-note').value.trim();
+      const status = document.getElementById('iq-status');
+      const emailField = document.getElementById('iq-email').closest('.iq-field');
+      const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      emailField.classList.toggle('is-bad', !ok);
+      if (!ok) { status.textContent = 'Please add your email.'; document.getElementById('iq-email').focus(); return; }
+      const body = `Project: ${iqProject}\nName / Company: ${name}\nEmail: ${email}\n\n${note}`;
+      window.location.href = 'mailto:hello@davidmaxwell.work?subject=' + encodeURIComponent('Inquiry: ' + iqProject)
+        + '&body=' + encodeURIComponent(body);
+      status.textContent = 'Opening your email app\u2026';
+    });
+    inquireEl.addEventListener('click', e => { if (e.target === inquireEl || e.target.classList.contains('iq-bg') || e.target.closest('.iq-close')) closeInquire(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && inquireEl.classList.contains('open')) { e.stopImmediatePropagation(); closeInquire(); } }, true);
 
     function openLightbox(idx) {
