@@ -2197,9 +2197,102 @@
     #gallery-close:hover, #gallery-list-toggle:not(.active):hover { color: #0a0a0a !important; opacity: 0.6; }
     .lbs-viewer-close { filter: drop-shadow(0 1px 4px rgba(0,0,0,0.7)); }
     .lbs-viewer-close:hover { color: #e10600 !important; }
+
+    /* ── PROJECT INDEX — category tabs, a rolling list of brands, and a preview of the hovered project ── */
+    #pindex {
+      position: fixed; inset: 0; z-index: 9550;
+      background: #000; color: #f0ede6;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      opacity: 0; pointer-events: none; visibility: hidden;
+      transition: opacity .4s ease, visibility 0s linear .4s;
+      overflow: hidden;
+    }
+    #pindex.open { opacity: 1; pointer-events: auto; visibility: visible; transition: opacity .4s ease; }
+    #pindex .pi-close {
+      position: absolute; top: 1.5rem; right: 1.5rem; z-index: 5;
+      width: 2.5rem; height: 2.5rem; background: none; border: 0; color: #f0ede6; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: color .2s;
+    }
+    #pindex .pi-close:hover { color: #e10600; }
+    #pindex .pi-close:focus { outline: none; }
+    #pindex .pi-close:focus-visible { outline: 1px solid #e10600; }
+    #pindex .pi-tabs {
+      position: absolute; top: 4.6rem; left: 10vw; right: 5rem;
+      display: flex; flex-wrap: wrap; gap: .5rem 1.25rem;
+    }
+    #pindex .pi-tab {
+      background: none; border: 0; padding: .25rem 0; cursor: pointer;
+      color: rgba(240,237,230,.55); font: 400 .82rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      letter-spacing: .01em; text-transform: uppercase; transition: color .2s;
+    }
+    #pindex .pi-tab:hover, #pindex .pi-tab.is-on { color: #f0ede6; }
+    #pindex .pi-tab .n { color: #e03030; }
+    #pindex .pi-body {
+      position: absolute; left: 0; right: 0; top: 7rem; bottom: 2rem;
+      display: grid; grid-template-columns: minmax(0, 36%) minmax(0, 1fr); align-items: center; column-gap: 3vw;
+      padding: 0 4vw 0 2vw;
+    }
+    #pindex .pi-wheel {
+      position: relative; height: 100%; overflow: hidden; outline: none;
+      touch-action: none; user-select: none; -webkit-user-select: none;
+      -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+              mask-image: linear-gradient(180deg, transparent 0, #000 14%, #000 86%, transparent 100%);
+    }
+    #pindex .pi-item {
+      position: absolute; left: calc(var(--pi-fs, 72px) * 0.8); top: 50%;
+      display: block;
+      background: none; border: 0; padding: 0; margin: 0; cursor: pointer;
+      color: #f0ede6; font: 400 var(--pi-fs, 72px)/1.08 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      letter-spacing: -.01em; text-transform: uppercase; white-space: nowrap;
+      transform-origin: 0 50%; will-change: transform, opacity;
+      transition: color .18s;
+    }
+    #pindex .pi-item .pi-arrow { position: absolute; right: 100%; top: 50%; margin: -.26em .14em 0 0; width: .62em; height: .52em; opacity: 0; color: #e10600; }
+    #pindex .pi-item.is-cur { color: #e10600; }
+    #pindex .pi-item:focus { outline: none; }
+    #pindex .pi-prev { margin: 0; align-self: center; }
+    #pindex .pi-img {
+      position: relative; width: 100%; aspect-ratio: 2.2 / 1; overflow: hidden; background: #0a0a0a;
+      border-bottom: 1px solid rgba(240,237,230,.35);
+    }
+    #pindex .pi-img img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      opacity: 0; transform: scale(1.03); transition: opacity .45s ease, transform .9s cubic-bezier(.22,.61,.36,1);
+    }
+    #pindex .pi-img img.is-on { opacity: 1; transform: none; }
+    #pindex .pi-img::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 32%;
+      background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.85)); pointer-events: none; }
+    #pindex .pi-cap {
+      margin-top: .9rem; min-height: 2.4em;
+      font-size: .74rem; line-height: 1.3; letter-spacing: .03em; text-transform: uppercase; color: rgba(240,237,230,.6);
+    }
+    #pindex .pi-cap .pi-open { color: #f0ede6; margin-left: .6em; white-space: nowrap; }
+    @media (max-width: 750px) {
+      #pindex .pi-close { top: .9rem; right: .9rem; }
+      #pindex .pi-tabs { top: 3.6rem; left: 1.25rem; right: 1.25rem; gap: .55rem 1rem; }
+      #pindex .pi-tab { font-size: .7rem; }
+      #pindex .pi-body { top: 7.4rem; bottom: 1rem; grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); padding: 0 1.25rem; align-items: stretch; }
+      #pindex .pi-prev { grid-row: 1; }
+      #pindex .pi-img { aspect-ratio: 16 / 9; }
+      #pindex .pi-cap { margin-top: .6rem; font-size: .66rem; min-height: 2.6em; }
+      #pindex .pi-wheel { grid-row: 2; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- ── PROJECT INDEX (opened by the hamburger buttons) ── -->
+  <div id="pindex" role="dialog" aria-modal="true" aria-label="Project index" aria-hidden="true">
+    <button class="pi-close" type="button" aria-label="Close index"><i class="px px-x" aria-hidden="true"></i></button>
+    <nav class="pi-tabs" aria-label="Categories"></nav>
+    <div class="pi-body">
+      <div class="pi-wheel" tabindex="0" role="listbox" aria-label="Projects"></div>
+      <figure class="pi-prev">
+        <div class="pi-img"><img alt="" /><img alt="" /></div>
+        <figcaption class="pi-cap"></figcaption>
+      </figure>
+    </div>
+  </div>
 
   <!-- ── INQUIRE MESSAGE BOX (archived projects) — over the dark dragonfly render ── -->
   <div id="inquire" role="dialog" aria-modal="true" aria-labelledby="iq-title" aria-hidden="true">
@@ -5131,6 +5224,179 @@
       lbListPanel.classList.remove('open');
       lbListToggle.classList.remove('active');
     });
+
+    // ── PROJECT INDEX ─────────────────────────────────────────────────────────
+    // brand = the short name in the rolling list; full = the full project line under the preview
+    const INDEX_CATS = [
+      { id: 'music', label: 'Music & Artists', items: [
+        [13, 'Warner Records', 'Warner Records x Alex Isley :: “When The City Sleeps”'],
+        [0,  'Amazon Music', 'Amazon Music x Alissia, Nile Rodgers, Earthgang :: “Hypnotic Nights”'],
+        [15, 'Netflix', 'Netflix x Alissia & Anderson .Paak :: “Can’t Get Enough”'],
+        [3,  'Secretly Group', 'Secretly Group x Baby Rose & BADBADNOTGOOD :: “Slow Burn”'],
+        [12, 'Disney Music', 'Disney Music x India Shawn :: “Subject To Change”'] ] },
+      { id: 'brands', label: 'Brands & Campaigns', items: [
+        [17, 'Facebook', 'Facebook :: Stories Launch'],
+        [10, 'Luka Dončić', 'Luka Dončić :: “Everything It Takes” Documentary'],
+        [6,  'Nike', 'Nike :: Play New TikTok Campaign'],
+        [14, 'Red Bull', 'Red Bull :: Dance Bracket Reel'],
+        [16, 'DreamWorks', 'DreamWorks x Shrek: Puss In Boots'],
+        [11, 'Luka Dončić Foundation', 'The Luka Dončić Foundation :: Inside Youth Basketball'],
+        [5,  'TikTok', 'TikTok :: Support Black Businesses'],
+        [4,  'UnitedMasters', 'UnitedMasters :: The Future Of Music'] ] },
+      { id: 'exp', label: 'Experiences & Culture', items: [
+        [2, 'Lincoln Center', 'Lincoln Center x NYC Ballet :: A.I.M. 20th Anniversary'],
+        [9, 'Airbnb', 'Airbnb :: Experiences'],
+        [1, 'JLL', 'JLL x Rosedale Center :: Shopping Takeover'],
+        [8, 'La Cleanic', 'La Cleanic x Doc Martens :: Paris Fashion Week'],
+        [7, 'Nike', 'Nike x L.A. Rams x Randy’s Donuts :: Super Bowl Activation'] ] },
+    ];
+    const PI = { el: document.getElementById('pindex'), cat: 'all', list: [], pos: 0, target: 0, raf: 0, cur: -1, imgFlip: 0 };
+    PI.wheel = PI.el.querySelector('.pi-wheel');
+    PI.tabs = PI.el.querySelector('.pi-tabs');
+    PI.imgs = [...PI.el.querySelectorAll('.pi-img img')];
+    PI.cap = PI.el.querySelector('.pi-cap');
+    PI.fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    const piPrev = k => `index_prev_${String(k).padStart(2, '0')}.jpg`;
+    const piAll = () => INDEX_CATS.flatMap(c => c.items);
+    PI.tabs.innerHTML = [{ id: 'all', label: 'All', n: piAll().length }, ...INDEX_CATS.map(c => ({ id: c.id, label: c.label, n: c.items.length }))]
+      .map(c => `<button type="button" class="pi-tab${c.id === 'all' ? ' is-on' : ''}" data-cat="${c.id}">${c.label} <span class="n">(${c.n})</span></button>`).join('');
+
+    function piBuild(cat) {
+      PI.cat = cat;
+      PI.list = cat === 'all' ? piAll() : INDEX_CATS.find(c => c.id === cat).items;
+      PI.tabs.querySelectorAll('.pi-tab').forEach(t => t.classList.toggle('is-on', t.dataset.cat === cat));
+      PI.wheel.innerHTML = PI.list.map(([k, brand], i) =>
+        `<button type="button" class="pi-item" role="option" data-i="${i}" data-project="${k}"><i class="px px-right pi-arrow" aria-hidden="true"></i><span>${brand}</span></button>`).join('');
+      PI.items = [...PI.wheel.querySelectorAll('.pi-item')];
+      PI.pos = PI.target = 0; PI.cur = -1;
+      piMeasure();
+      piFrame();
+    }
+    // base size: big on desktop, smaller on phones; names too wide for the column are shrunk to fit
+    function piMeasure() {
+      const w = PI.wheel.clientWidth, h = PI.wheel.clientHeight;
+      const fs = Math.round(Math.max(30, Math.min(window.innerWidth <= 750 ? 44 : 76, w * 0.16, h * 0.16)));
+      PI.fs = fs;
+      PI.wheel.style.setProperty('--pi-fs', fs + 'px');
+      PI.items.forEach(el => { el.style.transform = 'none'; });
+      PI.fit = PI.items.map(el => Math.min(1, (w - fs * 0.8 - 8) / Math.max(1, el.offsetWidth)));
+      PI.itemH = PI.items.map(el => el.offsetHeight);
+    }
+    const PI_A = 0.65;
+    const piY = k => Math.sign(k) * PI.fs * 1.12 * Math.log(1 + PI_A * Math.abs(k)) / PI_A;
+    function piFrame() {
+      PI.raf = 0;
+      const d = PI.target - PI.pos;
+      PI.pos = Math.abs(d) < 0.002 ? PI.target : PI.pos + d * 0.18;
+      PI.items.forEach((el, i) => {
+        const k = i - PI.pos, a = Math.abs(k);
+        const sc = PI.fit[i] / (1 + PI_A * a);
+        const op = a < 3.2 ? 1 : Math.max(0, 1 - (a - 3.2));
+        el.style.transform = `translateY(${(piY(k) - PI.itemH[i] / 2).toFixed(1)}px) scale(${sc.toFixed(4)})`;
+        el.style.opacity = op.toFixed(3);
+        el.style.visibility = op <= 0 ? 'hidden' : '';
+        el.firstElementChild.style.opacity = Math.max(0, 1 - a * 2.5).toFixed(3);
+      });
+      const cur = Math.max(0, Math.min(PI.list.length - 1, Math.round(PI.pos)));
+      if (cur !== PI.cur) piSelect(cur);
+      if (PI.pos !== PI.target) PI.raf = requestAnimationFrame(piFrame);
+    }
+    function piGo(t) {
+      PI.target = Math.max(0, Math.min(PI.list.length - 1, t));
+      if (!PI.raf) PI.raf = requestAnimationFrame(piFrame);
+    }
+    function piSelect(i) {
+      PI.cur = i;
+      PI.items.forEach((el, j) => { el.classList.toggle('is-cur', j === i); el.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+      const [k, , full] = PI.list[i];
+      const next = PI.imgs[PI.imgFlip ^= 1], prev = PI.imgs[PI.imgFlip ^ 1];
+      next.onload = () => { next.classList.add('is-on'); prev.classList.remove('is-on'); };
+      next.classList.remove('is-on');
+      next.src = piPrev(k);
+      if (next.complete && next.naturalWidth) next.onload();
+      const p = PROJECTS.find(q => q.project === k);
+      PI.cap.innerHTML = `${full}<span class="pi-open">${p && p.archived ? '— On request' : ''}</span>`;
+      [i - 1, i + 1, i + 2].forEach(j => { if (PI.list[j]) { const im = new Image(); im.src = piPrev(PI.list[j][0]); } });   // warm the neighbours
+    }
+    function openIndex() {
+      closeLbList();
+      if (typeof closeGalleryList === 'function') closeGalleryList();
+      PI.el.classList.add('open');
+      PI.el.setAttribute('aria-hidden', 'false');
+      piBuild(PI.cat);
+      setTimeout(() => PI.wheel.focus({ preventScroll: true }), 50);
+    }
+    function closeIndex() {
+      PI.el.classList.remove('open');
+      PI.el.setAttribute('aria-hidden', 'true');
+    }
+    function piOpenProject(k) { closeIndex(); openLightbox(k); }
+
+    PI.el.querySelector('.pi-close').addEventListener('click', closeIndex);
+    PI.tabs.addEventListener('click', e => { const t = e.target.closest('.pi-tab'); if (t) piBuild(t.dataset.cat); });
+    // mouse wheel / trackpad rolls the list, then it settles on the nearest name
+    PI.wheel.addEventListener('wheel', e => {
+      e.preventDefault();
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+      PI.target = Math.max(0, Math.min(PI.list.length - 1, PI.target + dy / 110));
+      if (!PI.raf) PI.raf = requestAnimationFrame(piFrame);
+      clearTimeout(PI.snapT); PI.snapT = setTimeout(() => piGo(Math.round(PI.target)), 140);
+    }, { passive: false });
+    // drag (touch or mouse) to roll it
+    PI.wheel.addEventListener('pointerdown', e => {
+      if (e.button) return;
+      PI.drag = { id: e.pointerId, y0: e.clientY, p0: PI.target, moved: false, t: performance.now(), v: 0, ly: e.clientY };
+    });
+    window.addEventListener('pointermove', e => {
+      const D = PI.drag; if (!D || e.pointerId !== D.id) return;
+      if (!D.moved && Math.abs(e.clientY - D.y0) < 6) return;
+      D.moved = true;
+      const now = performance.now();
+      D.v = (e.clientY - D.ly) / Math.max(1, now - D.t); D.t = now; D.ly = e.clientY;
+      PI.target = Math.max(-0.4, Math.min(PI.list.length - 0.6, D.p0 - (e.clientY - D.y0) / (PI.fs * 0.85)));
+      PI.pos = PI.target;
+      if (!PI.raf) PI.raf = requestAnimationFrame(piFrame);
+    });
+    const piDragEnd = e => {
+      const D = PI.drag; if (!D || (e && e.pointerId !== D.id)) return;
+      PI.drag = null;
+      if (D.moved) { PI.justDragged = true; setTimeout(() => { PI.justDragged = false; }, 0); piGo(Math.round(PI.target - D.v * 180 / (PI.fs * 0.85))); }
+    };
+    window.addEventListener('pointerup', piDragEnd);
+    window.addEventListener('pointercancel', piDragEnd);
+    // desktop: resting on a name rolls it to the middle and previews it
+    // (only real mouse movement counts — names sliding under a still cursor don't re-trigger it)
+    PI.wheel.addEventListener('pointermove', e => {
+      if (!PI.fine || PI.drag || e.pointerType !== 'mouse') return;
+      const L = PI.lastPt;
+      if (L && Math.abs(e.clientX - L.x) + Math.abs(e.clientY - L.y) < 4) return;
+      PI.lastPt = { x: e.clientX, y: e.clientY };
+      const it = e.target.closest('.pi-item');
+      clearTimeout(PI.hoverT);
+      if (it) PI.hoverT = setTimeout(() => { if (!PI.drag) piGo(+it.dataset.i); }, 110);
+    });
+    PI.wheel.addEventListener('pointerleave', () => clearTimeout(PI.hoverT));
+    // click: desktop opens the project; on touch the first tap brings a name to the middle, the next opens it
+    PI.wheel.addEventListener('click', e => {
+      if (PI.justDragged) return;
+      const it = e.target.closest('.pi-item'); if (!it) return;
+      const i = +it.dataset.i;
+      if (PI.fine || i === PI.cur) piOpenProject(+it.dataset.project); else piGo(i);
+    });
+    PI.el.querySelector('.pi-img').addEventListener('click', () => { if (PI.list[PI.cur]) piOpenProject(PI.list[PI.cur][0]); });
+    PI.el.querySelector('.pi-img').style.cursor = 'pointer';
+    document.addEventListener('keydown', e => {
+      if (!PI.el.classList.contains('open')) return;
+      if (e.key === 'Escape') { e.stopImmediatePropagation(); closeIndex(); }
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); e.stopImmediatePropagation(); piGo(Math.round(PI.target) + 1); }
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); e.stopImmediatePropagation(); piGo(Math.round(PI.target) - 1); }
+      else if (e.key === 'Enter' && document.activeElement === PI.wheel) { e.preventDefault(); piOpenProject(PI.list[PI.cur][0]); }
+    }, true);
+    window.addEventListener('resize', () => { if (PI.el.classList.contains('open')) { piMeasure(); piFrame(); } });
+    // both hamburger buttons open this index
+    [document.getElementById('lb-list-toggle'), document.getElementById('gallery-list-toggle')].forEach(b => b && b.addEventListener('click', e => {
+      e.stopImmediatePropagation(); openIndex();
+    }, true));
 
     // Breadcrumb tooltip — hover works natively via CSS; this adds tap support for touch devices
     const lbBreadcrumbWrap = document.getElementById('lb-breadcrumb-wrap');
