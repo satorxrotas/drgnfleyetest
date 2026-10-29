@@ -1454,6 +1454,7 @@
       .lbs-nav-menu { width: 62vw; bottom: -0.6rem; padding-bottom: calc(0.6rem + 0.66rem + 1.1rem - 0.55rem + 0.6rem); }
       .lbs-nav-menu button { font-size: 0.66rem; padding: 0.95rem 0.6rem; }
       .lbs-beat, .lbs-beat--side { text-align: center; width: 84vw; }
+      .lbs-beat.lbs-beat--desc { width: calc(100vw - 40px); }
     }
 
     #lb-scroll-hint {
@@ -4445,9 +4446,25 @@
       });
     }
 
+    // phones: how far the opening screen (full-width banner + full-size description) runs past the
+    // space above the chapter bar — that much plain scrolling comes before the flying scenes
+    function stageIntroExtra(stage, vw, vh) {
+      const dEl = stage.querySelector('.lbs-beat--desc'), navEl = stage.querySelector('.lbs-nav');
+      if (!dEl || !navEl) return 0;
+      const hero = stage.querySelector('.lbs-hero');
+      let heroH = 0;
+      if (hero) {
+        const hm = hero.querySelector('img, video');
+        const nW = hm && (hm.naturalWidth || hm.videoWidth), nH = hm && (hm.naturalHeight || hm.videoHeight);
+        heroH = (vw - 40) / (nW && nH ? nW / nH : 16 / 9) + 18;
+      }
+      const room = navEl.offsetTop - 22 - 16;
+      return Math.max(0, Math.round(heroH + dEl.offsetHeight + 46 - room));
+    }
+
     function stageScrollTo(t) {
       const vh = lbBody.clientHeight;
-      lbBody.scrollTo({ top: Math.max(0, t * vh * STAGE_PACE), behavior: 'smooth' });
+      lbBody.scrollTo({ top: Math.max(0, t * vh * STAGE_PACE + (t > 0 ? STAGE.introExtra || 0 : 0)), behavior: 'smooth' });
     }
 
     function stageSetPlaying(vid, on) {
@@ -4466,9 +4483,15 @@
       const track = lbBody.querySelector('.lbs-track');
       if (!stage || !track) return;
       lbBody.style.setProperty('--lb-vh', vh + 'px');
-      const trackH = Math.round(T.loopEnd * vh * STAGE_PACE + vh);
+      // phones: the opening screen shows the banner at full width and the description at full size;
+      // when that runs past the fold, the first stretch of scrolling just scrolls it like a normal page,
+      // and the flying scenes only start once you've reached its end
+      const introExtra = mobile ? stageIntroExtra(stage, vw, vh) : 0;
+      STAGE.introExtra = introExtra;
+      const introOff = Math.min(lbBody.scrollTop, introExtra);
+      const trackH = Math.round(T.loopEnd * vh * STAGE_PACE + vh + introExtra);
       if (Math.abs(track.offsetHeight - trackH) > 1) track.style.height = trackH + 'px';
-      const t = lbBody.scrollTop / (vh * STAGE_PACE);
+      const t = Math.max(0, lbBody.scrollTop - introExtra) / (vh * STAGE_PACE);
       // W: 0 → 1 across the wrap zone. At 1 the screen matches the very start exactly,
       // so jumping back to the top is invisible and the scroll simply carries on.
       const atBottom = lbBody.scrollTop >= lbBody.scrollHeight - lbBody.clientHeight - 2;
@@ -4504,7 +4527,7 @@
         while (tEl.scrollWidth > tEl.clientWidth + 1 && fs > 12) { fs -= 1; tEl.style.fontSize = fs + 'px'; }
       }
       const dW = dEl.offsetWidth;
-      let dH = dEl.offsetHeight, descFit = 1;   // a long title + description is scaled down to fit above the bar
+      let dH = dEl.offsetHeight, descFit = 1;   // a long title + description is scaled down to fit above the bar (desktop)
       let heroW = 0, heroH = 0, heroX = 0, heroY = midY, heroS = 1, descX = 0, descY = midY;
       if (hero) {
         // the banner keeps its real proportions (a wide image isn't cropped to 16:9)
@@ -4512,14 +4535,14 @@
         const nW = hm && (hm.naturalWidth || hm.videoWidth), nH = hm && (hm.naturalHeight || hm.videoHeight);
         const aspect = nW && nH ? nW / nH : 16 / 9;
         if (mobile) {
-          heroW = vw * 0.92; heroH = heroW / aspect;
-          heroS = Math.max(0.4, Math.min(1, (room - dH - 18) / heroH));
-          descFit = Math.min(1, (room - heroH * heroS - 18) / dH);
-          dH *= descFit;
-          const groupH = heroH * heroS + 18 + dH;
+          // same width as the previews in the index (the page minus a 20px gutter each side), never shrunk
+          heroW = vw - 40; heroH = heroW / aspect;
+          heroS = 1; descFit = 1;
+          const groupH = heroH + 18 + dH;
           const top = regionTop + Math.max(0, (room - groupH) / 2);
-          heroY = top + heroH * heroS / 2 - vh / 2;
-          descY = top + heroH * heroS + 18 + dH / 2 - vh / 2;
+          const off = W > 0 ? 0 : introOff;   // coming round on the loop, it returns in its top-of-page pose
+          heroY = top + heroH / 2 - vh / 2 - off;
+          descY = top + heroH + 18 + dH / 2 - vh / 2 - off;
         } else {
           const gap = Math.max(32, vw * 0.035);
           descFit = Math.min(1, room / dH);
@@ -4552,6 +4575,13 @@
         let s = g.s * descFit, o = g.o;
         if (W > 0) { s = (0.96 + 0.04 * wIn) * descFit; o = wIn; }
         dEl.style.transform = `translate(calc(-50% + ${descX.toFixed(1)}px), calc(-50% + ${descY.toFixed(1)}px)) scale(${s.toFixed(4)})`;
+        if (mobile && introExtra > 0) {
+          // text fades out as it slides under the chapter bar (and off the top edge)
+          const topPx = vh / 2 + descY - dH / 2;            // the description's top edge on screen
+          const a = regionTop - topPx, b = regionBottom - topPx;
+          const m = `linear-gradient(180deg, transparent ${(a - 1).toFixed(0)}px, #000 ${(a + 24).toFixed(0)}px, #000 ${(b - 28).toFixed(0)}px, transparent ${b.toFixed(0)}px)`;
+          dEl.style.webkitMaskImage = m; dEl.style.maskImage = m;
+        } else if (dEl.style.maskImage) { dEl.style.webkitMaskImage = ''; dEl.style.maskImage = ''; }
         dEl.style.opacity = o.toFixed(3);
         dEl.style.visibility = o <= 0.005 ? 'hidden' : '';
         dEl.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
@@ -4944,7 +4974,8 @@
       }
       const r = D.nav.getBoundingClientRect();
       const x = Math.max(0, Math.min(r.width, e.clientX - r.left));
-      lbBody.scrollTop = stageNavT(D.nav, x) * lbBody.clientHeight * STAGE_PACE;
+      const tt = stageNavT(D.nav, x);
+      lbBody.scrollTop = tt * lbBody.clientHeight * STAGE_PACE + (tt > 0 ? STAGE.introExtra || 0 : 0);
       e.preventDefault();
     }, { passive: false });
     const stageDragEnd = e => {
