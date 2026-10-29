@@ -4309,12 +4309,12 @@
       const name = (d.stageLabel || String(d.title || '').split('//')[0]).trim().toUpperCase();
       // WORK's sections (the flying gallery first, then each work chapter) open from the WORK label
       const subs = [];
-      if (nc) subs.push({ label: 'ALL WORK', t: T.burst0 + 0.9 });
+      if (nc) subs.push({ label: 'GALLERY', t: T.burst0 + 0.9 });
       workBeats.forEach(b => {
         if (b.ch !== 'DESCRIPTION' && !subs.some(c => c.label === b.ch)) subs.push({ label: b.ch, t: b.s + 0.45 });
       });
       const chapters = [{ label: 'DESCRIPTION', t: 0 }];
-      if (subs.length) chapters.push({ label: 'GALLERY', t: subs[0].t, subs, work: true });
+      if (subs.length) chapters.push({ label: 'WORK', t: subs[0].t, subs, work: true });
       if (caseBeats.length) chapters.push({ label: 'CASE STUDY', t: caseBeats[0].s + 0.45 });
       return { clips, beats, desc, T, chapters, name };
     }
@@ -4390,9 +4390,9 @@
                 const slot = i === 0 ? 'l' : (c.work ? 'c' : 'r');
                 if (!c.work) return `<div class="lbs-nav-slot lbs-nav-slot--${slot}"><button type="button" data-ch="${i}" aria-label="${c.label}">${letters}</button></div>`;
                 return `<div class="lbs-nav-slot lbs-nav-slot--c lbs-nav-work">
-                  <div class="lbs-nav-menu" role="menu" aria-label="Gallery sections">${c.subs.map((sc, j) =>
+                  <div class="lbs-nav-menu" role="menu" aria-label="Work sections">${c.subs.map((sc, j) =>
                     `<button type="button" role="menuitem" data-sub="${j}">${sc.label}</button>`).join('')}</div>
-                  <button type="button" data-ch="${i}" class="lbs-nav-worktoggle" aria-haspopup="true" aria-expanded="false" aria-label="Gallery — choose a section">${letters}</button>
+                  <button type="button" data-ch="${i}" class="lbs-nav-worktoggle" aria-haspopup="true" aria-expanded="false" aria-label="Work — choose a section">${letters}</button>
                 </div>`;
               }).join('')}</div>
             </nav>
