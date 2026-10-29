@@ -5263,7 +5263,8 @@
 
     function piBuild(cat) {
       PI.cat = cat;
-      PI.list = cat === 'all' ? piAll() : INDEX_CATS.find(c => c.id === cat).items;
+      PI.list = (cat === 'all' ? piAll() : INDEX_CATS.find(c => c.id === cat).items)
+        .slice().sort((x, y) => x[1].localeCompare(y[1], 'en', { sensitivity: 'base' }));   // A–Z by brand
       PI.tabs.querySelectorAll('.pi-tab').forEach(t => t.classList.toggle('is-on', t.dataset.cat === cat));
       PI.wheel.innerHTML = PI.list.map(([k, brand], i) =>
         `<button type="button" class="pi-item" role="option" data-i="${i}" data-project="${k}"><i class="px px-right pi-arrow" aria-hidden="true"></i><span>${brand}</span></button>`).join('');
