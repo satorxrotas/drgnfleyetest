@@ -2321,6 +2321,17 @@
     }
     #about2 .a2-sec { position: relative; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 6rem 6vw 4rem; }
     #about2 .a2-tilt { will-change: transform, opacity; backface-visibility: hidden; }
+    /* "scroll to explore" — pulses at the bottom of the first scene, fades once you scroll */
+    #about2 .a2-hint {
+      position: absolute; left: 50%; bottom: 2.2rem; transform: translateX(-50%); z-index: 3;
+      font: 700 .6rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .15em; text-transform: uppercase;
+      color: #f0ede6; text-shadow: 0 1px 6px rgba(0,0,0,.7); white-space: nowrap; pointer-events: none;
+      animation: a2-pulse 2.4s ease-in-out infinite; transition: opacity .4s ease;
+    }
+    #about2 .a2-hint.is-gone { opacity: 0 !important; animation: none; }
+    @keyframes a2-pulse { 0%, 100% { opacity: .35; } 50% { opacity: .95; } }
+    @media (max-width: 750px) { #about2 .a2-hint { bottom: 1.6rem; } }
+    @media (prefers-reduced-motion: reduce) { #about2 .a2-hint { animation: none; opacity: .7; } }
     /* scene 1 — the statement */
     #about2 .a2-hero { margin: 0; width: min(62vw, 980px); font-family: 'Anton', 'Helvetica Neue', Impact, sans-serif; font-weight: 400;
       color: #e8141b; text-transform: uppercase; line-height: .86; letter-spacing: .005em; }
@@ -2536,6 +2547,7 @@
     </header>
     <div class="a2-scroll">
       <section class="a2-sec a2-sec--hero">
+        <p class="a2-hint" aria-hidden="true">Scroll to explore</p>
         <span class="a2-float" style="left:86%;top:17%;--w:70px;--dx:12px;--dy:-10px;--d:8s"><img src="press_logo_a24.png" alt="" /></span>
         <span class="a2-float" style="left:9%;top:52%;--w:54px;--dx:-8px;--dy:14px;--d:10s"><img src="logo-apple.png" alt="" /></span>
         <span class="a2-float" style="left:47%;top:50%;--w:52px;--dx:10px;--dy:10px;--d:7s"><img src="logo-nike.png" alt="" /></span>
@@ -5963,6 +5975,7 @@
         }
         // floating logos drift up a little faster than the page (depth) and tilt away with the statement
         const st = sc.scrollTop;
+        A.querySelector('.a2-hint').classList.toggle('is-gone', st > 30);
         floats.forEach((f, i) => { f.style.translate = `0 ${(-st * (0.18 + (i % 3) * 0.12)).toFixed(1)}px`; f.style.opacity = Math.max(0, 1 - st / (vh * 0.7)).toFixed(3); });
         // the founder scene sits on a deep navy; the render shows through the other two
         const s2 = secs[1].getBoundingClientRect();
@@ -5971,6 +5984,32 @@
       }
       const req = () => { if (!raf) raf = requestAnimationFrame(frame); };
       sc.addEventListener('scroll', req, { passive: true });
+      // snap: once scrolling pauses, glide to the start of a scene — the next one in the direction
+      // you were scrolling (so a small flick is enough), never fighting a scroll that's still going
+      let lastTop = 0, dir = 0, snapT = 0, snapping = false, startTop = 0;
+      sc.addEventListener('scroll', () => {
+        const t = sc.scrollTop;
+        if (!snapping) { if (t !== lastTop) dir = Math.sign(t - lastTop); }
+        lastTop = t;
+        clearTimeout(snapT);
+        snapT = setTimeout(() => {
+          if (snapping) { snapping = false; startTop = sc.scrollTop; return; }
+          const pts = secs.map(x => x.offsetTop), vh = sc.clientHeight, cur = sc.scrollTop;
+          // inside a scene taller than the screen, let it scroll freely until its edge
+          const inTall = secs.some((x, i) => x.offsetHeight > vh + 4 && cur > pts[i] + 4 && cur + vh < pts[i] + x.offsetHeight - 4);
+          if (inTall) { startTop = cur; return; }
+          let i = pts.findIndex((y, k) => k === pts.length - 1 || cur < pts[k + 1]);
+          const frac = (cur - pts[i]) / Math.max(1, (pts[i + 1] || pts[i] + vh) - pts[i]);
+          let target = i;
+          if (frac > 0.02) target = dir > 0 ? i + 1 : (dir < 0 ? i : (frac > 0.5 ? i + 1 : i));
+          if (dir < 0 && frac < 0.02 && Math.abs(cur - startTop) > 4) target = i;
+          target = Math.max(0, Math.min(pts.length - 1, target));
+          const y = Math.min(pts[target], sc.scrollHeight - vh);
+          if (Math.abs(y - cur) < 2) { startTop = cur; return; }
+          snapping = true;
+          sc.scrollTo({ top: y, behavior: 'smooth' });
+        }, 110);
+      }, { passive: true });
       window.addEventListener('resize', () => { if (A.classList.contains('open')) { fitHero(); req(); } });
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitHero(); req(); });
       // open / close: start the render, reset to the top
