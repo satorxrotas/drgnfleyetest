@@ -2790,6 +2790,32 @@
       });
       renderer.domElement.addEventListener('pointerleave', () => { hoverEvt = null; spotOn = 0; wrapEl.classList.remove('is-glow'); });
 
+      // ── Glass look: the dragonfly becomes semi-transparent glass with soft studio reflections
+      //    (set DRAGONFLY_GLASS = false to go back to the solid black model)
+      const DRAGONFLY_GLASS = true;
+      function makeGlass(model) {
+        const glass = new THREE.MeshPhysicalMaterial({
+          color: 0xffffff, metalness: 0, roughness: 0.02,
+          transparent: true, opacity: 0.16, depthWrite: false, side: THREE.DoubleSide,
+          clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.3, reflectivity: 0.9
+        });
+        model.traverse(o => {
+          if (!o.isMesh) return;
+          const m = glass.clone();
+          if (o.material && o.material.normalMap) m.normalMap = o.material.normalMap;   // keep the surface detail
+          o.material = m;
+          o.renderOrder = 1;
+        });
+        // studio reflections for the glass to catch
+        const env = document.createElement('script');
+        env.src = 'https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/environments/RoomEnvironment.js';
+        env.onload = () => {
+          const pm = new THREE.PMREMGenerator(renderer);
+          scene.environment = pm.fromScene(new THREE.RoomEnvironment(), 0.04).texture;
+        };
+        document.head.appendChild(env);
+      }
+
       // ── Load GLTFLoader then model
       const loaderScript = document.createElement('script');
       loaderScript.src = 'https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js';
@@ -2808,6 +2834,7 @@
             model.scale.setScalar(4.056 / maxDim);
             model.position.sub(centre.multiplyScalar(4.056 / maxDim));
             pivot.add(model);
+            if (DRAGONFLY_GLASS) makeGlass(model);
           },
           function(xhr) {
             if (xhr.total) {
