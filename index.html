@@ -4871,24 +4871,27 @@
           // While it turns, every clip is drawn as strips bent onto the drum (stageSkinDraw);
           // when it settles, the real clip faces you flat and playable.
           const dd = wrapN(i - f);
-          const H0 = vH, RR = H0 * 1.25, step = (H0 * 1.18) / RR;          // drum radius (small = rounder) + spacing round the rim
+          const H0 = vH, RR = H0 * 1.05, step = (H0 * 1.18) / RR;          // drum radius (small = rounder) + spacing round the rim
           const th = dd * step, half = (cH / 2) / RR;
           const sk = skins && skins[i];
           const zzD = -(1 - vg) * 1600;
-          const vis = Math.abs(th) - half < Math.PI / 2 - 0.05;
+          const vis = Math.abs(th) - half < Math.PI / 2 - 0.03;     // some part of it still faces you
           const live = (settled && i === focus) || (V.opening && V.from && i === V.from.i);
           if (sk) {
             const NS = sk.strips.length, sh = cH / NS;
-            const fadeO = sClamp((Math.PI / 2 - 0.05 - (Math.abs(th) + half)) / 0.35) * vg;
             stageSkinSize(sk, cW, cH, card);
+            const shades = [];
             sk.strips.forEach((cv, k) => {
-              if (live || !vis || fadeO <= 0.01) { cv.style.visibility = 'hidden'; return; }
               const yk = ((k + 0.5) / NS - 0.5) * cH, ph = th + yk / RR;
+              // each strip shades and fades by its own angle, so a clip can roll over the top of the wheel
+              const fk = sClamp((Math.PI / 2 - 0.03 - Math.abs(ph)) / 0.45) * vg, bk = 1 - Math.min(Math.abs(ph), 1.6) / 2.3;
+              shades[k] = bk * fk;
+              if (live || !vis || fk <= 0.01) { cv.style.visibility = 'hidden'; return; }
               cv.style.visibility = '';
               cv.style.transform = `translate3d(${(-cW / 2).toFixed(1)}px, ${(vY - (sh + 3) / 2).toFixed(1)}px, ${(zzD - RR).toFixed(1)}px) rotateX(${(ph * 180 / Math.PI * WHEEL_DRUM_SIGN).toFixed(3)}deg) translateZ(${RR.toFixed(1)}px)`;
               cv.style.opacity = '';            // (fading is painted into the strips — see stageSkinDraw)
             });
-            if (!live && vis && fadeO > 0.01) stageSkinDraw(sk, card, 1 - Math.min(Math.abs(th), 1.6) / 2.4, fadeO);
+            if (!live && vis) stageSkinDraw(sk, card, shades);
           }
           const H = vH;
           const stepDeg = mobile ? 46 : 44;
@@ -4994,25 +4997,23 @@
     // draw the clip's current picture (video frame, image, or the film's thumbnail) into its strips
     // (bright = shading as it turns away; fade = how far it has faded into the dark viewer background.
     //  Both are painted into the pixels: see-through strips would show brighter lines where they overlap.)
-    function stageSkinDraw(sk, card, bright, fade) {
-      fade = fade === undefined ? 1 : fade;
+    function stageSkinDraw(sk, card, shades) {
       const v = card.querySelector('video'), im = card.querySelector('img');
       const live = v && v.readyState >= 2 && !v.paused;
-      const key = bright.toFixed(2) + '/' + fade.toFixed(2);
+      const key = shades.map(x => x.toFixed(2)).join(',');
       if (sk.still && !live && sk.key === key) return;                       // nothing new to draw
+      const fresh = !sk.still || live;                                      // the picture itself changed
       // a video that hasn't a frame yet shows its poster
       if (v && v.getAttribute('poster') && !sk.poster) { sk.poster = new Image(); sk.poster.onload = () => { sk.still = false; }; sk.poster.src = v.getAttribute('poster'); }
       const pst = sk.poster && sk.poster.complete && sk.poster.naturalWidth ? sk.poster : null;
       const src = v && v.readyState >= 2 ? v : (im && im.complete && im.naturalWidth ? im : pst);
       const b = sk.buf, ctx = b.getContext('2d');
-      ctx.fillStyle = '#111'; ctx.fillRect(0, 0, b.width, b.height);
-      if (src) {
+      if (fresh) { ctx.fillStyle = '#111'; ctx.fillRect(0, 0, b.width, b.height); }
+      if (fresh && src) {
         const sw = src.videoWidth || src.naturalWidth, shh = src.videoHeight || src.naturalHeight;
         const k = Math.max(b.width / sw, b.height / shh), dw = sw * k, dh = shh * k;   // object-fit: cover
         try { ctx.drawImage(src, (b.width - dw) / 2, (b.height - dh) / 2, dw, dh); } catch (e) {}
       }
-      if (bright < 0.999) { ctx.fillStyle = `rgba(0,0,0,${(1 - bright).toFixed(3)})`; ctx.fillRect(0, 0, b.width, b.height); }
-      if (fade < 0.999) { ctx.fillStyle = `rgba(10,10,10,${(1 - fade).toFixed(3)})`; ctx.fillRect(0, 0, b.width, b.height); }
       // each strip shows its slice plus the 1.5px it overlaps on either side, at the same scale, so edges line up
       const NS = sk.strips.length, rowH = b.height / NS, e = 1.5 * b.height / Math.max(1, sk.h);
       sk.strips.forEach((cv, k) => {
@@ -5021,6 +5022,8 @@
         const y0 = k * rowH - e, y1 = y0 + rowH + 2 * e;
         const sy0 = Math.max(0, y0), sy1 = Math.min(b.height, y1);
         c2.drawImage(b, 0, sy0, b.width, sy1 - sy0, 0, (sy0 - y0) / (y1 - y0) * cv.height, cv.width, (sy1 - sy0) / (y1 - y0) * cv.height);
+        const sh = shades[k] === undefined ? 1 : shades[k];                   // its shading, painted in
+        if (sh < 0.999) { c2.fillStyle = `rgba(10,10,10,${(1 - Math.max(0, sh)).toFixed(3)})`; c2.fillRect(0, 0, cv.width, cv.height); }
       });
       sk.still = !!src && !live; sk.key = key;
     }
