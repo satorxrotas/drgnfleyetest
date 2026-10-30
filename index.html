@@ -2297,6 +2297,10 @@
       transition: opacity .3s ease, visibility 0s linear .3s;   /* closes quickly */
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
+    /* nothing on the page is selectable or long-press-able (a thumb resting while you swipe kept
+       selecting the form text on iPhone) — the form fields themselves still work normally */
+    #about2, #about2 * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+    #about2 input, #about2 textarea { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
     #about2.open { opacity: 1; pointer-events: auto; visibility: visible; transition: opacity .5s ease; }
     #about2 .a2-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(.75); }
     #about2 .a2-shade { position: absolute; inset: 0; background: #0a0d14; opacity: .35; pointer-events: none; }
@@ -6079,19 +6083,33 @@
         vel = 0; req();
       }, { passive: false });
       sc.addEventListener('pointerdown', e => {
-        if (e.button || e.target.closest('input, textarea, button, a, label')) return;
+        // a swipe can start anywhere — on the form's labels and fields too — so the wheel always turns
+        if (e.button || e.target.closest('button, a')) return;
         drag = { id: e.pointerId, y: e.clientY, t: performance.now(), v: 0, moved: false };
       });
       window.addEventListener('pointermove', e => {
         if (!drag || e.pointerId !== drag.id) return;
         const dy = e.clientY - drag.y, now = performance.now();
-        if (!drag.moved && Math.abs(dy) < 4) return;
-        drag.moved = true;
+        if (!drag.moved && Math.abs(dy) < 6) return;
+        if (!drag.moved) {
+          drag.moved = true;
+          const ae = document.activeElement;          // a swipe that began on a field doesn't open the keyboard
+          if (ae && A.contains(ae) && /INPUT|TEXTAREA/.test(ae.tagName)) ae.blur();
+          const sel = window.getSelection && window.getSelection(); if (sel) sel.removeAllRanges();
+        }
         pos -= dy; target = pos;
         drag.v = -dy / Math.max(8, now - drag.t) * 16;   // px per frame
         drag.y = e.clientY; drag.t = now; req();
       });
-      const dragEnd = e => { if (!drag || (e && e.pointerId !== drag.id)) return; vel = drag.moved ? drag.v : 0; drag = null; req(); };
+      const dragEnd = e => {
+        if (!drag || (e && e.pointerId !== drag.id)) return;
+        vel = drag.moved ? drag.v : 0;
+        if (drag.moved) { A._swiped = true; setTimeout(() => { A._swiped = false; }, 350); }
+        drag = null; req();
+      };
+      // the tap that ends a swipe mustn't focus a field (and pop the keyboard)
+      A.addEventListener('click', e => { if (A._swiped && e.target.closest('label, input, textarea')) { e.preventDefault(); e.stopPropagation(); } }, true);
+      A.addEventListener('focusin', e => { if (A._swiped && /INPUT|TEXTAREA/.test(e.target.tagName)) e.target.blur(); });
       window.addEventListener('pointerup', dragEnd);
       window.addEventListener('pointercancel', dragEnd);
       document.addEventListener('keydown', e => {
