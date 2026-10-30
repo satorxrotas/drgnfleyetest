@@ -2320,7 +2320,18 @@
       -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
     }
     #about2 .a2-sec { position: relative; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 6rem 6vw 4rem; }
-    #about2 .a2-tilt { will-change: transform, opacity; backface-visibility: hidden; }
+    /* the wheel: every piece (artwork strip, text line, clip, form) sits on a drum and is bent onto it */
+    #about2 .a2-sec, #about2 .a2-hero, #about2 .a2-studio, #about2 .a2-lines { transform-style: preserve-3d; }
+    #about2 .a2-w { will-change: transform, opacity; backface-visibility: hidden; }
+    #about2 .a2-lines .a2-line { display: block; }
+    #about2 .a2-hero { display: flex; flex-direction: column; aspect-ratio: 1143 / 554; }
+    /* the founder clip is drawn into 6 horizontal strips so it bends with the wheel too */
+    #about2 .a2-vstrips { display: flex; flex-direction: column; transform-style: preserve-3d; }
+    #about2 .a2-vstrips canvas { display: block; width: 100%; flex: 1 1 0; min-height: 0; }
+    #about2 .a2-vstrips canvas:not(:last-of-type), #about2 .a2-strip:not(:last-child) { margin-bottom: -2px; }   /* strips overlap a hair so no seam shows */
+    #about2 .a2-vstrips canvas:not(:last-of-type) { padding-bottom: 0; }
+    #about2 .a2-vsrc { position: absolute; left: 0; top: 0; width: 2px; height: 2px; opacity: .01; pointer-events: none; }   /* kept "visible" so phones keep decoding it */
+    #about2 .a2-strip { display: block; flex: 1 1 0; background: url(about2_statement.png) no-repeat; background-size: 100% 600%; }
     /* "scroll to explore" — pulses at the bottom of the first scene, fades once you scroll */
     #about2 .a2-hint {
       position: absolute; left: 50%; bottom: 2.2rem; transform: translateX(-50%); z-index: 3;
@@ -2335,7 +2346,6 @@
     /* scene 1 — the statement */
     #about2 .a2-hero { margin: 0; width: min(62vw, 980px); font-family: 'Anton', 'Helvetica Neue', Impact, sans-serif; font-weight: 400;
       color: #e8141b; text-transform: uppercase; line-height: .86; letter-spacing: .005em; }
-    #about2 .a2-hero img { display: block; width: 100%; height: auto; }
     #about2 .a2-hero span { display: block; text-align: justify; text-align-last: justify; white-space: nowrap; }
     #about2 .a2-hero .a2-m { display: none; }
     @media (max-width: 750px) { #about2 .a2-hero .a2-d { display: none; } #about2 .a2-hero .a2-m { display: block; } }
@@ -2541,18 +2551,18 @@
       <section class="a2-sec a2-sec--hero">
         <p class="a2-hint" aria-hidden="true">Scroll to explore</p>
         <div class="a2-fly" aria-hidden="true"><span class="a2-fly-item"><img src="press_logo_a24.png" alt="" /></span><span class="a2-fly-item"><img src="logo-apple.png" alt="" /></span><span class="a2-fly-item"><img src="logo-nike.png" alt="" /></span><span class="a2-fly-item"><img src="logo-netflix.png" alt="" /></span><span class="a2-fly-item"><img src="logo-redbull.png" alt="" /></span><span class="a2-fly-item"><img src="logo-disneymusic.png" alt="" /></span><span class="a2-fly-item"><img src="logo-amazonmusic.png" alt="" /></span><span class="a2-fly-item"><img src="logo-warner.png" alt="" /></span><span class="a2-fly-item"><img src="logo-airbnb.png" alt="" /></span><span class="a2-fly-item"><img src="logo-tiktok.png" alt="" /></span><span class="a2-fly-item"><img src="logo-marvel.png" alt="" /></span><span class="a2-fly-item"><img src="logo-unitedmasters.png" alt="" /></span><span class="a2-fly-item"><img src="logo-larams.png" alt="" /></span></div>
-        <h1 class="a2-hero a2-tilt"><img src="about2_statement.png" alt="A creative company for ideas that don&rsquo;t fit in one box." /></h1>
+        <h1 class="a2-hero" aria-label="A creative company for ideas that don&rsquo;t fit in one box."><span class="a2-strip a2-w" style="background-position:0 0%"></span><span class="a2-strip a2-w" style="background-position:0 20%"></span><span class="a2-strip a2-w" style="background-position:0 40%"></span><span class="a2-strip a2-w" style="background-position:0 60%"></span><span class="a2-strip a2-w" style="background-position:0 80%"></span><span class="a2-strip a2-w" style="background-position:0 100%"></span></h1>
       </section>
       <section class="a2-sec a2-sec--founder">
-        <h2 class="a2-wide a2-tilt">Founded by David Maxwell, DRGNFLEYE brings together collaborators to develop ideas from inception to completion</h2>
-        <video class="a2-founder-img a2-tilt" src="about2_founder.mp4" poster="about2_founder_poster.jpg" muted loop playsinline preload="metadata" aria-label="David Maxwell"></video>
+        <h2 class="a2-wide a2-lines">Founded by David Maxwell, DRGNFLEYE brings together collaborators to develop ideas from inception to completion</h2>
+        <div class="a2-founder-img a2-vstrips" role="img" aria-label="David Maxwell"><canvas class="a2-w" width="768" height="72"></canvas><canvas class="a2-w" width="768" height="72"></canvas><canvas class="a2-w" width="768" height="72"></canvas><canvas class="a2-w" width="768" height="72"></canvas><canvas class="a2-w" width="768" height="72"></canvas><canvas class="a2-w" width="768" height="72"></canvas><video class="a2-vsrc" src="about2_founder.mp4" poster="about2_founder_poster.jpg" muted loop playsinline preload="metadata" aria-hidden="true"></video></div>
       </section>
       <section class="a2-sec a2-sec--studio">
-        <div class="a2-studio a2-tilt">
-          <h2>Does the world need another creative studio?</h2>
-          <p>We think so.<br>Not because the world needs more content. Because there&rsquo;s always room for a different perspective.</p>
+        <div class="a2-studio">
+          <h2 class="a2-lines">Does the world need another creative studio?</h2>
+          <p class="a2-lines">We think so.<br>Not because the world needs more content. Because there&rsquo;s always room for a different perspective.</p>
         </div>
-        <form class="a2-form a2-tilt" novalidate>
+        <form class="a2-form a2-w" novalidate>
           <div class="a2-form-head"><h3>Curious? Contact us to learn more about working together</h3></div>
           <div class="a2-field"><label for="a2-name">Name / Company</label><input id="a2-name" type="text" autocomplete="organization" /></div>
           <div class="a2-field"><label for="a2-email">Email</label><input id="a2-email" type="email" autocomplete="email" /></div>
@@ -5933,14 +5943,55 @@
       if (!A) return;
       const sc = A.querySelector('.a2-scroll'), bg = A.querySelector('.a2-bg'), shade = A.querySelector('.a2-shade');
       const hero = A.querySelector('.a2-hero');
-      const tilts = [...A.querySelectorAll('.a2-tilt')];
+      // text blocks are split into their rendered lines so each line bends on its own
+      const lineBlocks = [...A.querySelectorAll('.a2-lines')];
+      lineBlocks.forEach(b => { b._src = b.innerHTML; });
+      function splitLines() {
+        lineBlocks.forEach(b => {
+          b.innerHTML = b._src.split(/<br\s*\/?>/i).map(part => part.trim().split(/\s+/).map(w => `<span class="a2-wd">${w}</span>`).join(' ')).join('<br>');
+          const lines = []; let lastTop = null;
+          b.querySelectorAll('.a2-wd, br').forEach(n => {
+            if (n.tagName === 'BR') { lastTop = null; return; }
+            const t = n.offsetTop;
+            if (lastTop === null || Math.abs(t - lastTop) > 2) { lines.push([]); lastTop = t; }
+            lines[lines.length - 1].push(n.textContent);
+          });
+          b.innerHTML = lines.map(l => `<span class="a2-line a2-w">${l.join(' ')}</span>`).join('');
+        });
+        measure();
+      }
+      // draw the clip's current frame into its strips while the founder scene is on screen
+      const vsrc = A.querySelector('video.a2-vsrc'), vcan = [...A.querySelectorAll('.a2-vstrips canvas')];
+      const poster = new Image(); poster.src = vsrc.getAttribute('poster');
+      let vRaf = 0;
+      function drawStrips() {
+        vRaf = 0;
+        const src = vsrc.readyState >= 2 ? vsrc : (poster.complete && poster.naturalWidth ? poster : null);
+        if (src) {
+          const W = src.videoWidth || src.naturalWidth, H = src.videoHeight || src.naturalHeight, n = vcan.length;
+          vcan.forEach((c, i) => { const ctx = c.getContext('2d'); ctx.drawImage(src, 0, H * i / n, W, H / n, 0, 0, c.width, c.height); });
+        }
+        if (A.classList.contains('open') && !vsrc.paused) vRaf = requestAnimationFrame(drawStrips);
+      }
+      vsrc.addEventListener('play', () => { if (!vRaf) vRaf = requestAnimationFrame(drawStrips); });
+      vsrc.addEventListener('loadeddata', drawStrips);
+      poster.onload = drawStrips;
+      let pieces = [];
+      // each piece's resting centre, in page coordinates (measured without any transform applied)
+      function measure() {
+        pieces = [...A.querySelectorAll('.a2-w')].map(el => {
+          let y = 0, n = el;
+          while (n && n !== sc) { y += n.offsetTop; n = n.offsetParent; }
+          return { el, cy: y + el.offsetHeight / 2 };
+        });
+      }
       const flyEls = [...A.querySelectorAll('.a2-fly-item')];
       const flyWrap = A.querySelector('.a2-fly');
       const secs = [...A.querySelectorAll('.a2-sec')];
       let raf = 0;
       // the statement fills its column: font grows until the longest line spans the width
       function fitHero() {
-        if (!hero.querySelector('span')) return;   // the statement is now the supplied artwork, used as-is
+        if (!hero.querySelector('.a2-d')) return;   // the statement is the supplied artwork, used as-is
         hero.style.fontSize = '100px';
         const w = hero.clientWidth;
         const lines = [...hero.children].filter(sp => getComputedStyle(sp).display !== 'none');
@@ -5952,20 +6003,18 @@
       function frame() {
         raf = 0;
         const vh = sc.clientHeight;
-        for (const el of tilts) {
-          const r = el.getBoundingClientRect();
-          const top = r.top, h = Math.max(1, r.height);
-          const p = Math.max(0, Math.min(1, (60 - top) / (h * 0.85 + vh * 0.12)));   // folds once it reaches the header, not while resting in place
-          const q = Math.max(0, Math.min(1, (r.top + h * 0.35 - vh * 0.92) / (vh * 0.35)));
-          if (p > 0) {
-            el.style.transformOrigin = '50% 100%';
-            el.style.transform = `perspective(900px) rotateX(${(p * 78).toFixed(2)}deg) translateZ(${(-p * 140).toFixed(1)}px)`;
-            el.style.opacity = Math.max(0, 1 - p * 1.15).toFixed(3);
-          } else if (q > 0) {
-            el.style.transformOrigin = '50% 0%';
-            el.style.transform = `perspective(900px) rotateX(${(-q * 32).toFixed(2)}deg) translateY(${(q * 40).toFixed(1)}px)`;
-            el.style.opacity = (1 - q * 0.75).toFixed(3);
-          } else { el.style.transform = ''; el.style.opacity = ''; }
+        // drum: arc length from the middle of the screen becomes an angle on a wheel of radius R
+        const R2 = vh * (sc.clientWidth <= 750 ? 1.0 : 0.78), st0 = sc.scrollTop, mid = st0 + vh / 2;
+        sc.style.perspective = Math.round(vh * 1.9) + 'px';
+        sc.style.perspectiveOrigin = `50% ${Math.round(mid)}px`;
+        for (const P of pieces) {
+          const d = P.cy - mid, phi = d / R2;
+          const el = P.el;
+          if (Math.abs(phi) >= Math.PI / 2) { el.style.opacity = '0'; el.style.visibility = 'hidden'; continue; }
+          el.style.visibility = '';
+          const dy = R2 * Math.sin(phi) - d, dz = R2 * (Math.cos(phi) - 1);
+          el.style.transform = `translate3d(0, ${dy.toFixed(1)}px, ${dz.toFixed(1)}px) rotateX(${(-phi * 180 / Math.PI).toFixed(2)}deg)`;
+          el.style.opacity = Math.max(0, Math.min(1, (1.3 - Math.abs(phi)) / 0.5)).toFixed(3);
         }
         // floating logos drift up a little faster than the page (depth) and tilt away with the statement
         const st = sc.scrollTop;
@@ -6030,8 +6079,9 @@
           sc.scrollTo({ top: y, behavior: 'smooth' });
         }, 110);
       }, { passive: true });
-      window.addEventListener('resize', () => { if (A.classList.contains('open')) { fitHero(); req(); } });
-      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitHero(); req(); });
+      window.addEventListener('resize', () => { if (A.classList.contains('open')) { fitHero(); splitLines(); req(); } });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitHero(); if (A.classList.contains('open')) splitLines(); req(); });
+      A.querySelector('video.a2-vsrc').addEventListener('loadedmetadata', () => { measure(); req(); });
       // open / close: start the render, reset to the top
       new MutationObserver(() => {
         const open = A.classList.contains('open');
@@ -6039,10 +6089,10 @@
         if (open) {
           if (!bg.getAttribute('src')) bg.src = 'drgnflye_loop_01.mp4';
           const pr = bg.play(); if (pr && pr.catch) pr.catch(() => {});
-          const fv = A.querySelector('video.a2-founder-img');
+          const fv = A.querySelector('video.a2-vsrc');
           if (fv) { const p2 = fv.play(); if (p2 && p2.catch) p2.catch(() => {}); }
-          sc.scrollTop = 0; fitHero(); req(); flyStart();
-        } else setTimeout(() => { if (!A.classList.contains('open')) { bg.pause(); const fv = A.querySelector('video.a2-founder-img'); if (fv) fv.pause(); } }, 600);
+          sc.scrollTop = 0; fitHero(); requestAnimationFrame(() => { splitLines(); req(); }); flyStart();
+        } else setTimeout(() => { if (!A.classList.contains('open')) { bg.pause(); const fv = A.querySelector('video.a2-vsrc'); if (fv) fv.pause(); } }, 600);
       }).observe(A, { attributes: true, attributeFilter: ['class'] });
       A.querySelector('.a2-close').addEventListener('click', () => {
         if (window.__closeAboutPanel) window.__closeAboutPanel(); else A.classList.remove('open');
