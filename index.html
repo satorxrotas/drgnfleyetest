@@ -99,8 +99,6 @@
     }
     #viewer-wrap:active { cursor: grabbing; }
     #viewer-wrap canvas { display: block; transition: filter .6s ease; }
-    /* hovering the dragonfly: a soft warm glow around its silhouette */
-    #viewer-wrap.is-glow canvas { filter: drop-shadow(0 0 10px rgba(255, 238, 225, .55)) drop-shadow(0 0 34px rgba(255, 150, 90, .45)); }
     #viewer-wrap.is-glow { cursor: grab; }
 
     /* ── HOVER VIDEO BACKGROUND ── */
@@ -2775,27 +2773,15 @@
           spotOn = 1;
         } else spotOn = 0;
       }
-      // a warm light that follows the cursor across the dragonfly, plus a faint haze of light in the air there
-      const spot = new THREE.PointLight(0xfff0e0, 0, 2.6, 2);
+      // a warm light that follows the cursor across the dragonfly — it lights the model only (no glow around it)
+      const spot = new THREE.PointLight(0xfff0e0, 0, 3.2, 2);
       scene.add(spot);
       const spotTarget = new THREE.Vector3(0, 0, 1);
       let spotOn = 0, spotLevel = 0;
-      const hazeTex = (() => {
-        const c = document.createElement('canvas'); c.width = c.height = 128;
-        const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-        gr.addColorStop(0, 'rgba(255,240,225,0.9)'); gr.addColorStop(0.25, 'rgba(255,190,140,0.35)'); gr.addColorStop(1, 'rgba(255,120,60,0)');
-        g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
-        return new THREE.CanvasTexture(c);
-      })();
-      const haze = new THREE.Sprite(new THREE.SpriteMaterial({ map: hazeTex, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
-      haze.scale.set(1.5, 1.5, 1);
-      scene.add(haze);
       function spotStep() {
         spotLevel += (spotOn - spotLevel) * 0.08;
         spot.position.lerp(spotTarget, 0.25);
-        haze.position.copy(spot.position);
-        spot.intensity = 6 * spotLevel;
-        haze.material.opacity = 0.55 * spotLevel;
+        spot.intensity = 28 * spotLevel;
       }
       renderer.domElement.addEventListener('pointermove', e => {
         if (e.pointerType !== 'mouse') return;
