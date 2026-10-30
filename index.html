@@ -2218,8 +2218,8 @@
     #pindex .pi-close:focus { outline: none; }
     #pindex .pi-close:focus-visible { outline: 1px solid #e10600; }
     #pindex .pi-tabs {
-      position: absolute; top: 4.6rem; left: 10vw; right: 5rem;
-      display: flex; flex-wrap: wrap; gap: .5rem 1.25rem;
+      position: absolute; top: 4.2rem; left: calc(2vw + 60px); right: 5rem;   /* lines up with the brand names */
+      display: flex; flex-direction: column; align-items: flex-start; gap: .55rem;   /* categories stacked */
     }
     #pindex .pi-tab {
       background: none; border: 0; padding: .25rem 0; cursor: pointer;
@@ -2229,7 +2229,7 @@
     #pindex .pi-tab:hover, #pindex .pi-tab.is-on { color: #f0ede6; }
     #pindex .pi-tab .n { color: #e03030; }
     #pindex .pi-body {
-      position: absolute; left: 0; right: 0; top: 7rem; bottom: 2rem;
+      position: absolute; left: 0; right: 0; top: 10rem; bottom: 2rem;
       display: grid; grid-template-columns: minmax(0, 36%) minmax(0, 1fr); align-items: center; column-gap: 3vw;
       padding: 0 4vw 0 2vw;
     }
@@ -2270,9 +2270,9 @@
     #pindex .pi-cap .pi-open { color: #f0ede6; margin-left: .6em; white-space: nowrap; }
     @media (max-width: 750px) {
       #pindex .pi-close { top: .9rem; right: .9rem; }
-      #pindex .pi-tabs { top: 3.6rem; left: 1.25rem; right: 1.25rem; gap: .55rem 1rem; }
+      #pindex .pi-tabs { top: 1.4rem; left: 1.25rem; right: 4rem; gap: .5rem; }
       #pindex .pi-tab { font-size: .7rem; }
-      #pindex .pi-body { top: 7.4rem; bottom: 1rem; grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); padding: 0 1.25rem; align-items: stretch; }
+      #pindex .pi-body { top: 8.2rem; bottom: 1rem; grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); padding: 0 1.25rem; align-items: stretch; }
       #pindex .pi-prev { grid-row: 1; }
       #pindex .pi-img { aspect-ratio: 16 / 9; }
       #pindex .pi-cap { margin-top: .6rem; font-size: .66rem; min-height: 2.6em; }
