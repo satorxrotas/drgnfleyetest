@@ -98,7 +98,10 @@
       cursor: grab;
     }
     #viewer-wrap:active { cursor: grabbing; }
-    #viewer-wrap canvas { display: block; }
+    #viewer-wrap canvas { display: block; transition: filter .6s ease; }
+    /* hovering the dragonfly: a soft warm glow around its silhouette */
+    #viewer-wrap.is-glow canvas { filter: drop-shadow(0 0 10px rgba(255, 238, 225, .55)) drop-shadow(0 0 34px rgba(255, 150, 90, .45)); }
+    #viewer-wrap.is-glow { cursor: grab; }
 
     /* ── HOVER VIDEO BACKGROUND ── */
     #bg-video-wrap {
@@ -2698,7 +2701,7 @@
         const H = wrap.offsetHeight || 420;
 
       // ── Renderer (renders scene to a texture, not directly to screen)
-      const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+      const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true });   // see-through, so a glow can sit around the dragonfly
       renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
       renderer.setSize(W, H);
       renderer.outputEncoding = THREE.sRGBEncoding;
@@ -2706,7 +2709,8 @@
 
       // ── Scene & Camera
       const scene  = new THREE.Scene();
-      scene.background = new THREE.Color(0xe10600);
+      scene.background = null;                       // the page's red shows through (same colour as before)
+      renderer.setClearColor(0x000000, 0);
       const camera = new THREE.PerspectiveCamera(45, W / H, 0.01, 1000);
       camera.position.set(0, 0, 5.5);
       camera.lookAt(0, 0, 0);
@@ -2752,6 +2756,25 @@
         camera.position.z = Math.max(0.5, Math.min(10, camera.position.z + e.deltaY * 0.005));
       });
 
+      // ── Hover glow: when the pointer is over the dragonfly itself (not just the red around it)
+      const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+      let hoverEvt = null, hoverQueued = false;
+      const wrapEl = document.getElementById('viewer-wrap');
+      function checkHover() {
+        hoverQueued = false;
+        if (!hoverEvt || !pivot.children.length) return;
+        const r = renderer.domElement.getBoundingClientRect();
+        ndc.set(((hoverEvt.clientX - r.left) / r.width) * 2 - 1, -((hoverEvt.clientY - r.top) / r.height) * 2 + 1);
+        ray.setFromCamera(ndc, camera);
+        wrapEl.classList.toggle('is-glow', ray.intersectObject(pivot, true).length > 0 || isDragging);
+      }
+      renderer.domElement.addEventListener('pointermove', e => {
+        if (e.pointerType !== 'mouse') return;
+        hoverEvt = e;
+        if (!hoverQueued) { hoverQueued = true; requestAnimationFrame(checkHover); }
+      });
+      renderer.domElement.addEventListener('pointerleave', () => { hoverEvt = null; wrapEl.classList.remove('is-glow'); });
+
       // ── Load GLTFLoader then model
       const loaderScript = document.createElement('script');
       loaderScript.src = 'https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/loaders/GLTFLoader.js';
@@ -2791,6 +2814,7 @@
       (function animate() {
         requestAnimationFrame(animate);
         pivot.rotation.y += 0.003;
+        if (hoverEvt && !hoverQueued && (animate.n = (animate.n || 0) + 1) % 8 === 0) checkHover();   // it keeps turning under a still cursor
         renderer.setRenderTarget(null);
         renderer.render(scene, camera);
       })();
