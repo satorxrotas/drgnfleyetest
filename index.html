@@ -1356,6 +1356,10 @@
       color: rgba(240, 237, 230, 0.7);
     }
 
+    /* viewer drum: each clip is redrawn into horizontal strips that bend around the wheel as it turns;
+       the real (playable) clip takes over once the wheel settles on it */
+    .lbs-skin { position: absolute; left: 50%; top: 50%; width: 0; height: 0; transform-style: preserve-3d; z-index: 4800; pointer-events: none; }
+    .lbs-skin canvas { position: absolute; left: 0; top: 0; display: block; backface-visibility: hidden; will-change: transform, opacity; pointer-events: auto; cursor: pointer; }
     /* clips — one element per clip, used by both the burst and the carousel */
     .lbs-card {
       left: 50%; top: 50%;
@@ -4849,7 +4853,10 @@
       const burstScale = (mobile ? vw * 0.3 : Math.min(vw * 0.13, vh * 0.2)) / vW;
       const burstFade = sClamp((performance.now() - (STAGE.burstFadeAt || 0)) / 400);
       const f = V ? V.f : 0;
-      const focus = Math.max(0, Math.min(n - 1, Math.round(f)));
+      const wrapN = x => n < 2 ? 0 : ((x % n) + n + n / 2) % n - n / 2;     // shortest way round the loop
+      const focus = n ? ((Math.round(f) % n) + n) % n : 0;
+      const settled = !!(V && V.open && V.g >= 1 && !V.opening && Math.abs(V.f - V.target) < 0.004 && !V.dragging);
+      const skins = vg > 0 ? stageSkins(stage) : stage._skins;
       cards.forEach((card, i) => {
         // each item keeps its real proportions (9:16 clips, 4:5 posters, wide mockups...)
         const m = card.querySelector('img, video');
@@ -4860,10 +4867,29 @@
         card.style.marginLeft = (-cW / 2) + 'px'; card.style.marginTop = (-cH / 2) + 'px';
         let tf = '', o = 0, bright = 1, z = 0, origin = '50% 50%';
         if (vg > 0) {
-          // viewer — the clips ride a ferris wheel turning on a horizontal axis: the focused
-          // clip faces you at the front, its neighbours curve back and away above and below.
-          // The spacing around the rim is wider than a clip, so they never overlap.
-          const dd = i - f;
+          // viewer — the clips ride a round wheel turning on a horizontal axis, looping forever.
+          // While it turns, every clip is drawn as strips bent onto the drum (stageSkinDraw);
+          // when it settles, the real clip faces you flat and playable.
+          const dd = wrapN(i - f);
+          const H0 = vH, RR = H0 * 2.6, step = (H0 * 1.22) / RR;          // drum radius + spacing round the rim
+          const th = dd * step, half = (cH / 2) / RR;
+          const sk = skins && skins[i];
+          const zzD = -(1 - vg) * 1600;
+          const vis = Math.abs(th) - half < Math.PI / 2 - 0.05;
+          const live = (settled && i === focus) || (V.opening && V.from && i === V.from.i);
+          if (sk) {
+            const NS = sk.strips.length, sh = cH / NS;
+            const fadeO = sClamp((Math.PI / 2 - 0.05 - (Math.abs(th) + half)) / 0.35) * vg;
+            stageSkinSize(sk, cW, cH, card);
+            sk.strips.forEach((cv, k) => {
+              if (live || !vis || fadeO <= 0.01) { cv.style.visibility = 'hidden'; return; }
+              const yk = ((k + 0.5) / NS - 0.5) * cH, ph = th + yk / RR;
+              cv.style.visibility = '';
+              cv.style.transform = `translate3d(${(-cW / 2).toFixed(1)}px, ${(vY - sh / 2).toFixed(1)}px, ${(zzD - RR).toFixed(1)}px) rotateX(${(ph * 180 / Math.PI * WHEEL_DRUM_SIGN).toFixed(3)}deg) translateZ(${RR.toFixed(1)}px)`;
+              cv.style.opacity = fadeO.toFixed(3);
+            });
+            if (!live && vis && fadeO > 0.01) stageSkinDraw(sk, card, 1 - Math.min(Math.abs(th), 1.6) / 2.4);
+          }
           const H = vH;
           const stepDeg = mobile ? 46 : 44;
           const R = (H * 1.25) / (stepDeg * Math.PI / 180);      // wheel radius (clips + a gap around the rim)
@@ -4880,11 +4906,11 @@
             const k = vg;
             tf = `translate3d(${((1 - k) * V.from.dx).toFixed(1)}px, ${(sLerp(V.from.dy, vY, k)).toFixed(1)}px, 0px) scale(${sLerp(V.from.s, 1, k).toFixed(4)})`;
             o = 1; origin = '50% 50%'; bright = 1;
+          } else if (live) {
+            o = vg; bright = 1; origin = '50% 50%';
+            tf = `translate3d(0px, ${vY.toFixed(1)}px, 0px)`;
           } else {
-            const zz = -(1 - vg) * 1600;
-            o *= vg;
-            origin = '50% 50%';
-            tf = `translate3d(0px, ${vY.toFixed(1)}px, ${(zz - R).toFixed(1)}px) rotateX(${rx.toFixed(2)}deg) translateZ(${R.toFixed(1)}px)`;
+            o = 0; tf = `translate3d(0px, ${vY.toFixed(1)}px, -4000px)`;   // its bent strips stand in for it
           }
           z = 5000 - Math.round(Math.abs(dd) * 10);
         } else {
@@ -4912,14 +4938,16 @@
         card.style.transformOrigin = origin;
         card.style.filter = bright < 0.999 ? `brightness(${bright.toFixed(2)})` : '';
         card.style.pointerEvents = o < 0.15 ? 'none' : '';
-        const isFocus = !!(V && V.open && vg > 0.6 && i === focus);
+        const isFocus = !!(V && V.open && vg > 0.6 && i === focus && settled);
         card.classList.toggle('is-focus', isFocus);
         if (card.dataset.embed) stageEmbedPlayer(card, isFocus && V.g > 0.95);
         const v = card.querySelector('video');
-        stageSetPlaying(v, o > 0.04);
+        // in the viewer, the clip at the front keeps playing while the wheel turns (its strips show it)
+        stageSetPlaying(v, vg > 0 ? (V && V.open && i === focus) || o > 0.04 : o > 0.04);
         if (!isFocus && v && !v.muted) { v.muted = true; card.querySelector('.lb-mute-btn:not(.lbs-fs-btn)').classList.remove('unmuted'); }
       });
 
+      if (vg <= 0 && stage._skins) stage._skins.forEach(sk => sk.strips.forEach(cv => { cv.style.visibility = 'hidden'; }));
       // viewer backdrop, close button, counter; gallery hint
       const bg = stage.querySelector('.lbs-viewer-bg');
       if (bg) { bg.style.opacity = vg.toFixed(3); bg.style.pointerEvents = V && V.open ? 'auto' : 'none'; }
@@ -4937,6 +4965,57 @@
         const ho = sRange(t, T.burst0 + 0.2, T.burst0 + 0.6) * (1 - sRange(t, T.burst1 - 0.5, T.burst1)) * (1 - vg);
         hint.style.opacity = ho.toFixed(3);
       }
+    }
+
+    // ── viewer drum strips: one set per clip, built on first use
+    function stageSkins(stage) {
+      if (stage._skins) return stage._skins;
+      const NS = 12;
+      stage._skins = [...stage.querySelectorAll('.lbs-card')].map((card, i) => {
+        const el = document.createElement('div');
+        el.className = 'lbs-skin'; el.dataset.i = i; el.setAttribute('aria-hidden', 'true');
+        const strips = Array.from({ length: NS }, () => { const c = document.createElement('canvas'); c.dataset.i = i; el.appendChild(c); return c; });
+        stage.appendChild(el);
+        return { el, strips, buf: document.createElement('canvas'), w: 0, h: 0, drawnAt: 0, still: false };
+      });
+      return stage._skins;
+    }
+    function stageSkinSize(sk, cW, cH, card) {
+      if (Math.abs(sk.w - cW) < 0.5 && Math.abs(sk.h - cH) < 0.5) return;
+      sk.w = cW; sk.h = cH; sk.still = false;
+      const dpr = Math.min(2, window.devicePixelRatio || 1), NS = sk.strips.length, sh = cH / NS;
+      const pw = Math.max(2, Math.round(Math.min(cW * dpr, 1100)));
+      sk.buf.width = pw; sk.buf.height = Math.max(2, Math.round(pw * cH / cW));
+      sk.strips.forEach(cv => {
+        cv.width = pw; cv.height = Math.max(2, Math.round(sk.buf.height / NS) + 2);
+        cv.style.width = cW + 'px'; cv.style.height = (sh + 1.5) + 'px';      // a hair of overlap, no seams
+      });
+    }
+    // draw the clip's current picture (video frame, image, or the film's thumbnail) into its strips
+    function stageSkinDraw(sk, card, bright) {
+      const v = card.querySelector('video'), im = card.querySelector('img');
+      const live = v && v.readyState >= 2 && !v.paused;
+      const key = bright.toFixed(2);
+      if (sk.still && !live && sk.key === key) return;                       // nothing new to draw
+      // a video that hasn't a frame yet shows its poster
+      if (v && v.getAttribute('poster') && !sk.poster) { sk.poster = new Image(); sk.poster.onload = () => { sk.still = false; }; sk.poster.src = v.getAttribute('poster'); }
+      const pst = sk.poster && sk.poster.complete && sk.poster.naturalWidth ? sk.poster : null;
+      const src = v && v.readyState >= 2 ? v : (im && im.complete && im.naturalWidth ? im : pst);
+      const b = sk.buf, ctx = b.getContext('2d');
+      ctx.fillStyle = '#111'; ctx.fillRect(0, 0, b.width, b.height);
+      if (src) {
+        const sw = src.videoWidth || src.naturalWidth, shh = src.videoHeight || src.naturalHeight;
+        const k = Math.max(b.width / sw, b.height / shh), dw = sw * k, dh = shh * k;   // object-fit: cover
+        try { ctx.drawImage(src, (b.width - dw) / 2, (b.height - dh) / 2, dw, dh); } catch (e) {}
+      }
+      if (bright < 0.999) { ctx.fillStyle = `rgba(0,0,0,${(1 - bright).toFixed(3)})`; ctx.fillRect(0, 0, b.width, b.height); }
+      const NS = sk.strips.length, rowH = b.height / NS;
+      sk.strips.forEach((cv, k) => {
+        const c2 = cv.getContext('2d');
+        c2.clearRect(0, 0, cv.width, cv.height);
+        c2.drawImage(b, 0, Math.max(0, k * rowH - 1), b.width, rowH + 2, 0, 0, cv.width, cv.height);
+      });
+      sk.still = !!src && !live; sk.key = key;
     }
 
     // full-screen viewer: clip as tall as the screen allows, counter underneath
@@ -4972,7 +5051,7 @@
     function stageViewerStep(dir) {
       const V = STAGE.viewer;
       if (!V || !V.open || !STAGE.plan) return;
-      V.target = Math.max(0, Math.min(STAGE.plan.clips.length - 1, V.target + dir));
+      V.target = Math.round(V.target) + dir;            // loops: no first or last clip
       stageViewerAnimate();
     }
     function stageViewerReset() {
@@ -4989,13 +5068,14 @@
         if (V) {
           const dt = Math.min(64, now - V.last); V.last = now;
           V.g = sClamp(V.g + (V.open ? 1 : -1) * dt / (V.open ? 650 : 420));
-          V.f += (V.target - V.f) * Math.min(1, dt / 110);
+          V.f += (V.target - V.f) * Math.min(1, dt / (V.dragging ? 40 : 140));
           if (Math.abs(V.target - V.f) < 0.002) V.f = V.target;
           if (V.open && V.g >= 1) V.opening = false;
           if (!V.open && V.g <= 0) { stageViewerReset(); STAGE.burstFadeAt = now; }
         }
         stageFrame();
-        const busy = (STAGE.viewer && ((STAGE.viewer.open && STAGE.viewer.g < 1) || (!STAGE.viewer.open) || STAGE.viewer.f !== STAGE.viewer.target))
+        const busy = (STAGE.viewer && ((STAGE.viewer.open && STAGE.viewer.g < 1) || (!STAGE.viewer.open) || STAGE.viewer.f !== STAGE.viewer.target || STAGE.viewer.dragging
+            || (STAGE.viewer.open && (lbBody.querySelector('.lbs-card.is-focus video') || {}).paused === false && false)))
           || (now - (STAGE.burstFadeAt || 0) < 450);
         if (busy) STAGE.viewerRaf = requestAnimationFrame(tick);
       };
@@ -5004,29 +5084,47 @@
 
     // in the viewer, wheel / swipe / arrow keys move between clips; Esc closes
     let stageWheelAcc = 0, stageWheelAt = 0, stageStepAt = 0, stageTouchY = null;
+    // the wheel turns freely with the scroll and settles on the nearest clip once you stop
+    let stageSettleT = 0;
+    const stageClipPx = () => { const vh = lbBody.clientHeight, vw = lbBody.clientWidth; return stageViewerSize(vw, vh, vw <= 750).vH * 1.22; };
+    const stageSettle = (bias) => {
+      clearTimeout(stageSettleT);
+      stageSettleT = setTimeout(() => {
+        const V = STAGE.viewer; if (!V || !V.open || V.dragging) return;
+        V.target = Math.round(V.target + (bias || 0)); stageViewerAnimate();
+      }, bias === undefined ? 180 : 0);
+    };
     lbBody.addEventListener('wheel', e => {
       if (!STAGE.viewer || !STAGE.viewer.open) return;
       e.preventDefault();
-      const now = performance.now();
-      if (now - stageWheelAt > 220) stageWheelAcc = 0;
-      stageWheelAt = now;
-      stageWheelAcc += e.deltaY;
-      if (Math.abs(stageWheelAcc) > 40 && now - stageStepAt > 420) {
-        stageViewerStep(stageWheelAcc > 0 ? 1 : -1);
-        stageWheelAcc = 0; stageStepAt = now;
-      }
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+      STAGE.viewer.target += dy / stageClipPx();
+      stageViewerAnimate(); stageSettle();
     }, { passive: false });
     lbBody.addEventListener('touchstart', e => {
-      if (STAGE.viewer && STAGE.viewer.open) stageTouchY = e.touches[0].clientY;
+      const V = STAGE.viewer;
+      if (!V || !V.open) return;
+      stageTouchY = { y: e.touches[0].clientY, t0: V.target, ly: e.touches[0].clientY, lt: performance.now(), v: 0, moved: false };
     }, { passive: true });
     lbBody.addEventListener('touchmove', e => {
-      if (STAGE.viewer && STAGE.viewer.open) e.preventDefault();
+      const V = STAGE.viewer;
+      if (!V || !V.open) return;
+      e.preventDefault();
+      if (!stageTouchY) return;
+      const y = e.touches[0].clientY, now = performance.now();
+      if (!stageTouchY.moved && Math.abs(y - stageTouchY.y) < 6) return;
+      stageTouchY.moved = true; V.dragging = true;
+      stageTouchY.v = (stageTouchY.ly - y) / Math.max(8, now - stageTouchY.lt);   // px per ms
+      stageTouchY.ly = y; stageTouchY.lt = now;
+      V.target = stageTouchY.t0 + (stageTouchY.y - y) / stageClipPx();
+      stageViewerAnimate();
     }, { passive: false });
     lbBody.addEventListener('touchend', e => {
-      if (stageTouchY === null || !STAGE.viewer || !STAGE.viewer.open) { stageTouchY = null; return; }
-      const dy = stageTouchY - e.changedTouches[0].clientY;
+      const V = STAGE.viewer, T0 = stageTouchY;
       stageTouchY = null;
-      if (Math.abs(dy) > 40) stageViewerStep(dy > 0 ? 1 : -1);
+      if (!V || !V.open || !T0) return;
+      V.dragging = false;
+      if (T0.moved) { STAGE.viewerSwiped = performance.now(); stageSettle(Math.max(-1.5, Math.min(1.5, T0.v * 220 / stageClipPx()))); }
     });
     // capture phase + stopPropagation: while watching, Esc closes only the viewer (not the
     // whole project) and the arrow keys don't also switch projects
@@ -5229,11 +5327,16 @@
         }
         return;
       }
-      const card = e.target.closest('.lbs-card');
+      const card = e.target.closest('.lbs-card') || (e.target.closest('.lbs-skin canvas') && lbBody.querySelectorAll('.lbs-card')[+e.target.dataset.i]);
       if (card) {
         const i = +card.dataset.i;
         if (STAGE.viewer && STAGE.viewer.open) {
-          if (!card.classList.contains('is-focus')) { STAGE.viewer.target = i; stageViewerAnimate(); }
+          if (performance.now() - (STAGE.viewerSwiped || 0) < 400) return;
+          if (!card.classList.contains('is-focus')) {
+            const V = STAGE.viewer, n = STAGE.plan.clips.length;
+            const d = ((i - Math.round(V.target)) % n + n + n / 2) % n - n / 2;
+            V.target = Math.round(V.target) + Math.round(d); stageViewerAnimate();
+          }
         } else {
           stageViewerOpen(i, card);
         }
