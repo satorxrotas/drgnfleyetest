@@ -2261,6 +2261,8 @@
       opacity: 0; transform: scale(1.03); transition: opacity .45s ease, transform .9s cubic-bezier(.22,.61,.36,1);
     }
     #pindex .pi-img img.is-on { opacity: 1; transform: none; }
+    #pindex .pi-img .pi-vid { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .4s ease; }
+    #pindex .pi-img .pi-vid.is-on { opacity: 1; }
     #pindex .pi-img::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 32%;
       background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,.85)); pointer-events: none; }
     #pindex .pi-cap {
@@ -2289,7 +2291,7 @@
     <div class="pi-body">
       <div class="pi-wheel" tabindex="0" role="listbox" aria-label="Projects"></div>
       <figure class="pi-prev">
-        <div class="pi-img"><img alt="" /><img alt="" /></div>
+        <div class="pi-img"><img alt="" /><img alt="" /><video class="pi-vid" muted loop playsinline preload="none" aria-hidden="true"></video></div>
         <figcaption class="pi-cap"></figcaption>
       </figure>
     </div>
@@ -5288,6 +5290,23 @@
     PI.cap = PI.el.querySelector('.pi-cap');
     PI.fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const piPrev = k => `index_prev_${String(k).padStart(2, '0')}.jpg`;
+    // projects whose hero is a video preview a short muted loop cut from it (index_prev_NN.mp4)
+    const PI_VIDEO = new Set([1, 3, 4, 5, 9, 10, 11, 12, 13, 15]);
+    PI.vid = PI.el.querySelector('.pi-vid');
+    PI.vid.addEventListener('playing', () => { if (PI.vid.dataset.k == String(PI.list[PI.cur] && PI.list[PI.cur][0])) PI.vid.classList.add('is-on'); });
+    function piVideo(k) {
+      clearTimeout(PI.vidT);
+      PI.vid.classList.remove('is-on');
+      if (k == null || !PI_VIDEO.has(k)) { PI.vid.pause(); return; }
+      // wait until the list settles so rolling past names doesn't start every clip
+      PI.vidT = setTimeout(() => {
+        const src = `index_prev_${String(k).padStart(2, '0')}.mp4`;
+        PI.vid.dataset.k = k;
+        if (!PI.vid.src.endsWith(src)) PI.vid.src = src;
+        try { PI.vid.currentTime = 0; } catch (e) {}
+        const pr = PI.vid.play(); if (pr && pr.catch) pr.catch(() => {});
+      }, 260);
+    }
     const piAll = () => INDEX_CATS.flatMap(c => c.items);
     PI.tabs.innerHTML = [{ id: 'all', label: 'All', n: piAll().length }, ...INDEX_CATS.map(c => ({ id: c.id, label: c.label, n: c.items.length }))]
       .map(c => `<button type="button" class="pi-tab${c.id === 'all' ? ' is-on' : ''}" data-cat="${c.id}">${c.label} <span class="n">(${c.n})</span></button>`).join('');
@@ -5347,6 +5366,7 @@
       next.src = piPrev(k);
       if (next.complete && next.naturalWidth) next.onload();
       const p = PROJECTS.find(q => q.project === k);
+      piVideo(k);
       PI.cap.innerHTML = `${full}<span class="pi-open">${p && p.archived ? '— On request' : ''}</span>`;
       [i - 1, i + 1, i + 2].forEach(j => { if (PI.list[j]) { const im = new Image(); im.src = piPrev(PI.list[j][0]); } });   // warm the neighbours
     }
@@ -5359,6 +5379,7 @@
       setTimeout(() => PI.wheel.focus({ preventScroll: true }), 50);
     }
     function closeIndex() {
+      piVideo(null);
       PI.el.classList.remove('open');
       PI.el.setAttribute('aria-hidden', 'true');
     }
