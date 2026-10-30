@@ -2345,10 +2345,10 @@
     @keyframes a2-drift { from { transform: translate3d(0, 0, 0) rotate(-2deg); } to { transform: translate3d(var(--dx, 10px), var(--dy, -14px), 0) rotate(2deg); } }
     /* scene 2 — founder */
     #about2 .a2-sec--founder { flex-direction: column; gap: 0; }
-    #about2 .a2-wide { margin: 0 0 .2rem; max-width: 40rem; text-align: center;
+    #about2 .a2-wide { margin: 0 0 clamp(1.4rem, 3vh, 2.4rem);   /* breathing room above the clip */ max-width: 40rem; text-align: center;
       font-family: 'Archivo', 'Helvetica Neue', sans-serif; font-stretch: 125%; font-weight: 800;
       font-size: clamp(1.1rem, 2.1vw, 1.9rem); line-height: 1.08; text-transform: uppercase; letter-spacing: .005em; color: #f4f2ec; }
-    #about2 .a2-founder-img { width: min(48vw, 560px); height: auto; display: block; }
+    #about2 .a2-founder-img { width: min(72vw, 1100px, calc((100vh - 21rem) * 16 / 9)); height: auto; aspect-ratio: 16 / 9; display: block; }   /* larger on desktop, never taller than the space left */
     /* scene 3 — the question + contact */
     #about2 .a2-sec--studio { justify-content: space-between; align-items: center; gap: 4vw; padding-left: 5vw; padding-right: 4vw; }
     #about2 .a2-studio { max-width: 30rem; font-family: 'Archivo', 'Helvetica Neue', sans-serif; font-stretch: 125%; text-transform: uppercase; }
@@ -5967,7 +5967,7 @@
         for (const el of tilts) {
           const r = el.getBoundingClientRect();
           const top = r.top, h = Math.max(1, r.height);
-          const p = Math.max(0, Math.min(1, (vh * 0.2 - top) / (h * 0.85 + vh * 0.12)));
+          const p = Math.max(0, Math.min(1, (60 - top) / (h * 0.85 + vh * 0.12)));   // folds once it reaches the header, not while resting in place
           const q = Math.max(0, Math.min(1, (r.top + h * 0.35 - vh * 0.92) / (vh * 0.35)));
           if (p > 0) {
             el.style.transformOrigin = '50% 100%';
