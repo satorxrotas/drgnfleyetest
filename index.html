@@ -2545,7 +2545,7 @@
       </section>
       <section class="a2-sec a2-sec--founder">
         <h2 class="a2-wide a2-tilt">Founded by David Maxwell, DRGNFLEYE brings together collaborators to develop ideas from inception to completion</h2>
-        <img class="a2-founder-img a2-tilt" src="about2_founder_placeholder.jpg" alt="" />
+        <video class="a2-founder-img a2-tilt" src="about2_founder.mp4" poster="about2_founder_poster.jpg" muted loop playsinline preload="metadata" aria-label="David Maxwell"></video>
       </section>
       <section class="a2-sec a2-sec--studio">
         <div class="a2-studio a2-tilt">
@@ -5978,8 +5978,10 @@
         if (open) {
           if (!bg.getAttribute('src')) bg.src = 'drgnflye_loop_01.mp4';
           const pr = bg.play(); if (pr && pr.catch) pr.catch(() => {});
+          const fv = A.querySelector('video.a2-founder-img');
+          if (fv) { const p2 = fv.play(); if (p2 && p2.catch) p2.catch(() => {}); }
           sc.scrollTop = 0; fitHero(); req();
-        } else setTimeout(() => { if (!A.classList.contains('open')) bg.pause(); }, 600);
+        } else setTimeout(() => { if (!A.classList.contains('open')) { bg.pause(); const fv = A.querySelector('video.a2-founder-img'); if (fv) fv.pause(); } }, 600);
       }).observe(A, { attributes: true, attributeFilter: ['class'] });
       A.querySelector('.a2-close').addEventListener('click', () => {
         if (window.__closeAboutPanel) window.__closeAboutPanel(); else A.classList.remove('open');
