@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>𓆤 DRGNFLEYE AGENCY 𓆤</title>
+  <!-- About page (v2) type, self-hosted: Anton (tall condensed) + Archivo variable (expanded widths) -->
+  <link rel="preload" href="font_anton.woff2" as="font" type="font/woff2" crossorigin />
+  <style>
+    @font-face { font-family: 'Anton'; src: url(font_anton.woff2) format('woff2'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Archivo'; src: url(font_archivo_wdth.woff2) format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
+  </style>
   <link rel="icon" type="image/png" href="DRGNFLEYE_fav_01.png" />
   <link rel="apple-touch-icon" href="DRGNFLEYE_fav_01.png" />
 
@@ -2280,6 +2286,106 @@
       #pindex .pi-cap { margin-top: .6rem; font-size: .66rem; min-height: 2.6em; }
       #pindex .pi-wheel { grid-row: 2; }
     }
+
+    /* ══ ABOUT v2 — three scenes (statement → founder → contact); content tilts away into the
+          distance as it scrolls off the top (HXOUSE-style). The original About page is kept as
+          #about-panel: open the site with ?about=v1 to see it, or set ABOUT_VERSION below. ══ */
+    #about2 {
+      position: fixed; inset: 0; z-index: 7800;
+      background: #050608; color: #f0ede6; overflow: hidden;
+      opacity: 0; pointer-events: none; visibility: hidden;
+      transition: opacity .5s ease, visibility 0s linear .5s;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    #about2.open { opacity: 1; pointer-events: auto; visibility: visible; transition: opacity .5s ease; }
+    #about2 .a2-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(.75); }
+    #about2 .a2-shade { position: absolute; inset: 0; background: #0a0d14; opacity: .35; pointer-events: none; }
+    #about2 .a2-top {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 5; height: 5.25rem;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem;
+      pointer-events: none;
+    }
+    #about2 .a2-top button {
+      pointer-events: auto; width: 2.25rem; height: 2.25rem; background: none; border: 0; padding: 0;
+      color: #f0ede6; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: color .2s;
+    }
+    #about2 .a2-top button:hover { color: #e10600; }
+    #about2 .a2-logo {
+      position: absolute; left: 50%; top: 2.625rem; transform: translate(-50%, -50%);
+      width: clamp(150px, 15vw, 240px); aspect-ratio: 1201 / 100; background: #e10600;
+      -webkit-mask: url(DRGNFLEYE_Logo_square_01.svg) center / contain no-repeat; mask: url(DRGNFLEYE_Logo_square_01.svg) center / contain no-repeat;
+    }
+    #about2 .a2-scroll {
+      position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; z-index: 2;
+      -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+    }
+    #about2 .a2-sec { position: relative; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 6rem 6vw 4rem; }
+    #about2 .a2-tilt { will-change: transform, opacity; backface-visibility: hidden; }
+    /* scene 1 — the statement */
+    #about2 .a2-hero { margin: 0; width: min(62vw, 980px); font-family: 'Anton', 'Helvetica Neue', Impact, sans-serif; font-weight: 400;
+      color: #e8141b; text-transform: uppercase; line-height: .86; letter-spacing: .005em; }
+    #about2 .a2-hero span { display: block; text-align: justify; text-align-last: justify; white-space: nowrap; }
+    #about2 .a2-hero .a2-m { display: none; }
+    @media (max-width: 750px) { #about2 .a2-hero .a2-d { display: none; } #about2 .a2-hero .a2-m { display: block; } }
+    #about2 .a2-float { position: absolute; width: var(--w, 56px); opacity: .95; pointer-events: none;
+      animation: a2-drift var(--d, 9s) ease-in-out infinite alternate; }
+    #about2 .a2-float img { width: 100%; height: auto; display: block; }
+    @keyframes a2-drift { from { transform: translate3d(0, 0, 0) rotate(-2deg); } to { transform: translate3d(var(--dx, 10px), var(--dy, -14px), 0) rotate(2deg); } }
+    /* scene 2 — founder */
+    #about2 .a2-sec--founder { flex-direction: column; gap: 0; }
+    #about2 .a2-wide { margin: 0 0 .2rem; max-width: 40rem; text-align: center;
+      font-family: 'Archivo', 'Helvetica Neue', sans-serif; font-stretch: 125%; font-weight: 800;
+      font-size: clamp(1.1rem, 2.1vw, 1.9rem); line-height: 1.08; text-transform: uppercase; letter-spacing: .005em; color: #f4f2ec; }
+    #about2 .a2-founder-img { width: min(48vw, 560px); height: auto; display: block; }
+    /* scene 3 — the question + contact */
+    #about2 .a2-sec--studio { justify-content: space-between; align-items: center; gap: 4vw; padding-left: 5vw; padding-right: 4vw; }
+    #about2 .a2-studio { max-width: 30rem; font-family: 'Archivo', 'Helvetica Neue', sans-serif; font-stretch: 125%; text-transform: uppercase; }
+    #about2 .a2-studio h2 { margin: 0 0 1rem; font-weight: 800; font-size: clamp(1.15rem, 1.75vw, 1.6rem); line-height: 1.05; color: #f4f2ec; }
+    #about2 .a2-studio p { margin: 0; font-weight: 700; font-size: clamp(.7rem, .95vw, .86rem); line-height: 1.25; color: #e8141b; letter-spacing: .02em; }
+    #about2 .a2-form {
+      width: min(340px, 100%); flex-shrink: 0;
+      background: rgba(52, 52, 56, .62); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,.16); border-radius: 6px; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+    #about2 .a2-form-head { display: flex; gap: 14px; align-items: flex-start; padding: 18px 18px 12px; }
+    #about2 .a2-form-head h3 { flex: 1; margin: 0; color: #e8141b; font-size: 15px; font-weight: 400; line-height: 1.2; text-transform: uppercase; }
+    #about2 .a2-field { display: block; padding: 12px 18px 10px; border-bottom: 1px solid rgba(255,255,255,.22); }
+    #about2 .a2-field label { display: block; font-size: 10px; text-transform: uppercase; margin-bottom: 5px; color: #fff; cursor: text; }
+    #about2 .a2-field input, #about2 .a2-field textarea { display: block; width: 100%; background: none; border: 0; outline: none; padding: 2px 0;
+      color: #fff; font: 14px/1.4 'Helvetica Neue', Helvetica, Arial, sans-serif; resize: none; }
+    #about2 .a2-field textarea { height: 3.2em; font-size: 13px; }
+    #about2 .a2-field textarea::placeholder { color: rgba(255,255,255,.75); font-size: 10px; }
+    #about2 .a2-field:focus-within label, #about2 .a2-field.is-bad label { color: #e8141b; }
+    #about2 .a2-field.a2-note { border-bottom: 0; }
+    #about2 .a2-foot { padding: 4px 18px 18px; display: flex; align-items: center; gap: 12px; }
+    #about2 .a2-send { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 112px; height: 30px; padding: 0 18px;
+      border-radius: 999px; border: 1px solid rgba(255,255,255,.28); background: rgba(10,10,12,.5); color: #fff; cursor: pointer;
+      font: 700 11px/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; transition: background .2s, border-color .2s; }
+    #about2 .a2-send:hover { background: #e10600; border-color: #e10600; }
+    #about2 .a2-send .px-ne { width: 10px; height: 10px; }
+    #about2 .a2-status { font-size: 10px; line-height: 1.3; color: rgba(255,255,255,.7); }
+    @media (max-width: 750px) {
+      #about2 .a2-top { padding: 0 1rem; }
+      #about2 .a2-sec { padding: 5.5rem 1.25rem 3rem; }
+      #about2 .a2-hero { width: 100%; }
+      #about2 .a2-wide { font-size: clamp(1rem, 5.2vw, 1.4rem); }
+      #about2 .a2-founder-img { width: 100%; }
+      #about2 .a2-sec--studio { flex-direction: column; justify-content: center; align-items: stretch; gap: 2.2rem; }
+      #about2 .a2-studio h2 { font-size: clamp(1.15rem, 5.6vw, 1.5rem); }
+      #about2 .a2-studio p { font-size: .78rem; }
+      #about2 .a2-form { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce) { #about2 .a2-float { animation: none; } }
+    @media (max-width: 750px) {
+      #about2 .a2-float { --w: 40px !important; }
+      #about2 .a2-float:nth-of-type(1) { left: 74% !important; top: 16% !important; }
+      #about2 .a2-float:nth-of-type(2) { left: 10% !important; top: 70% !important; }
+      #about2 .a2-float:nth-of-type(3) { left: 44% !important; top: 80% !important; }
+      #about2 .a2-float:nth-of-type(4) { left: 72% !important; top: 72% !important; }
+      #about2 .a2-float:nth-of-type(5) { left: 12% !important; top: 18% !important; }
+      #about2 .a2-float:nth-of-type(6) { left: 44% !important; top: 12% !important; }
+    }
   </style>
 </head>
 <body>
@@ -2415,6 +2521,45 @@
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <!-- ── ABOUT v2 ── -->
+  <div id="about2" role="dialog" aria-modal="true" aria-label="About DRGNFLEYE" aria-hidden="true">
+    <video class="a2-bg" src="" poster="drgnflye_loop_01_poster.jpg" muted loop playsinline preload="none" aria-hidden="true"></video>
+    <div class="a2-shade"></div>
+    <header class="a2-top">
+      <button class="a2-index" type="button" aria-label="Project index"><i class="px px-menu" aria-hidden="true"></i></button>
+      <span class="a2-logo" role="img" aria-label="DRGNFLEYE"></span>
+      <button class="a2-close" type="button" aria-label="Close"><i class="px px-x" aria-hidden="true"></i></button>
+    </header>
+    <div class="a2-scroll">
+      <section class="a2-sec a2-sec--hero">
+        <span class="a2-float" style="left:86%;top:17%;--w:70px;--dx:12px;--dy:-10px;--d:8s"><img src="press_logo_a24.png" alt="" /></span>
+        <span class="a2-float" style="left:9%;top:52%;--w:54px;--dx:-8px;--dy:14px;--d:10s"><img src="logo-apple.png" alt="" /></span>
+        <span class="a2-float" style="left:47%;top:50%;--w:52px;--dx:10px;--dy:10px;--d:7s"><img src="logo-nike.png" alt="" /></span>
+        <span class="a2-float" style="left:82%;top:84%;--w:64px;--dx:-12px;--dy:-8px;--d:11s"><img src="logo-netflix.png" alt="" /></span>
+        <span class="a2-float" style="left:14%;top:20%;--w:60px;--dx:8px;--dy:12px;--d:9s"><img src="logo-redbull.png" alt="" /></span>
+        <span class="a2-float" style="left:24%;top:82%;--w:62px;--dx:10px;--dy:-12px;--d:12s"><img src="logo-disneymusic.png" alt="" /></span>
+        <h1 class="a2-hero a2-tilt"><span class="a2-d">A Creative Company</span><span class="a2-d">For Ideas That Don&rsquo;t</span><span class="a2-d">Fit In One Box.</span><span class="a2-m">A Creative</span><span class="a2-m">Company For</span><span class="a2-m">Ideas That</span><span class="a2-m">Don&rsquo;t Fit In</span><span class="a2-m">One Box.</span></h1>
+      </section>
+      <section class="a2-sec a2-sec--founder">
+        <h2 class="a2-wide a2-tilt">Founded by David Maxwell, DRGNFLEYE brings together collaborators to develop ideas from inception to completion</h2>
+        <img class="a2-founder-img a2-tilt" src="about2_founder_placeholder.jpg" alt="" />
+      </section>
+      <section class="a2-sec a2-sec--studio">
+        <div class="a2-studio a2-tilt">
+          <h2>Does the world need another creative studio?</h2>
+          <p>We think so.<br>Not because the world needs more content. Because there&rsquo;s always room for a different perspective.</p>
+        </div>
+        <form class="a2-form a2-tilt" novalidate>
+          <div class="a2-form-head"><h3>Curious? Contact us to learn more about working together</h3></div>
+          <div class="a2-field"><label for="a2-name">Name / Company</label><input id="a2-name" type="text" autocomplete="organization" /></div>
+          <div class="a2-field"><label for="a2-email">Email</label><input id="a2-email" type="email" autocomplete="email" /></div>
+          <div class="a2-field a2-note"><label for="a2-note">Note</label><textarea id="a2-note" placeholder="Tell us what you&rsquo;d like to know&hellip;"></textarea></div>
+          <div class="a2-foot"><button class="a2-send" type="submit">Send <i class="px px-ne" aria-hidden="true"></i></button><span class="a2-status" aria-live="polite"></span></div>
+        </form>
+      </section>
     </div>
   </div>
 
@@ -5576,6 +5721,12 @@
       track.innerHTML = itemsHTML + itemsHTML;
     })();
 
+    /* ── ABOUT VERSION — 'v2' is the new three-scene About page; 'v1' is the original (archived, untouched).
+          ?about=v1 in the address opens the original for comparison. ── */
+    window.ABOUT_VERSION = new URLSearchParams(location.search).get('about') === 'v1' ? 'v1' : 'v2';
+    window.ABOUT_PANEL_ID = window.ABOUT_VERSION === 'v2' ? 'about2' : 'about-panel';
+    window.aboutEl = () => document.getElementById(window.ABOUT_PANEL_ID);
+
     /* ── NAV CLICK (panel open/close) ── */
     (function () {
       const navEl         = document.getElementById('side-nav');
@@ -5598,7 +5749,7 @@
             document.getElementById('site-logo').classList.remove('hidden-for-about');
             document.getElementById('glb-hint').classList.remove('gallery-open');
             document.getElementById('glb-hint').classList.remove('hidden-for-gallery');
-            document.getElementById('about-panel').classList.remove('open');
+            aboutEl().classList.remove('open');
             document.getElementById('contact-panel').classList.remove('open');
             navEl.classList.remove('about-open');
             navEl.classList.remove('contact-open');
@@ -5613,7 +5764,7 @@
             // Switch lock to this link — always reset all first
             previousLockedLink = lockedLink;
             lockedLink = link;
-            document.getElementById('about-panel').classList.remove('open');
+            aboutEl().classList.remove('open');
             document.getElementById('contact-panel').classList.remove('open');
             document.getElementById('glb-hint').classList.remove('gallery-open');
             document.getElementById('glb-hint').classList.remove('hidden-for-gallery');
@@ -5652,7 +5803,7 @@
               });
             } else if (link.id === 'nav-about') {
               if (window.__updateAboutMargins) window.__updateAboutMargins();
-              document.getElementById('about-panel').classList.add('open');
+              aboutEl().classList.add('open');
               navEl.classList.add('about-open');
               document.getElementById('site-logo').classList.add('hidden-for-about');
             }
@@ -5677,7 +5828,7 @@
         } else {
           lockedLink = null;
           previousLockedLink = null;
-          document.getElementById('about-panel').classList.remove('open');
+          aboutEl().classList.remove('open');
           navEl.classList.remove('about-open');
           document.getElementById('site-logo').classList.remove('hidden-for-about');
         }
@@ -5699,7 +5850,7 @@
       if (window.__closeAboutPanel) {
         window.__closeAboutPanel();
       } else {
-        document.getElementById('about-panel').classList.remove('open');
+        aboutEl().classList.remove('open');
         document.getElementById('side-nav').classList.remove('about-open');
       }
     });
@@ -5765,7 +5916,92 @@
       }
 
       navAbout.addEventListener('mouseover', activateVideo);
-      navAbout.addEventListener('mouseout', (e) => deactivateVideo('about-panel', navAbout, e));
+      navAbout.addEventListener('mouseout', (e) => deactivateVideo(window.ABOUT_PANEL_ID, navAbout, e));
+    })();
+  </script>
+
+  <script>
+    /* ── ABOUT v2 behaviour ── */
+    (function () {
+      const A = document.getElementById('about2');
+      if (!A) return;
+      const sc = A.querySelector('.a2-scroll'), bg = A.querySelector('.a2-bg'), shade = A.querySelector('.a2-shade');
+      const hero = A.querySelector('.a2-hero');
+      const tilts = [...A.querySelectorAll('.a2-tilt')];
+      const floats = [...A.querySelectorAll('.a2-float')];
+      const secs = [...A.querySelectorAll('.a2-sec')];
+      let raf = 0;
+      // the statement fills its column: font grows until the longest line spans the width
+      function fitHero() {
+        hero.style.fontSize = '100px';
+        const w = hero.clientWidth;
+        const lines = [...hero.children].filter(sp => getComputedStyle(sp).display !== 'none');
+        const widest = Math.max(...lines.map(sp => { sp.style.display = 'inline-block'; const x = sp.offsetWidth; sp.style.display = ''; return x; }));
+        hero.style.fontSize = Math.max(28, Math.min(150, 100 * w / widest * 0.98)).toFixed(1) + 'px';
+      }
+      // HXOUSE-style: as a block rises past the top it folds back and recedes; coming up from the
+      // bottom it starts tipped slightly forward and flattens out
+      function frame() {
+        raf = 0;
+        const vh = sc.clientHeight;
+        for (const el of tilts) {
+          const r = el.getBoundingClientRect();
+          const top = r.top, h = Math.max(1, r.height);
+          const p = Math.max(0, Math.min(1, (vh * 0.2 - top) / (h * 0.85 + vh * 0.12)));
+          const q = Math.max(0, Math.min(1, (r.top + h * 0.35 - vh * 0.92) / (vh * 0.35)));
+          if (p > 0) {
+            el.style.transformOrigin = '50% 100%';
+            el.style.transform = `perspective(900px) rotateX(${(p * 78).toFixed(2)}deg) translateZ(${(-p * 140).toFixed(1)}px)`;
+            el.style.opacity = Math.max(0, 1 - p * 1.15).toFixed(3);
+          } else if (q > 0) {
+            el.style.transformOrigin = '50% 0%';
+            el.style.transform = `perspective(900px) rotateX(${(-q * 32).toFixed(2)}deg) translateY(${(q * 40).toFixed(1)}px)`;
+            el.style.opacity = (1 - q * 0.75).toFixed(3);
+          } else { el.style.transform = ''; el.style.opacity = ''; }
+        }
+        // floating logos drift up a little faster than the page (depth) and tilt away with the statement
+        const st = sc.scrollTop;
+        floats.forEach((f, i) => { f.style.translate = `0 ${(-st * (0.18 + (i % 3) * 0.12)).toFixed(1)}px`; f.style.opacity = Math.max(0, 1 - st / (vh * 0.7)).toFixed(3); });
+        // the founder scene sits on a deep navy; the render shows through the other two
+        const s2 = secs[1].getBoundingClientRect();
+        const inMid = Math.max(0, 1 - Math.abs(s2.top + s2.height / 2 - vh / 2) / (vh * 0.75));
+        shade.style.opacity = (0.35 + 0.62 * inMid).toFixed(3);
+      }
+      const req = () => { if (!raf) raf = requestAnimationFrame(frame); };
+      sc.addEventListener('scroll', req, { passive: true });
+      window.addEventListener('resize', () => { if (A.classList.contains('open')) { fitHero(); req(); } });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitHero(); req(); });
+      // open / close: start the render, reset to the top
+      new MutationObserver(() => {
+        const open = A.classList.contains('open');
+        A.setAttribute('aria-hidden', open ? 'false' : 'true');
+        if (open) {
+          if (!bg.getAttribute('src')) bg.src = 'drgnflye_loop_01.mp4';
+          const pr = bg.play(); if (pr && pr.catch) pr.catch(() => {});
+          sc.scrollTop = 0; fitHero(); req();
+        } else setTimeout(() => { if (!A.classList.contains('open')) bg.pause(); }, 600);
+      }).observe(A, { attributes: true, attributeFilter: ['class'] });
+      A.querySelector('.a2-close').addEventListener('click', () => {
+        if (window.__closeAboutPanel) window.__closeAboutPanel(); else A.classList.remove('open');
+      });
+      A.querySelector('.a2-index').addEventListener('click', () => { if (typeof openIndex === 'function') openIndex(); });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && A.classList.contains('open') && !document.getElementById('pindex').classList.contains('open')) {
+          if (window.__closeAboutPanel) window.__closeAboutPanel(); else A.classList.remove('open');
+        }
+      });
+      // SEND opens the visitor's email app with the message filled in
+      A.querySelector('.a2-form').addEventListener('submit', e => {
+        e.preventDefault();
+        const name = A.querySelector('#a2-name').value.trim(), email = A.querySelector('#a2-email').value.trim(), note = A.querySelector('#a2-note').value.trim();
+        const st = A.querySelector('.a2-status'), ef = A.querySelector('#a2-email').closest('.a2-field');
+        const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        ef.classList.toggle('is-bad', !ok);
+        if (!ok) { st.textContent = 'Please add your email.'; A.querySelector('#a2-email').focus(); return; }
+        window.location.href = 'mailto:hello@davidmaxwell.work?subject=' + encodeURIComponent('Inquiry from drgnfleye.com')
+          + '&body=' + encodeURIComponent(`Name / Company: ${name}\nEmail: ${email}\n\n${note}`);
+        st.textContent = 'Opening your email app…';
+      });
     })();
   </script>
 
