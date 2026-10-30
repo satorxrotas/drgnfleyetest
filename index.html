@@ -2339,10 +2339,11 @@
     #about2 .a2-hero span { display: block; text-align: justify; text-align-last: justify; white-space: nowrap; }
     #about2 .a2-hero .a2-m { display: none; }
     @media (max-width: 750px) { #about2 .a2-hero .a2-d { display: none; } #about2 .a2-hero .a2-m { display: block; } }
-    #about2 .a2-float { position: absolute; width: var(--w, 56px); opacity: .95; pointer-events: none;
-      animation: a2-drift var(--d, 9s) ease-in-out infinite alternate; }
-    #about2 .a2-float img { width: 100%; height: auto; display: block; }
-    @keyframes a2-drift { from { transform: translate3d(0, 0, 0) rotate(-2deg); } to { transform: translate3d(var(--dx, 10px), var(--dy, -14px), 0) rotate(2deg); } }
+    /* client logos fly toward you like the Work gallery (not clickable, not tied to the scroll) */
+    #about2 .a2-fly { position: absolute; inset: 0; z-index: 0; perspective: 900px; perspective-origin: 50% 50%; pointer-events: none; overflow: hidden; }
+    #about2 .a2-fly-item { position: absolute; left: 50%; top: 50%; width: clamp(70px, 9vw, 130px); will-change: transform, opacity; opacity: 0; }
+    #about2 .a2-fly-item img { width: 100%; height: auto; display: block; user-select: none; -webkit-user-drag: none; }
+    #about2 .a2-sec--hero .a2-hero { position: relative; z-index: 1; }
     /* scene 2 — founder */
     #about2 .a2-sec--founder { flex-direction: column; gap: 0; }
     #about2 .a2-wide { margin: 0 0 clamp(1.4rem, 3vh, 2.4rem);   /* breathing room above the clip */ max-width: 40rem; text-align: center;
@@ -2388,16 +2389,7 @@
       #about2 .a2-studio p { font-size: .78rem; }
       #about2 .a2-form { width: 100%; }
     }
-    @media (prefers-reduced-motion: reduce) { #about2 .a2-float { animation: none; } }
-    @media (max-width: 750px) {
-      #about2 .a2-float { --w: 40px !important; }
-      #about2 .a2-float:nth-of-type(1) { left: 74% !important; top: 16% !important; }
-      #about2 .a2-float:nth-of-type(2) { left: 10% !important; top: 70% !important; }
-      #about2 .a2-float:nth-of-type(3) { left: 44% !important; top: 80% !important; }
-      #about2 .a2-float:nth-of-type(4) { left: 72% !important; top: 72% !important; }
-      #about2 .a2-float:nth-of-type(5) { left: 12% !important; top: 18% !important; }
-      #about2 .a2-float:nth-of-type(6) { left: 44% !important; top: 12% !important; }
-    }
+
   </style>
 </head>
 <body>
@@ -2548,12 +2540,7 @@
     <div class="a2-scroll">
       <section class="a2-sec a2-sec--hero">
         <p class="a2-hint" aria-hidden="true">Scroll to explore</p>
-        <span class="a2-float" style="left:86%;top:17%;--w:70px;--dx:12px;--dy:-10px;--d:8s"><img src="press_logo_a24.png" alt="" /></span>
-        <span class="a2-float" style="left:9%;top:52%;--w:54px;--dx:-8px;--dy:14px;--d:10s"><img src="logo-apple.png" alt="" /></span>
-        <span class="a2-float" style="left:47%;top:50%;--w:52px;--dx:10px;--dy:10px;--d:7s"><img src="logo-nike.png" alt="" /></span>
-        <span class="a2-float" style="left:82%;top:84%;--w:64px;--dx:-12px;--dy:-8px;--d:11s"><img src="logo-netflix.png" alt="" /></span>
-        <span class="a2-float" style="left:14%;top:20%;--w:60px;--dx:8px;--dy:12px;--d:9s"><img src="logo-redbull.png" alt="" /></span>
-        <span class="a2-float" style="left:24%;top:82%;--w:62px;--dx:10px;--dy:-12px;--d:12s"><img src="logo-disneymusic.png" alt="" /></span>
+        <div class="a2-fly" aria-hidden="true"><span class="a2-fly-item"><img src="press_logo_a24.png" alt="" /></span><span class="a2-fly-item"><img src="logo-apple.png" alt="" /></span><span class="a2-fly-item"><img src="logo-nike.png" alt="" /></span><span class="a2-fly-item"><img src="logo-netflix.png" alt="" /></span><span class="a2-fly-item"><img src="logo-redbull.png" alt="" /></span><span class="a2-fly-item"><img src="logo-disneymusic.png" alt="" /></span><span class="a2-fly-item"><img src="logo-amazonmusic.png" alt="" /></span><span class="a2-fly-item"><img src="logo-warner.png" alt="" /></span><span class="a2-fly-item"><img src="logo-airbnb.png" alt="" /></span><span class="a2-fly-item"><img src="logo-tiktok.png" alt="" /></span><span class="a2-fly-item"><img src="logo-marvel.png" alt="" /></span><span class="a2-fly-item"><img src="logo-unitedmasters.png" alt="" /></span><span class="a2-fly-item"><img src="logo-larams.png" alt="" /></span></div>
         <h1 class="a2-hero a2-tilt"><img src="about2_statement.png" alt="A creative company for ideas that don&rsquo;t fit in one box." /></h1>
       </section>
       <section class="a2-sec a2-sec--founder">
@@ -5947,7 +5934,8 @@
       const sc = A.querySelector('.a2-scroll'), bg = A.querySelector('.a2-bg'), shade = A.querySelector('.a2-shade');
       const hero = A.querySelector('.a2-hero');
       const tilts = [...A.querySelectorAll('.a2-tilt')];
-      const floats = [...A.querySelectorAll('.a2-float')];
+      const flyEls = [...A.querySelectorAll('.a2-fly-item')];
+      const flyWrap = A.querySelector('.a2-fly');
       const secs = [...A.querySelectorAll('.a2-sec')];
       let raf = 0;
       // the statement fills its column: font grows until the longest line spans the width
@@ -5982,13 +5970,39 @@
         // floating logos drift up a little faster than the page (depth) and tilt away with the statement
         const st = sc.scrollTop;
         A.querySelector('.a2-hint').classList.toggle('is-gone', st > 30);
-        floats.forEach((f, i) => { f.style.translate = `0 ${(-st * (0.18 + (i % 3) * 0.12)).toFixed(1)}px`; f.style.opacity = Math.max(0, 1 - st / (vh * 0.7)).toFixed(3); });
+        flyWrap.style.opacity = Math.max(0, 1 - st / (vh * 0.7)).toFixed(3);
         // the founder scene sits on a deep navy; the render shows through the other two
         const s2 = secs[1].getBoundingClientRect();
         const inMid = Math.max(0, 1 - Math.abs(s2.top + s2.height / 2 - vh / 2) / (vh * 0.75));
         shade.style.opacity = (0.35 + 0.62 * inMid).toFixed(3);
       }
       const req = () => { if (!raf) raf = requestAnimationFrame(frame); };
+      // ── flying logos: same depth range, lanes and cruise speed as the Work gallery
+      const F_FAR = -1600, F_NEAR = 550, F_SPAN = F_NEAR - F_FAR, F_SPEED = 68.4 * 1.794;
+      const lanes = (() => {
+        const n = flyEls.length; let step = Math.round(n / 2);
+        const g = (a, b) => b ? g(b, a % b) : a;
+        while (g(step, n) !== 1) step++;
+        return flyEls.map((_, i) => {
+          const slot = (i * step) % n, ang = (slot * (360 / n) + 11) * Math.PI / 180, rad = slot % 2 === 0 ? 26 : 34;
+          return { x: Math.round(rad * Math.cos(ang)), y: Math.round(rad * Math.sin(ang) * 0.85) };
+        });
+      })();
+      let flyRaf = 0, flyLast = 0, flyPos = 0;
+      function flyFrame(ts) {
+        const dt = Math.min(0.1, (ts - (flyLast || ts)) / 1000); flyLast = ts;
+        flyPos += F_SPEED * dt;
+        if (sc.scrollTop < sc.clientHeight * 1.05) flyEls.forEach((el, i) => {
+          let pr = ((i / flyEls.length) * F_SPAN + flyPos) % F_SPAN;
+          const z = F_FAR + pr, fz = F_SPAN * 0.14;
+          const o = Math.max(0, Math.min(pr / fz, (F_SPAN - pr) / fz, 1));
+          el.style.transform = `translate3d(calc(-50% + ${lanes[i].x}vw), calc(-50% + ${lanes[i].y}vh), ${z.toFixed(1)}px)`;
+          el.style.opacity = o.toFixed(3);
+          el.style.zIndex = Math.round(z + 2000);
+        });
+        flyRaf = A.classList.contains('open') ? requestAnimationFrame(flyFrame) : 0;
+      }
+      const flyStart = () => { if (!flyRaf) { flyLast = 0; flyRaf = requestAnimationFrame(flyFrame); } };
       sc.addEventListener('scroll', req, { passive: true });
       // snap: once scrolling pauses, glide to the start of a scene — the next one in the direction
       // you were scrolling (so a small flick is enough), never fighting a scroll that's still going
@@ -6027,7 +6041,7 @@
           const pr = bg.play(); if (pr && pr.catch) pr.catch(() => {});
           const fv = A.querySelector('video.a2-founder-img');
           if (fv) { const p2 = fv.play(); if (p2 && p2.catch) p2.catch(() => {}); }
-          sc.scrollTop = 0; fitHero(); req();
+          sc.scrollTop = 0; fitHero(); req(); flyStart();
         } else setTimeout(() => { if (!A.classList.contains('open')) { bg.pause(); const fv = A.querySelector('video.a2-founder-img'); if (fv) fv.pause(); } }, 600);
       }).observe(A, { attributes: true, attributeFilter: ['class'] });
       A.querySelector('.a2-close').addEventListener('click', () => {
