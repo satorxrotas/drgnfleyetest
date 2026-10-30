@@ -2294,7 +2294,7 @@
       position: fixed; inset: 0; z-index: 7800;
       background: #050608; color: #f0ede6; overflow: hidden;
       opacity: 0; pointer-events: none; visibility: hidden;
-      transition: opacity .5s ease, visibility 0s linear .5s;
+      transition: opacity .3s ease, visibility 0s linear .3s;   /* closes quickly */
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
     #about2.open { opacity: 1; pointer-events: auto; visibility: visible; transition: opacity .5s ease; }
@@ -5844,6 +5844,12 @@
           aboutEl().classList.remove('open');
           navEl.classList.remove('about-open');
           document.getElementById('site-logo').classList.remove('hidden-for-about');
+          // the dark About render behind the page goes away straight away too
+          // (it used to wait for the cursor to leave the ABOUT link)
+          const wrap = document.getElementById('bg-video-wrap'), v = document.getElementById('bg-video');
+          wrap.classList.remove('visible');
+          document.body.classList.remove('video-active');
+          setTimeout(() => { if (!wrap.classList.contains('visible')) v.pause(); }, 400);
         }
       };
     })();
