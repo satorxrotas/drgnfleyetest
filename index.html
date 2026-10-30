@@ -2324,6 +2324,7 @@
     /* scene 1 — the statement */
     #about2 .a2-hero { margin: 0; width: min(62vw, 980px); font-family: 'Anton', 'Helvetica Neue', Impact, sans-serif; font-weight: 400;
       color: #e8141b; text-transform: uppercase; line-height: .86; letter-spacing: .005em; }
+    #about2 .a2-hero img { display: block; width: 100%; height: auto; }
     #about2 .a2-hero span { display: block; text-align: justify; text-align-last: justify; white-space: nowrap; }
     #about2 .a2-hero .a2-m { display: none; }
     @media (max-width: 750px) { #about2 .a2-hero .a2-d { display: none; } #about2 .a2-hero .a2-m { display: block; } }
@@ -2541,7 +2542,7 @@
         <span class="a2-float" style="left:82%;top:84%;--w:64px;--dx:-12px;--dy:-8px;--d:11s"><img src="logo-netflix.png" alt="" /></span>
         <span class="a2-float" style="left:14%;top:20%;--w:60px;--dx:8px;--dy:12px;--d:9s"><img src="logo-redbull.png" alt="" /></span>
         <span class="a2-float" style="left:24%;top:82%;--w:62px;--dx:10px;--dy:-12px;--d:12s"><img src="logo-disneymusic.png" alt="" /></span>
-        <h1 class="a2-hero a2-tilt"><span class="a2-d">A Creative Company</span><span class="a2-d">For Ideas That Don&rsquo;t</span><span class="a2-d">Fit In One Box.</span><span class="a2-m">A Creative</span><span class="a2-m">Company For</span><span class="a2-m">Ideas That</span><span class="a2-m">Don&rsquo;t Fit In</span><span class="a2-m">One Box.</span></h1>
+        <h1 class="a2-hero a2-tilt"><img src="about2_statement.png" alt="A creative company for ideas that don&rsquo;t fit in one box." /></h1>
       </section>
       <section class="a2-sec a2-sec--founder">
         <h2 class="a2-wide a2-tilt">Founded by David Maxwell, DRGNFLEYE brings together collaborators to develop ideas from inception to completion</h2>
@@ -5933,6 +5934,7 @@
       let raf = 0;
       // the statement fills its column: font grows until the longest line spans the width
       function fitHero() {
+        if (!hero.querySelector('span')) return;   // the statement is now the supplied artwork, used as-is
         hero.style.fontSize = '100px';
         const w = hero.clientWidth;
         const lines = [...hero.children].filter(sp => getComputedStyle(sp).display !== 'none');
