@@ -238,6 +238,7 @@
 
     #nav-work  { left: 1.75rem; }
     #nav-about { right: 1.75rem; }
+    #nav-contact { top: auto !important; bottom: 1.75rem; left: 50%; transform: translateX(-50%) !important; }   /* bottom centre */
 
     #status-msg {
       position: absolute;
@@ -2086,6 +2087,7 @@
       letter-spacing: 0.2em;
       color: #444;
       transition: opacity 0.4s;
+      pointer-events: none;          /* the faded-out loading % must not block CONTACT underneath */
     }
 
     /* ── ARCHIVED PROJECTS — kept in the index + flying gallery, but a click opens this message box
@@ -2470,6 +2472,7 @@
   <nav id="side-nav">
     <a href="#" id="nav-work">WORK</a>
     <a href="#" id="nav-about">ABOUT</a>
+    <a href="#" id="nav-contact">CONTACT</a>
   </nav>
 
   <div id="page"></div>
@@ -5441,9 +5444,12 @@
     const inquireEl = document.getElementById('inquire');
     const IQ_BG_SRC = 'drgnflye_loop_01.mp4';      // the dark dragonfly render
     let iqProject = '';
+    const IQ_HEAD_PROJECT = 'Curious? Contact us to learn more about this project';
+    const IQ_HEAD_GENERAL = 'Curious? Contact us to learn more about working together';
     function openInquire(idx) {
-      const p = PROJECTS.find(q => q.project === idx);
+      const p = idx == null ? null : PROJECTS.find(q => q.project === idx);
       iqProject = p ? p.title : '';
+      document.getElementById('iq-title').textContent = p ? IQ_HEAD_PROJECT : IQ_HEAD_GENERAL;
       const v = inquireEl.querySelector('.iq-bg');
       if (!v.getAttribute('src')) v.src = IQ_BG_SRC;
       try { v.currentTime = 0; } catch (e) {}
@@ -5470,11 +5476,13 @@
       const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
       emailField.classList.toggle('is-bad', !ok);
       if (!ok) { status.textContent = 'Please add your email.'; document.getElementById('iq-email').focus(); return; }
-      const body = `Project: ${iqProject}\nName / Company: ${name}\nEmail: ${email}\n\n${note}`;
-      window.location.href = 'mailto:hello@davidmaxwell.work?subject=' + encodeURIComponent('Inquiry: ' + iqProject)
+      const body = `${iqProject ? `Project: ${iqProject}\n` : ''}Name / Company: ${name}\nEmail: ${email}\n\n${note}`;
+      window.location.href = 'mailto:hello@davidmaxwell.work?subject=' + encodeURIComponent(iqProject ? 'Inquiry: ' + iqProject : 'Inquiry from drgnfleye.com')
         + '&body=' + encodeURIComponent(body);
       status.textContent = 'Opening your email app\u2026';
     });
+    // CONTACT (bottom centre of the home page) opens the same message box, for general enquiries
+    document.getElementById('nav-contact').addEventListener('click', e => { e.preventDefault(); e.stopImmediatePropagation(); openInquire(null); });   // (registered before the nav panel handler, so it doesn't reset the page)
     inquireEl.addEventListener('click', e => { if (e.target === inquireEl || e.target.classList.contains('iq-bg') || e.target.closest('.iq-close')) closeInquire(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && inquireEl.classList.contains('open')) { e.stopImmediatePropagation(); closeInquire(); } }, true);
 
