@@ -126,7 +126,7 @@
 
     #glb-hint {
       position: fixed;
-      bottom: calc(1.75rem + clamp(1.1rem, 1.7vw, 1.6rem) * 1.2 + 0.9rem);   /* sits just above CONTACT */
+      bottom: var(--above-contact, calc(1.75rem + clamp(1.1rem, 1.7vw, 1.6rem) * 1.25 + 20px));   /* 20px above CONTACT (JS fine-tunes it from CONTACT's real position) */
       left: 50%;
       transform: translateX(-50%);
       z-index: 2;
@@ -5482,6 +5482,13 @@
       status.textContent = 'Opening your email app\u2026';
     });
     // CONTACT (bottom centre of the home page) opens the same message box, for general enquiries
+    // keep "drag to rotate" exactly 20px above CONTACT, whatever the font/screen
+    (function () {
+      const hint = document.getElementById('glb-hint'), c = document.getElementById('nav-contact');
+      const place = () => { const r = c.getBoundingClientRect(); if (r.height) hint.style.setProperty('--above-contact', Math.round(window.innerHeight - r.top + 20) + 'px'); };
+      place(); window.addEventListener('resize', place); window.addEventListener('load', place);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(place);
+    })();
     document.getElementById('nav-contact').addEventListener('click', e => { e.preventDefault(); e.stopImmediatePropagation(); openInquire(null); });   // (registered before the nav panel handler, so it doesn't reset the page)
     inquireEl.addEventListener('click', e => { if (e.target === inquireEl || e.target.classList.contains('iq-bg') || e.target.closest('.iq-close')) closeInquire(); });
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && inquireEl.classList.contains('open')) { e.stopImmediatePropagation(); closeInquire(); } }, true);
