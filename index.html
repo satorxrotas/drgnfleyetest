@@ -2316,9 +2316,11 @@
       -webkit-mask: url(DRGNFLEYE_Logo_square_01.svg) center / contain no-repeat; mask: url(DRGNFLEYE_Logo_square_01.svg) center / contain no-repeat;
     }
     #about2 .a2-scroll {
-      position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; z-index: 2;
+      position: absolute; inset: 0; overflow: hidden; z-index: 2; touch-action: none;   /* we drive the wheel ourselves */
       -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+      scrollbar-width: none;                         /* endless loop: no scrollbar to show */
     }
+    #about2 .a2-scroll::-webkit-scrollbar { display: none; }
     #about2 .a2-sec { position: relative; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding: 6rem 6vw 4rem; }
     /* the wheel: every piece (artwork strip, text line, clip, form) sits on a drum and is bent onto it */
     #about2 .a2-sec, #about2 .a2-hero, #about2 .a2-studio, #about2 .a2-lines { transform-style: preserve-3d; }
@@ -2334,7 +2336,7 @@
     #about2 .a2-strip { display: block; flex: 1 1 0; background: url(about2_statement.png) no-repeat; background-size: 100% 600%; }
     /* "scroll to explore" — pulses at the bottom of the first scene, fades once you scroll */
     #about2 .a2-hint {
-      position: absolute; left: 50%; bottom: 2.2rem; transform: translateX(-50%); z-index: 3;
+      position: absolute; left: 50%; bottom: 2.2rem; transform: translateX(-50%); z-index: 4;
       font: 700 .6rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .15em; text-transform: uppercase;
       color: #f0ede6; text-shadow: 0 1px 6px rgba(0,0,0,.7); white-space: nowrap; pointer-events: none;
       animation: a2-pulse 2.4s ease-in-out infinite; transition: opacity .4s ease;
@@ -2350,7 +2352,7 @@
     #about2 .a2-hero .a2-m { display: none; }
     @media (max-width: 750px) { #about2 .a2-hero .a2-d { display: none; } #about2 .a2-hero .a2-m { display: block; } }
     /* client logos fly toward you like the Work gallery (not clickable, not tied to the scroll) */
-    #about2 .a2-fly { position: absolute; inset: 0; z-index: 0; perspective: 900px; perspective-origin: 50% 50%; pointer-events: none; overflow: hidden; }
+    #about2 .a2-fly { position: absolute; inset: 0; z-index: 1; perspective: 900px; perspective-origin: 50% 50%; pointer-events: none; overflow: hidden; }
     #about2 .a2-fly-item { position: absolute; left: 50%; top: 50%; width: clamp(70px, 9vw, 130px); will-change: transform, opacity; opacity: 0; }
     #about2 .a2-fly-item img { width: 100%; height: auto; display: block; user-select: none; -webkit-user-drag: none; }
     #about2 .a2-sec--hero .a2-hero { position: relative; z-index: 1; }
@@ -2547,10 +2549,10 @@
       <span class="a2-logo" role="img" aria-label="DRGNFLEYE"></span>
       <button class="a2-close" type="button" aria-label="Close"><i class="px px-x" aria-hidden="true"></i></button>
     </header>
+    <div class="a2-fly" aria-hidden="true"><span class="a2-fly-item"><img src="press_logo_a24.png" alt="" /></span><span class="a2-fly-item"><img src="logo-apple.png" alt="" /></span><span class="a2-fly-item"><img src="logo-nike.png" alt="" /></span><span class="a2-fly-item"><img src="logo-netflix.png" alt="" /></span><span class="a2-fly-item"><img src="logo-redbull.png" alt="" /></span><span class="a2-fly-item"><img src="logo-disneymusic.png" alt="" /></span><span class="a2-fly-item"><img src="logo-amazonmusic.png" alt="" /></span><span class="a2-fly-item"><img src="logo-warner.png" alt="" /></span><span class="a2-fly-item"><img src="logo-airbnb.png" alt="" /></span><span class="a2-fly-item"><img src="logo-tiktok.png" alt="" /></span><span class="a2-fly-item"><img src="logo-marvel.png" alt="" /></span><span class="a2-fly-item"><img src="logo-unitedmasters.png" alt="" /></span><span class="a2-fly-item"><img src="logo-larams.png" alt="" /></span></div>
+    <p class="a2-hint" aria-hidden="true">Scroll to explore</p>
     <div class="a2-scroll">
       <section class="a2-sec a2-sec--hero">
-        <p class="a2-hint" aria-hidden="true">Scroll to explore</p>
-        <div class="a2-fly" aria-hidden="true"><span class="a2-fly-item"><img src="press_logo_a24.png" alt="" /></span><span class="a2-fly-item"><img src="logo-apple.png" alt="" /></span><span class="a2-fly-item"><img src="logo-nike.png" alt="" /></span><span class="a2-fly-item"><img src="logo-netflix.png" alt="" /></span><span class="a2-fly-item"><img src="logo-redbull.png" alt="" /></span><span class="a2-fly-item"><img src="logo-disneymusic.png" alt="" /></span><span class="a2-fly-item"><img src="logo-amazonmusic.png" alt="" /></span><span class="a2-fly-item"><img src="logo-warner.png" alt="" /></span><span class="a2-fly-item"><img src="logo-airbnb.png" alt="" /></span><span class="a2-fly-item"><img src="logo-tiktok.png" alt="" /></span><span class="a2-fly-item"><img src="logo-marvel.png" alt="" /></span><span class="a2-fly-item"><img src="logo-unitedmasters.png" alt="" /></span><span class="a2-fly-item"><img src="logo-larams.png" alt="" /></span></div>
         <h1 class="a2-hero" aria-label="A creative company for ideas that don&rsquo;t fit in one box."><span class="a2-strip a2-w" style="background-position:0 0%"></span><span class="a2-strip a2-w" style="background-position:0 20%"></span><span class="a2-strip a2-w" style="background-position:0 40%"></span><span class="a2-strip a2-w" style="background-position:0 60%"></span><span class="a2-strip a2-w" style="background-position:0 80%"></span><span class="a2-strip a2-w" style="background-position:0 100%"></span></h1>
       </section>
       <section class="a2-sec a2-sec--founder">
@@ -5978,7 +5980,14 @@
       poster.onload = drawStrips;
       let pieces = [];
       // each piece's resting centre, in page coordinates (measured without any transform applied)
+      // endless loop: the scenes don't really scroll — wheel / swipe / keys move a position (pos) that
+      // never ends, and every piece is drawn onto the wheel from where pos sits within one loop (L)
+      let L = 1, pos = 0, target = 0, vel = 0;
+      const wrapHalf = x => ((x + L / 2) % L + L) % L - L / 2;
+      const logical = v => (v % L + L) % L;
       function measure() {
+        const last = secs[secs.length - 1];
+        L = Math.max(1, last.offsetTop + last.offsetHeight);
         pieces = [...A.querySelectorAll('.a2-w')].map(el => {
           let y = 0, n = el;
           while (n && n !== sc) { y += n.offsetTop; n = n.offsetParent; }
@@ -6004,26 +6013,35 @@
         raf = 0;
         const vh = sc.clientHeight;
         // drum: arc length from the middle of the screen becomes an angle on a wheel of radius R
-        const R2 = vh * (sc.clientWidth <= 750 ? 1.0 : 0.78), st0 = sc.scrollTop, mid = st0 + vh / 2;
+        // ease toward the wheel/key target, or coast after a swipe
+        if (!drag) {
+          if (vel) { target += vel; vel *= 0.94; if (Math.abs(vel) < 0.2) vel = 0; }
+          pos += (target - pos) * 0.16;
+          if (Math.abs(target - pos) < 0.3) pos = target;
+        }
+        const R2 = vh * (sc.clientWidth <= 750 ? 1.0 : 0.78), mid = vh / 2;
+        const lg = logical(pos), midL = lg + vh / 2;
         sc.style.perspective = Math.round(vh * 1.9) + 'px';
         sc.style.perspectiveOrigin = `50% ${Math.round(mid)}px`;
         for (const P of pieces) {
-          const d = P.cy - mid, phi = d / R2;
+          const d = wrapHalf(P.cy - midL), phi = d / R2;   // where it sits on the wheel (within the loop)
           const el = P.el;
           if (Math.abs(phi) >= Math.PI / 2) { el.style.opacity = '0'; el.style.visibility = 'hidden'; continue; }
           el.style.visibility = '';
-          const dy = R2 * Math.sin(phi) - d, dz = R2 * (Math.cos(phi) - 1);
+          const da = P.cy - mid;                             // where its box actually is on screen
+          const dy = R2 * Math.sin(phi) - da, dz = R2 * (Math.cos(phi) - 1);
           el.style.transform = `translate3d(0, ${dy.toFixed(1)}px, ${dz.toFixed(1)}px) rotateX(${(-phi * 180 / Math.PI).toFixed(2)}deg)`;
           el.style.opacity = Math.max(0, Math.min(1, (1.3 - Math.abs(phi)) / 0.5)).toFixed(3);
         }
         // floating logos drift up a little faster than the page (depth) and tilt away with the statement
-        const st = sc.scrollTop;
-        A.querySelector('.a2-hint').classList.toggle('is-gone', st > 30);
-        flyWrap.style.opacity = Math.max(0, 1 - st / (vh * 0.7)).toFixed(3);
+        const toTop = Math.min(lg, L - lg);                  // distance from the first scene, either way round
+        A.querySelector('.a2-hint').classList.toggle('is-gone', lg > 30);
+        flyWrap.style.opacity = Math.max(0, 1 - toTop / (vh * 0.7)).toFixed(3);
         // the founder scene sits on a deep navy; the render shows through the other two
-        const s2 = secs[1].getBoundingClientRect();
-        const inMid = Math.max(0, 1 - Math.abs(s2.top + s2.height / 2 - vh / 2) / (vh * 0.75));
+        const s2c = secs[1].offsetTop + secs[1].offsetHeight / 2;
+        const inMid = Math.max(0, 1 - Math.abs(wrapHalf(s2c - midL)) / (vh * 0.75));
         shade.style.opacity = (0.35 + 0.62 * inMid).toFixed(3);
+        if (drag || vel || pos !== target) req();
       }
       const req = () => { if (!raf) raf = requestAnimationFrame(frame); };
       // ── flying logos: same depth range, lanes and cruise speed as the Work gallery
@@ -6041,7 +6059,8 @@
       function flyFrame(ts) {
         const dt = Math.min(0.1, (ts - (flyLast || ts)) / 1000); flyLast = ts;
         flyPos += F_SPEED * dt;
-        if (sc.scrollTop < sc.clientHeight * 1.05) flyEls.forEach((el, i) => {
+        const lgF = logical(pos);
+        if (Math.min(lgF, L - lgF) < sc.clientHeight * 1.05) flyEls.forEach((el, i) => {
           let pr = ((i / flyEls.length) * F_SPAN + flyPos) % F_SPAN;
           const z = F_FAR + pr, fz = F_SPAN * 0.14;
           const o = Math.max(0, Math.min(pr / fz, (F_SPAN - pr) / fz, 1));
@@ -6052,34 +6071,36 @@
         flyRaf = A.classList.contains('open') ? requestAnimationFrame(flyFrame) : 0;
       }
       const flyStart = () => { if (!flyRaf) { flyLast = 0; flyRaf = requestAnimationFrame(flyFrame); } };
-      sc.addEventListener('scroll', req, { passive: true });
-      // snap: once scrolling pauses, glide to the start of a scene — the next one in the direction
-      // you were scrolling (so a small flick is enough), never fighting a scroll that's still going
-      let lastTop = 0, dir = 0, snapT = 0, snapping = false, startTop = 0;
-      sc.addEventListener('scroll', () => {
-        const t = sc.scrollTop;
-        if (!snapping) { if (t !== lastTop) dir = Math.sign(t - lastTop); }
-        lastTop = t;
-        clearTimeout(snapT);
-        snapT = setTimeout(() => {
-          if (snapping) { snapping = false; startTop = sc.scrollTop; return; }
-          const pts = secs.map(x => x.offsetTop), vh = sc.clientHeight, cur = sc.scrollTop;
-          // inside a scene taller than the screen, let it scroll freely until its edge
-          const inTall = secs.some((x, i) => x.offsetHeight > vh + 4 && cur > pts[i] + 4 && cur + vh < pts[i] + x.offsetHeight - 4);
-          if (inTall) { startTop = cur; return; }
-          let i = pts.findIndex((y, k) => k === pts.length - 1 || cur < pts[k + 1]);
-          const frac = (cur - pts[i]) / Math.max(1, (pts[i + 1] || pts[i] + vh) - pts[i]);
-          let target = i;
-          if (frac > 0.02) target = dir > 0 ? i + 1 : (dir < 0 ? i : (frac > 0.5 ? i + 1 : i));
-          if (dir < 0 && frac < 0.02 && Math.abs(cur - startTop) > 4) target = i;
-          target = Math.max(0, Math.min(pts.length - 1, target));
-          const y = Math.min(pts[target], sc.scrollHeight - vh);
-          if (Math.abs(y - cur) < 2) { startTop = cur; return; }
-          snapping = true;
-          sc.scrollTo({ top: y, behavior: 'smooth' });
-        }, 110);
-      }, { passive: true });
-      window.addEventListener('resize', () => { if (A.classList.contains('open')) { fitHero(); splitLines(); req(); } });
+      // ── input: mouse wheel / trackpad, touch or mouse drag (with a little coast), keys
+      let drag = null;
+      sc.addEventListener('wheel', e => {
+        e.preventDefault();
+        target += e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * sc.clientHeight : e.deltaY;
+        vel = 0; req();
+      }, { passive: false });
+      sc.addEventListener('pointerdown', e => {
+        if (e.button || e.target.closest('input, textarea, button, a, label')) return;
+        drag = { id: e.pointerId, y: e.clientY, t: performance.now(), v: 0, moved: false };
+      });
+      window.addEventListener('pointermove', e => {
+        if (!drag || e.pointerId !== drag.id) return;
+        const dy = e.clientY - drag.y, now = performance.now();
+        if (!drag.moved && Math.abs(dy) < 4) return;
+        drag.moved = true;
+        pos -= dy; target = pos;
+        drag.v = -dy / Math.max(8, now - drag.t) * 16;   // px per frame
+        drag.y = e.clientY; drag.t = now; req();
+      });
+      const dragEnd = e => { if (!drag || (e && e.pointerId !== drag.id)) return; vel = drag.moved ? drag.v : 0; drag = null; req(); };
+      window.addEventListener('pointerup', dragEnd);
+      window.addEventListener('pointercancel', dragEnd);
+      document.addEventListener('keydown', e => {
+        if (!A.classList.contains('open') || e.target.closest && e.target.closest('input, textarea')) return;
+        const vh = sc.clientHeight;
+        const step = { ArrowDown: vh * 0.25, ArrowUp: -vh * 0.25, PageDown: vh * 0.9, PageUp: -vh * 0.9, ' ': vh * 0.9 }[e.key];
+        if (step) { e.preventDefault(); target += step; vel = 0; req(); }
+      });
+      window.addEventListener('resize', () => { if (A.classList.contains('open')) { const f = logical(pos) / L; fitHero(); splitLines(); pos = target = f * L; req(); } });
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { fitHero(); if (A.classList.contains('open')) splitLines(); req(); });
       A.querySelector('video.a2-vsrc').addEventListener('loadedmetadata', () => { measure(); req(); });
       // open / close: start the render, reset to the top
@@ -6091,7 +6112,7 @@
           const pr = bg.play(); if (pr && pr.catch) pr.catch(() => {});
           const fv = A.querySelector('video.a2-vsrc');
           if (fv) { const p2 = fv.play(); if (p2 && p2.catch) p2.catch(() => {}); }
-          sc.scrollTop = 0; fitHero(); requestAnimationFrame(() => { splitLines(); req(); }); flyStart();
+          fitHero(); pos = target = 0; vel = 0; measure(); requestAnimationFrame(() => { splitLines(); req(); }); flyStart();
         } else setTimeout(() => { if (!A.classList.contains('open')) { bg.pause(); const fv = A.querySelector('video.a2-vsrc'); if (fv) fv.pause(); } }, 600);
       }).observe(A, { attributes: true, attributeFilter: ['class'] });
       A.querySelector('.a2-close').addEventListener('click', () => {
