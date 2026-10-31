@@ -2729,8 +2729,8 @@
       // Starting pose: head up, tail down, wings spread (rotX = -90°)
       let isDragging = false, prevX = 0, prevY = 0, rotX = -Math.PI / 2, rotY = 0;
       pivot.rotation.x = rotX;
-      renderer.domElement.addEventListener('mousedown', e => { isDragging = true; prevX = e.clientX; prevY = e.clientY; });
-      renderer.domElement.addEventListener('touchstart', e => { isDragging = true; prevX = e.touches[0].clientX; prevY = e.touches[0].clientY; });
+      renderer.domElement.addEventListener('mousedown', e => { isDragging = true; rotY = pivot.rotation.y; spinVX = spinVY = 0; prevX = e.clientX; prevY = e.clientY; });
+      renderer.domElement.addEventListener('touchstart', e => { isDragging = true; rotY = pivot.rotation.y; spinVX = spinVY = 0; prevX = e.touches[0].clientX; prevY = e.touches[0].clientY; });
       window.addEventListener('mouseup',  () => isDragging = false);
       window.addEventListener('touchend', () => isDragging = false);
       window.addEventListener('mousemove', e => {
@@ -2749,9 +2749,22 @@
         pivot.rotation.y = rotY;
         pivot.rotation.x = rotX;
       });
+      // scroll / trackpad turns the dragonfly too (two-finger swipe left-right spins it, up-down tips it);
+      // pinch (or ctrl + scroll) still zooms. Turning glides with a little momentum.
+      let spinVX = 0, spinVY = 0;
       renderer.domElement.addEventListener('wheel', e => {
-        camera.position.z = Math.max(0.5, Math.min(10, camera.position.z + e.deltaY * 0.005));
-      });
+        e.preventDefault();
+        if (e.ctrlKey) { camera.position.z = Math.max(0.5, Math.min(10, camera.position.z + e.deltaY * 0.02)); return; }
+        const k = e.deltaMode === 1 ? 16 : 1;
+        spinVY += e.deltaX * k * 0.0009;
+        spinVX += e.deltaY * k * 0.0009;
+      }, { passive: false });
+      function spinStep() {
+        if (Math.abs(spinVX) < 1e-5 && Math.abs(spinVY) < 1e-5) return;
+        rotY = pivot.rotation.y + spinVY; rotX += spinVX;
+        pivot.rotation.y = rotY; pivot.rotation.x = rotX;
+        spinVX *= 0.9; spinVY *= 0.9;
+      }
 
       // ── Hover glow: when the pointer is over the dragonfly itself (not just the red around it)
       const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
@@ -2884,6 +2897,7 @@
       (function animate() {
         requestAnimationFrame(animate);
         pivot.rotation.y += 0.003;
+        spinStep();
         if (hoverEvt && !hoverQueued && (animate.n = (animate.n || 0) + 1) % 4 === 0) checkHover();   // it keeps turning under a still cursor
         spotStep();
         renderer.setRenderTarget(null);
