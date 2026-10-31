@@ -2766,6 +2766,7 @@
         spinVX *= 0.9; spinVY *= 0.9;
       }
 
+      const DRAGONFLY_GLASS = true;   // glass dragonfly (false = the original solid black model)
       // ── Hover glow: when the pointer is over the dragonfly itself (not just the red around it)
       const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
       let hoverEvt = null, hoverQueued = false;
@@ -2779,21 +2780,80 @@
         const hits = ray.intersectObject(pivot, true);
         wrapEl.classList.toggle('is-glow', hits.length > 0 || isDragging);
         if (hits.length) {
-          // the spotlight sits just in front of the spot you're pointing at, between it and the camera
+          // glass: the light sits just BEHIND the spot you're pointing at, so it shines through the glass
+          // from inside (back-lit) rather than washing over the front. Solid model: in front, as before.
           const h = hits[0].point, toCam = camera.position.clone().sub(h).normalize();
-          spotTarget.copy(h).addScaledVector(toCam, 0.45);
+          spotTarget.copy(h).addScaledVector(toCam, DRAGONFLY_GLASS ? -0.35 : 0.45);
           spotOn = 1;
+          if (hoverEvt !== lastSparkEvt) { lastSparkEvt = hoverEvt; sparkleAt(hoverEvt.clientX, hoverEvt.clientY); }   // only when the cursor moves
         } else spotOn = 0;
       }
       // a warm light that follows the cursor across the dragonfly — it lights the model only (no glow around it)
-      const spot = new THREE.PointLight(0xfff0e0, 0, 3.2, 2);
+      const spot = new THREE.PointLight(0xfff0e0, 0, DRAGONFLY_GLASS ? 1.6 : 3.2, 2);
       scene.add(spot);
       const spotTarget = new THREE.Vector3(0, 0, 1);
       let spotOn = 0, spotLevel = 0;
       function spotStep() {
         spotLevel += (spotOn - spotLevel) * 0.08;
         spot.position.lerp(spotTarget, 0.25);
-        spot.intensity = (DRAGONFLY_GLASS ? 5 : 28) * spotLevel;
+        spot.intensity = (DRAGONFLY_GLASS ? 9 : 28) * spotLevel;
+      }
+      // ── sparkle glare: a small 4-pointed star with a camera-style lens flare where the cursor touches
+      //    the dragonfly; each one fades slowly, and new ones appear as the cursor moves across it
+      const fx = document.createElement('canvas');
+      fx.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;mix-blend-mode:screen;z-index:1';
+      wrapEl.appendChild(fx);
+      const fxc = fx.getContext('2d');
+      const sparks = []; let lastSparkEvt = null;
+      let lastSpark = { x: -1e4, y: -1e4, t: 0 };
+      function sparkleAt(x, y) {
+        const now = performance.now();
+        if (Math.hypot(x - lastSpark.x, y - lastSpark.y) < 38 && now - lastSpark.t < 700) return;
+        lastSpark = { x, y, t: now };
+        sparks.push({ x, y, t: now, rot: (Math.random() - 0.5) * 0.35, s: 0.8 + Math.random() * 0.5 });
+        if (sparks.length > 14) sparks.shift();
+      }
+      function star(c, x, y, len, w, a, rot) {
+        c.save(); c.translate(x, y); c.rotate(rot);
+        for (let i = 0; i < 4; i++) {
+          const k = i % 2 ? 0.62 : 1;                            // slightly shorter cross arm
+          const g = c.createLinearGradient(0, 0, len * k, 0);
+          g.addColorStop(0, `rgba(255,255,255,${a})`); g.addColorStop(0.35, `rgba(255,236,220,${a * 0.5})`); g.addColorStop(1, 'rgba(255,220,200,0)');
+          c.fillStyle = g;
+          c.beginPath(); c.moveTo(0, -w); c.lineTo(len * k, 0); c.lineTo(0, w); c.closePath(); c.fill();
+          c.rotate(Math.PI / 2);
+        }
+        c.restore();
+      }
+      function fxStep() {
+        const dpr = Math.min(2, window.devicePixelRatio || 1), W = wrapEl.clientWidth, H = wrapEl.clientHeight;
+        if (fx.width !== Math.round(W * dpr) || fx.height !== Math.round(H * dpr)) { fx.width = Math.round(W * dpr); fx.height = Math.round(H * dpr); }
+        const c = fxc;
+        c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, fx.width, fx.height);
+        if (!sparks.length) return;
+        c.setTransform(dpr, 0, 0, dpr, 0, 0);
+        c.globalCompositeOperation = 'lighter';
+        const now = performance.now(), cx = W / 2, cy = H / 2;
+        for (let i = sparks.length - 1; i >= 0; i--) {
+          const S = sparks[i], age = (now - S.t) / 1600;      // each sparkle lives ~1.6s
+          if (age >= 1) { sparks.splice(i, 1); continue; }
+          const rise = Math.min(1, age / 0.08), a = rise * Math.pow(1 - age, 1.6), sc = S.s * (0.75 + 0.35 * Math.sin(Math.min(1, age * 2) * Math.PI / 2));
+          // soft core glow
+          const g = c.createRadialGradient(S.x, S.y, 0, S.x, S.y, 26 * sc);
+          g.addColorStop(0, `rgba(255,255,255,${0.9 * a})`); g.addColorStop(0.25, `rgba(255,214,190,${0.35 * a})`); g.addColorStop(1, 'rgba(255,160,120,0)');
+          c.fillStyle = g; c.beginPath(); c.arc(S.x, S.y, 26 * sc, 0, Math.PI * 2); c.fill();
+          // 4-pointed star
+          star(c, S.x, S.y, 46 * sc, 1.6 * sc, a, S.rot + age * 0.25);
+          // camera flare: ghost discs strung along the line through the centre of the frame, slightly tinted
+          const dx = cx - S.x, dy = cy - S.y;
+          [[0.45, 9, '160,200,255', 0.16], [0.8, 4, '255,180,120', 0.22], [1.25, 14, '200,140,255', 0.10], [1.6, 6, '140,255,220', 0.14]].forEach(([t, r, col, o]) => {
+            const gx = S.x + dx * t, gy = S.y + dy * t, rr = r * sc;
+            const gg = c.createRadialGradient(gx, gy, rr * 0.2, gx, gy, rr);
+            gg.addColorStop(0, `rgba(${col},${o * a * 0.6})`); gg.addColorStop(0.8, `rgba(${col},${o * a})`); gg.addColorStop(1, `rgba(${col},0)`);
+            c.fillStyle = gg; c.beginPath(); c.arc(gx, gy, rr, 0, Math.PI * 2); c.fill();
+          });
+        }
+        c.globalCompositeOperation = 'source-over';
       }
       renderer.domElement.addEventListener('pointermove', e => {
         if (e.pointerType !== 'mouse') return;
@@ -2805,7 +2865,6 @@
       // ── Glass look: clear refracting glass with a thin-film iridescent sheen (like a soap bubble)
       //    and mirror-like reflections of a soft pastel studio. Set DRAGONFLY_GLASS = false for the
       //    original solid black model.
-      const DRAGONFLY_GLASS = true;
       function glassEnv() {
         // a small studio for the glass to reflect: dark room with soft pink / lilac / cyan / white light panels
         const room = new THREE.Scene();
@@ -2900,6 +2959,7 @@
         spinStep();
         if (hoverEvt && !hoverQueued && (animate.n = (animate.n || 0) + 1) % 4 === 0) checkHover();   // it keeps turning under a still cursor
         spotStep();
+        fxStep();
         renderer.setRenderTarget(null);
         renderer.render(scene, camera);
       })();
