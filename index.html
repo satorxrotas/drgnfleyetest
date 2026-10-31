@@ -1189,8 +1189,20 @@
       color: rgba(240, 237, 230, 0.5);
       margin-bottom: 1.6rem;
     }
-    .lbs-beat--desc .lbs-down { margin: 1.4rem 0 0; }
-    @media (max-width: 750px) { .lbs-beat--desc .lbs-down { margin: 1.1rem auto 0; } }
+    .lbs-beat--desc .lbs-down { display: none; }   /* replaced by "scroll to explore" above the chapter bar */
+    /* ↓ SCROLL TO EXPLORE — centred just above the chapter bar on each project's opening screen */
+    .lbs-explore {
+      left: 50%; bottom: calc(4.7rem + 2.6rem + 0.6rem); transform: translateX(-50%);
+      z-index: 9000; background: none; border: 0; padding: 0; cursor: pointer; color: #f0ede6;
+      display: flex; flex-direction: column; align-items: center; gap: 0.85rem;
+      font: 400 0.68rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.02em; text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .lbs-explore .px { width: 15px; height: 18px; animation: lbs-explore-bob 1.8s ease-in-out infinite; }
+    .lbs-explore:hover { color: #e10600; }
+    @keyframes lbs-explore-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
+    @media (max-width: 750px) { .lbs-explore { bottom: calc(4.4rem + 2.4rem + 0.5rem); font-size: 0.6rem; gap: 0.6rem; } }
+    @media (prefers-reduced-motion: reduce) { .lbs-explore .px { animation: none; } }
 
     /* key art, press and manifesto scenes */
     .lbs-beat.lbs-beat--media, .lbs-beat.lbs-beat--press { width: auto; max-width: 92vw; }
@@ -1520,7 +1532,7 @@
       transform: translateX(-50%);
       z-index: 30;
       display: flex;
-      gap: 1.5rem;
+      gap: clamp(4rem, 14vw, 13rem);                  /* room in the middle, like the mockup */
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -1534,12 +1546,13 @@
       background: none;
       border: 0;
       color: #f0ede6;
-      width: 2.75rem;
       height: 2.75rem;
-      padding: 0;
+      padding: 0 0.25rem;
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 0.9rem;
+      white-space: nowrap;
       cursor: pointer;
       transition: color 0.2s, transform 0.2s;
       filter: drop-shadow(0 1px 3px rgba(0,0,0,0.6));
@@ -1548,6 +1561,8 @@
     .lb-bubble-nav:hover { color: #e10600; }
     #lb-bubble-prev:hover { transform: translateX(-3px); }
     #lb-bubble-next:hover { transform: translateX(3px); }
+    .lb-bn-label { font: 400 0.72rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.01em; }
+    @media (max-width: 750px) { .lb-bubble-nav-wrap { gap: 2.2rem; } .lb-bn-label { font-size: 0.66rem; } .lb-bubble-nav { gap: 0.6rem; } }
     .lb-bubble-nav:focus { outline: none; }
     .lb-bubble-nav:focus-visible { outline: 1px solid #e10600; }
 
@@ -2623,8 +2638,8 @@
 
       <!-- Floating prev/next nav — persistent since browser back/forward do nothing on this single-page site -->
       <div class="lb-bubble-nav-wrap">
-        <button id="lb-bubble-prev" class="lb-bubble-nav" aria-label="Previous project"><i class="px px-left" aria-hidden="true"></i></button>
-        <button id="lb-bubble-next" class="lb-bubble-nav" aria-label="Next project"><i class="px px-right" aria-hidden="true"></i></button>
+        <button id="lb-bubble-prev" class="lb-bubble-nav" aria-label="Previous project"><i class="px px-left" aria-hidden="true"></i><span class="lb-bn-label">Previous Project</span></button>
+        <button id="lb-bubble-next" class="lb-bubble-nav" aria-label="Next project"><span class="lb-bn-label">Next Project</span><i class="px px-right" aria-hidden="true"></i></button>
       </div>
     </div><!-- /lb-panel -->
   </div><!-- /lightbox -->
@@ -4759,6 +4774,7 @@
             ${P.clips.length ? `<div class="lbs-count"></div>
             <div class="lbs-hint">${window.matchMedia('(hover: none)').matches ? 'Tap' : 'Click'} a clip to watch</div>
             <button class="lbs-viewer-close" type="button" aria-label="Close video"><i class="px px-x" aria-hidden="true"></i></button>` : ''}
+            <button class="lbs-explore" type="button" aria-label="Scroll to explore"><i class="px px-down" aria-hidden="true"></i><span>Scroll to explore</span></button>
             <nav class="lbs-nav" aria-label="Chapters">
               <div class="lbs-nav-line"></div>
               <div class="lbs-nav-fill"></div>
@@ -4834,8 +4850,8 @@
         const nW = hm && (hm.naturalWidth || hm.videoWidth), nH = hm && (hm.naturalHeight || hm.videoHeight);
         heroH = (vw - 40) / (nW && nH ? nW / nH : 16 / 9) + 18;
       }
-      const room = navEl.offsetTop - 22 - 16;
-      return Math.max(0, Math.round(heroH + dEl.offsetHeight + 46 - room));
+      const room = navEl.offsetTop - 22 - 16 - 54;     // (54: "scroll to explore" above the bar)
+      return Math.max(0, Math.round(heroH + dEl.offsetHeight + 24 - room));
     }
 
     function stageScrollTo(t) {
@@ -4895,6 +4911,8 @@
       const navEl = stage.querySelector('.lbs-nav');
       const regionTop = 16, regionBottom = navEl.offsetTop - 22, room = regionBottom - regionTop;
       const midY = (regionTop + regionBottom) / 2 - vh / 2;
+      // the opening screen also leaves room for "scroll to explore" above the bar
+      const EXP = mobile ? 54 : 62, roomD = room - EXP, midD = (regionTop + regionBottom - EXP) / 2 - vh / 2;
       // a title with a very long word (e.g. BADBADNOTGOOD) shrinks until every word fits its column
       const tEl = dEl.querySelector('h2');
       if (tEl && tEl._fitW !== vw) {
@@ -4904,7 +4922,7 @@
       }
       const dW = dEl.offsetWidth;
       let dH = dEl.offsetHeight, descFit = 1;   // a long title + description is scaled down to fit above the bar (desktop)
-      let heroW = 0, heroH = 0, heroX = 0, heroY = midY, heroS = 1, descX = 0, descY = midY;
+      let heroW = 0, heroH = 0, heroX = 0, heroY = midD, heroS = 1, descX = 0, descY = midD;
       if (hero) {
         // the banner keeps its real proportions (a wide image isn't cropped to 16:9)
         const hm = hero.querySelector('img, video');
@@ -4915,14 +4933,14 @@
           heroW = vw - 40; heroH = heroW / aspect;
           heroS = 1; descFit = 1;
           const groupH = heroH + 18 + dH;
-          const top = regionTop + Math.max(0, (room - groupH) / 2);
+          const top = regionTop + Math.max(0, (roomD - groupH) / 2);
           const off = W > 0 ? 0 : introOff;   // coming round on the loop, it returns in its top-of-page pose
           heroY = top + heroH / 2 - vh / 2 - off;
           descY = top + heroH + 18 + dH / 2 - vh / 2 - off;
         } else {
           const gap = Math.max(32, vw * 0.035);
-          descFit = Math.min(1, room / dH);
-          heroW = Math.max(200, Math.min(aspect > 2 ? vw * 0.6 : vw * 0.56, room * aspect, vw * 0.92 - dW * descFit - gap));
+          descFit = Math.min(1, roomD / dH);
+          heroW = Math.max(200, Math.min(aspect > 2 ? vw * 0.6 : vw * 0.56, roomD * aspect, vw * 0.92 - dW * descFit - gap));
           heroH = heroW / aspect;
           const groupW = heroW + gap + dW * descFit;
           heroX = -groupW / 2 + heroW / 2;
@@ -4954,7 +4972,7 @@
         if (mobile && introExtra > 0) {
           // text fades out as it slides under the chapter bar (and off the top edge)
           const topPx = vh / 2 + descY - dH / 2;            // the description's top edge on screen
-          const a = regionTop - topPx, b = regionBottom - topPx;
+          const a = regionTop - topPx, b = regionBottom - EXP - topPx;
           const m = `linear-gradient(180deg, transparent ${(a - 1).toFixed(0)}px, #000 ${(a + 24).toFixed(0)}px, #000 ${(b - 28).toFixed(0)}px, transparent ${b.toFixed(0)}px)`;
           dEl.style.webkitMaskImage = m; dEl.style.maskImage = m;
         } else if (dEl.style.maskImage) { dEl.style.webkitMaskImage = ''; dEl.style.maskImage = ''; }
@@ -4963,6 +4981,13 @@
         dEl.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
       }
 
+      const exEl = stage.querySelector('.lbs-explore');
+      if (exEl) {
+        const eo = W > 0 ? wIn : 1 - sRange(t, 0.02, Math.min(0.45, T.descOut));
+        exEl.style.opacity = eo.toFixed(3);
+        exEl.style.visibility = eo <= 0.01 ? 'hidden' : '';
+        exEl.style.pointerEvents = eo > 0.5 ? 'auto' : 'none';
+      }
       // ── paragraph / key-art / press scenes, centred in the space above the chapter bar
       stage.querySelectorAll('.lbs-media-row').forEach(row => {
         const imgs = [...row.querySelectorAll('img, video')];
@@ -5508,7 +5533,7 @@
         return;
       }
       if (!navEl) stageNavMenu(lbBody.querySelector('.lbs-nav'), false);
-      if (e.target.closest('.lbs-down')) {
+      if (e.target.closest('.lbs-down') || e.target.closest('.lbs-explore')) {
         const nxt = P.chapters[1]; if (nxt) stageScrollTo(nxt.t); return;
       }
       if (e.target.closest('.lbs-viewer-close') || e.target.closest('.lbs-viewer-bg')) { stageViewerClose(); return; }
