@@ -229,6 +229,10 @@
     #side-nav a:hover {
       color: #0a0a0a;
     }
+    /* black home background (try-out): page behind the 3D view is black, links turn red on hover */
+    html.home-dark, html.home-dark body { background: #000; }
+    html.home-dark #side-nav:not(.work-open) a:hover { color: #e10600; }
+    html.home-dark #glb-hint { color: #777; }
     #side-nav.work-open a {
       color: #0a0a0a;
     }
@@ -2707,7 +2711,10 @@
 
       // ── Scene & Camera
       const scene  = new THREE.Scene();
-      scene.background = new THREE.Color(0xe10600);   // the glass refracts this red
+      // HOME_BG: the colour behind the dragonfly (try-out: black; the site's red is 0xe10600)
+      const HOME_BG = 0x000000;
+      scene.background = new THREE.Color(HOME_BG);
+      if (HOME_BG !== 0xe10600) document.documentElement.classList.add('home-dark');
       const camera = new THREE.PerspectiveCamera(45, W / H, 0.01, 1000);
       camera.position.set(0, 0, 5.5);
       camera.lookAt(0, 0, 0);
