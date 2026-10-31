@@ -2720,7 +2720,8 @@
       camera.lookAt(0, 0, 0);
 
       // ── Lights
-      scene.add(new THREE.AmbientLight(0xe10600, 0.9));
+      const baseAmb = new THREE.AmbientLight(0xe10600, 0.9);
+      scene.add(baseAmb);
       const dir = new THREE.DirectionalLight(0xe10600, 1.2);
       dir.position.set(5, 10, 7);
       scene.add(dir);
@@ -2816,8 +2817,8 @@
       // ── coloured lights circling the dragonfly, each slowly fading on and off, so the glass
       //    keeps catching a moving spectrum of blue, cyan, violet, magenta, amber and green
       const spectrum = DRAGONFLY_GLASS ? [
-        [0x2f6bff, 0.0, 9.0], [0x00e5ff, 1.1, 11.0], [0x9b4dff, 2.2, 8.0],
-        [0xff2fb0, 3.3, 12.0], [0xffa12a, 4.4, 10.0], [0x3dff9a, 5.5, 13.0]
+        [0x1f5bff, 0.0, 9.0], [0x00d8ff, 1.1, 11.0], [0xffffff, 2.2, 8.0],
+        [0xff6a1a, 3.3, 12.0], [0x4a2cff, 4.4, 10.0], [0xffb347, 5.5, 13.0], [0x00ffc8, 6.6, 14.0]
       ].map(([col, ph, per], i) => {
         const L = new THREE.PointLight(col, 0, 7, 2);
         scene.add(L);
@@ -2828,7 +2829,7 @@
           const a = t / S.per * Math.PI * 2 + S.ph;
           S.L.position.set(Math.cos(a) * 3.2, Math.sin(a * 0.7) * 1.6 + S.tilt, Math.sin(a) * 3.2);
           const pulse = Math.pow(0.5 + 0.5 * Math.sin(t / (S.per * 0.6) * Math.PI * 2 + S.ph * 1.7), 2.2);   // slow on / off
-          S.L.intensity = 5 * pulse;
+          S.L.intensity = 4 * pulse;
         });
       }
       // ── sparkle glare: a small 4-pointed star with a camera-style lens flare where the cursor touches
@@ -2908,7 +2909,7 @@
         };
         // a "light cage": thin, very bright strips of white, electric blue, amber, magenta and cyan on
         // every side, like a prism studio — the glass picks them up as sharp coloured streaks on every curve
-        const cols = [0xffffff, 0x2f7bff, 0xffa030, 0xff3fd0, 0x30e8ff, 0xffffff, 0x6a5bff, 0xffe080];
+        const cols = [0xffffff, 0x1f5bff, 0xff7a2a, 0x2ee6ff, 0xffffff, 0xe0402a, 0x3a3aff, 0xffd08a, 0x00b4ff, 0xc85a1e];   // full spectrum, weighted to blue / white / copper
         let ci = 0;
         const next = () => cols[ci++ % cols.length];
         for (let side = 0; side < 6; side++) {
@@ -2924,16 +2925,16 @@
         }
         // dim coloured glows so flat parts never reflect pure black (kept dark so no part turns one flat colour)
         panel(0x0b1a66, 4, 4, -4.6, 1, -1, Math.PI / 2);
-        panel(0x4a1f08, 4, 4, 4.6, -1, 1, -Math.PI / 2);
-        panel(0x2a0f55, 5, 3, 0, -4.8, 0, 0, -Math.PI / 2);
+        panel(0x5a2508, 4, 4, 4.6, -1, 1, -Math.PI / 2);
+        panel(0x082a55, 5, 3, 0, -4.8, 0, 0, -Math.PI / 2);
         const pm = new THREE.PMREMGenerator(renderer);
         scene.environment = pm.fromScene(room, 0.02).texture;
       }
       function makeGlass(model) {
         const glass = new THREE.MeshPhysicalMaterial({
-          color: 0xffffff, metalness: 0.35, roughness: 0.02,
+          color: 0xffffff, metalness: 0.45, roughness: 0.02,
           transmission: 0.65, thickness: 0.8, ior: 1.6,               // refraction: bends the red behind it
-          iridescence: 1, iridescenceIOR: 1.9, iridescenceThicknessRange: [120, 1100],  // strong rainbow film
+          iridescence: 0.85, iridescenceIOR: 1.8, iridescenceThicknessRange: [180, 520],  // thin film tuned to blue / gold rather than pink
           clearcoat: 1, clearcoatRoughness: 0.01,
           specularIntensity: 1, envMapIntensity: 3.4, side: THREE.DoubleSide
         });
@@ -2967,7 +2968,12 @@
             model.scale.setScalar(4.056 / maxDim);
             model.position.sub(centre.multiplyScalar(4.056 / maxDim));
             pivot.add(model);
-            if (DRAGONFLY_GLASS) makeGlass(model);
+            if (DRAGONFLY_GLASS) {
+              makeGlass(model);
+              // the original red studio lights tinted the glass pink: the glass is lit only by its
+              // reflections and the coloured lights instead
+              baseAmb.intensity = 0; dir.intensity = 0; fill.intensity = 0;
+            }
           },
           function(xhr) {
             if (xhr.total) {
