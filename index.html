@@ -2812,7 +2812,7 @@
         spot.position.lerp(spotTarget, 0.25);
         fillSpot.position.lerp(fillTarget, 0.25);
         spot.intensity = (DRAGONFLY_GLASS ? 9 : 28) * spotLevel;
-        fillSpot.intensity = DRAGONFLY_GLASS ? 14 * spotLevel : 0;
+        fillSpot.intensity = DRAGONFLY_GLASS ? 9 * spotLevel : 0;
       }
       // ── coloured lights circling the dragonfly, each slowly fading on and off, so the glass
       //    keeps catching a moving spectrum of blue, cyan, violet, magenta, amber and green
@@ -2829,7 +2829,7 @@
           const a = t / S.per * Math.PI * 2 + S.ph;
           S.L.position.set(Math.cos(a) * 3.2, Math.sin(a * 0.7) * 1.6 + S.tilt, Math.sin(a) * 3.2);
           const pulse = Math.pow(0.5 + 0.5 * Math.sin(t / (S.per * 0.6) * Math.PI * 2 + S.ph * 1.7), 2.2);   // slow on / off
-          S.L.intensity = 4 * pulse;
+          S.L.intensity = 2.2 * pulse;
         });
       }
       // ── sparkle glare: a small 4-pointed star with a camera-style lens flare where the cursor touches
@@ -2923,20 +2923,17 @@
             room.add(g);
           }
         }
-        // dim coloured glows so flat parts never reflect pure black (kept dark so no part turns one flat colour)
-        panel(0x0b1a66, 4, 4, -4.6, 1, -1, Math.PI / 2);
-        panel(0x5a2508, 4, 4, 4.6, -1, 1, -Math.PI / 2);
-        panel(0x082a55, 5, 3, 0, -4.8, 0, 0, -Math.PI / 2);
+        // (no soft fill panels: between the strips the glass should reflect pure black — that contrast is the look)
         const pm = new THREE.PMREMGenerator(renderer);
         scene.environment = pm.fromScene(room, 0.02).texture;
       }
       function makeGlass(model) {
         const glass = new THREE.MeshPhysicalMaterial({
-          color: 0xffffff, metalness: 0.45, roughness: 0.02,
-          transmission: 0.65, thickness: 0.8, ior: 1.6,               // refraction: bends the red behind it
+          color: 0x15161c, metalness: 0, roughness: 0.015,   // dark smoked body: black between the highlights
+          transmission: 0.85, thickness: 1.2, ior: 1.7,               // refraction: bends the red behind it
           iridescence: 0.85, iridescenceIOR: 1.8, iridescenceThicknessRange: [180, 520],  // thin film tuned to blue / gold rather than pink
           clearcoat: 1, clearcoatRoughness: 0.01,
-          specularIntensity: 1, envMapIntensity: 3.4, side: THREE.DoubleSide
+          specularIntensity: 1, specularColor: 0xffffff, envMapIntensity: 6.5, side: THREE.DoubleSide
         });
         model.traverse(o => {
           if (!o.isMesh) return;
