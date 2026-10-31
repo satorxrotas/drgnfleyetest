@@ -2784,6 +2784,7 @@
           // from inside (back-lit) rather than washing over the front. Solid model: in front, as before.
           const h = hits[0].point, toCam = camera.position.clone().sub(h).normalize();
           spotTarget.copy(h).addScaledVector(toCam, DRAGONFLY_GLASS ? -0.35 : 0.45);
+          fillTarget.copy(h).addScaledVector(toCam, 0.45);
           spotOn = 1;
           if (hoverEvt !== lastSparkEvt) { lastSparkEvt = hoverEvt; sparkleAt(hoverEvt.clientX, hoverEvt.clientY); }   // only when the cursor moves
         } else spotOn = 0;
@@ -2793,10 +2794,35 @@
       scene.add(spot);
       const spotTarget = new THREE.Vector3(0, 0, 1);
       let spotOn = 0, spotLevel = 0;
+      // a second, softer light in FRONT of the spot fills the glass with a warm glow (about half of the
+      // earlier front light), while the one behind shines through it
+      const fillSpot = new THREE.PointLight(0xfff0e0, 0, 3.2, 2);
+      scene.add(fillSpot);
+      const fillTarget = new THREE.Vector3(0, 0, 1);
       function spotStep() {
         spotLevel += (spotOn - spotLevel) * 0.08;
         spot.position.lerp(spotTarget, 0.25);
+        fillSpot.position.lerp(fillTarget, 0.25);
         spot.intensity = (DRAGONFLY_GLASS ? 9 : 28) * spotLevel;
+        fillSpot.intensity = DRAGONFLY_GLASS ? 14 * spotLevel : 0;
+      }
+      // ── coloured lights circling the dragonfly, each slowly fading on and off, so the glass
+      //    keeps catching a moving spectrum of blue, cyan, violet, magenta, amber and green
+      const spectrum = DRAGONFLY_GLASS ? [
+        [0x2f6bff, 0.0, 9.0], [0x00e5ff, 1.1, 11.0], [0x9b4dff, 2.2, 8.0],
+        [0xff2fb0, 3.3, 12.0], [0xffa12a, 4.4, 10.0], [0x3dff9a, 5.5, 13.0]
+      ].map(([col, ph, per], i) => {
+        const L = new THREE.PointLight(col, 0, 7, 2);
+        scene.add(L);
+        return { L, ph, per, tilt: (i % 3 - 1) * 1.1 };
+      }) : [];
+      function spectrumStep(t) {
+        spectrum.forEach(S => {
+          const a = t / S.per * Math.PI * 2 + S.ph;
+          S.L.position.set(Math.cos(a) * 3.2, Math.sin(a * 0.7) * 1.6 + S.tilt, Math.sin(a) * 3.2);
+          const pulse = Math.pow(0.5 + 0.5 * Math.sin(t / (S.per * 0.6) * Math.PI * 2 + S.ph * 1.7), 2.2);   // slow on / off
+          S.L.intensity = 5 * pulse;
+        });
       }
       // ── sparkle glare: a small 4-pointed star with a camera-style lens flare where the cursor touches
       //    the dragonfly; each one fades slowly, and new ones appear as the cursor moves across it
@@ -2959,6 +2985,7 @@
         spinStep();
         if (hoverEvt && !hoverQueued && (animate.n = (animate.n || 0) + 1) % 4 === 0) checkHover();   // it keeps turning under a still cursor
         spotStep();
+        spectrumStep(performance.now() / 1000);
         fxStep();
         renderer.setRenderTarget(null);
         renderer.render(scene, camera);
