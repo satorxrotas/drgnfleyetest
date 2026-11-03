@@ -16,6 +16,9 @@
   <!-- Three.js non-module build (works in Safari without a server) -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>   <!-- r147: adds iridescence for the glass dragonfly -->
 
+  <script>/* home background chosen before (red / black) — set straight away so the page doesn't flash */
+    try { var hb = localStorage.getItem('drg-home-bg'); if (hb !== 'red') document.documentElement.classList.add('home-dark'); } catch (e) { document.documentElement.classList.add('home-dark'); }
+  </script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -233,6 +236,18 @@
     html.home-dark, html.home-dark body { background: #000; }
     html.home-dark #side-nav:not(.work-open) a:hover { color: #e10600; }
     html.home-dark #glb-hint { color: #777; }
+    /* background switch: a small square, bottom left — black on the red page, red on the black page */
+    #bg-toggle {
+      position: absolute; left: 1.75rem; bottom: 1.75rem; width: 18px; height: 18px; padding: 0;
+      border: 0; background: #0a0a0a; cursor: pointer; pointer-events: auto;
+      transition: background .3s ease, transform .2s ease, opacity .2s ease;
+    }
+    #bg-toggle::before { content: ''; position: absolute; inset: -12px; }   /* bigger tap area */
+    #bg-toggle:hover { transform: scale(1.18); }
+    #bg-toggle:focus { outline: none; }
+    #bg-toggle:focus-visible { outline: 1px solid #f0ede6; outline-offset: 4px; }
+    html.home-dark #bg-toggle { background: #e10600; }
+    #side-nav.work-open #bg-toggle, #side-nav.about-open #bg-toggle, #side-nav.contact-open #bg-toggle { opacity: 0; pointer-events: none; }
     #side-nav.work-open a {
       color: #0a0a0a;
     }
@@ -2493,6 +2508,7 @@
     <a href="#" id="nav-work">WORK</a>
     <a href="#" id="nav-about">ABOUT</a>
     <a href="#" id="nav-contact">CONTACT</a>
+    <button id="bg-toggle" type="button" aria-label="Switch background colour"></button>
   </nav>
 
   <div id="page"></div>
@@ -2726,10 +2742,21 @@
 
       // ── Scene & Camera
       const scene  = new THREE.Scene();
-      // HOME_BG: the colour behind the dragonfly (try-out: black; the site's red is 0xe10600)
-      const HOME_BG = 0x000000;
-      scene.background = new THREE.Color(HOME_BG);
-      if (HOME_BG !== 0xe10600) document.documentElement.classList.add('home-dark');
+      // home background: red (the site's colour) or black — the square bottom left switches between them;
+      // the visitor's choice is remembered in this browser. HOME_BG is the starting colour.
+      const HOME_BG = 0x000000, HOME_RED = 0xe10600;
+      let homeDark = HOME_BG !== HOME_RED;
+      try { const v = localStorage.getItem('drg-home-bg'); if (v) homeDark = v === 'black'; } catch (e) {}
+      function applyHomeBg() {
+        scene.background = new THREE.Color(homeDark ? 0x000000 : HOME_RED);
+        document.documentElement.classList.toggle('home-dark', homeDark);
+      }
+      applyHomeBg();
+      document.getElementById('bg-toggle').addEventListener('click', e => {
+        e.preventDefault(); e.stopPropagation();
+        homeDark = !homeDark; applyHomeBg();
+        try { localStorage.setItem('drg-home-bg', homeDark ? 'black' : 'red'); } catch (err) {}
+      });
       const camera = new THREE.PerspectiveCamera(45, W / H, 0.01, 1000);
       camera.position.set(0, 0, 5.5);
       camera.lookAt(0, 0, 0);
