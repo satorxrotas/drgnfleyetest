@@ -259,6 +259,23 @@
     html.home-dark #game-btn:hover { color: #e10600; }
     #game-btn:focus { outline: none; }
     #game-btn:focus-visible { outline: 1px solid #f0ede6; outline-offset: 4px; }
+    /* the game opens full screen over the home page */
+    #sidequest {
+      position: fixed; inset: 0; z-index: 9700; background: #000;
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity .35s ease, visibility 0s linear .35s;
+    }
+    #sidequest.open { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .35s ease; }
+    #sidequest iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #000; }
+    #sidequest .sq-close {
+      position: absolute; top: 1.5rem; right: 1.5rem; z-index: 2; width: 2.25rem; height: 2.25rem;
+      background: rgba(0,0,0,.55); border: 0; color: #fff; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: color .2s;
+    }
+    #sidequest .sq-close:hover { color: #e10600; }
+    #sidequest .sq-close:focus { outline: none; }
+    #sidequest .sq-close:focus-visible { outline: 1px solid #e10600; }
+    @media (max-width: 750px) { #sidequest .sq-close { top: .75rem; right: .75rem; } }
     #side-nav.work-open #game-btn, #side-nav.about-open #game-btn, #side-nav.contact-open #game-btn { opacity: 0; pointer-events: none; }
     #side-nav.work-open #bg-toggle, #side-nav.about-open #bg-toggle, #side-nav.contact-open #bg-toggle { opacity: 0; pointer-events: none; }
     #side-nav.work-open a {
@@ -2464,6 +2481,12 @@
 </head>
 <body>
 
+  <!-- ── SIDE QUEST (the game, opened by the controller button) ── -->
+  <div id="sidequest" role="dialog" aria-modal="true" aria-label="DRGNFLEYE Side Quest" aria-hidden="true">
+    <iframe id="sq-frame" title="DRGNFLEYE Side Quest" allow="autoplay; fullscreen; clipboard-write; web-share" allowfullscreen></iframe>
+    <button class="sq-close" type="button" aria-label="Close game"><i class="px px-x" aria-hidden="true"></i></button>
+  </div>
+
   <!-- ── PROJECT INDEX (opened by the hamburger buttons) ── -->
   <div id="pindex" role="dialog" aria-modal="true" aria-label="Project index" aria-hidden="true">
     <button class="pi-close" type="button" aria-label="Close index"><i class="px px-x" aria-hidden="true"></i></button>
@@ -2768,12 +2791,22 @@
         if (setDragonLook) setDragonLook(homeDark);   // black page: iridescent glass · red page: the original black chrome
       }
       applyHomeBg();
-      // game controller: opens the side quest once it has a home — set GAME_URL to its address
-      const GAME_URL = '';
-      document.getElementById('game-btn').addEventListener('click', e => {
-        e.preventDefault(); e.stopPropagation();
-        if (GAME_URL) window.open(GAME_URL, '_blank', 'noopener');
-      });
+      // game controller: opens the side quest (sidequest.html) full screen over the home page.
+      // It loads on open and unloads on close (progress is saved by the game itself).
+      const GAME_URL = 'sidequest.html';
+      const sq = document.getElementById('sidequest'), sqFrame = document.getElementById('sq-frame');
+      function openGame() {
+        sqFrame.src = GAME_URL;
+        sq.classList.add('open'); sq.setAttribute('aria-hidden', 'false');
+        sqFrame.addEventListener('load', () => { try { sqFrame.focus(); sqFrame.contentWindow.focus(); } catch (err) {} }, { once: true });
+      }
+      function closeGame() {
+        sq.classList.remove('open'); sq.setAttribute('aria-hidden', 'true');
+        setTimeout(() => { if (!sq.classList.contains('open')) sqFrame.removeAttribute('src'); }, 400);
+        document.getElementById('game-btn').focus({ preventScroll: true });
+      }
+      document.getElementById('game-btn').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openGame(); });
+      sq.querySelector('.sq-close').addEventListener('click', closeGame);
       document.getElementById('bg-toggle').addEventListener('click', e => {
         e.preventDefault(); e.stopPropagation();
         homeDark = !homeDark; applyHomeBg();
