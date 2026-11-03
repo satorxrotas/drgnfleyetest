@@ -17,7 +17,7 @@
   <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>   <!-- r147: adds iridescence for the glass dragonfly -->
 
   <script>/* home background chosen before (red / black) — set straight away so the page doesn't flash */
-    try { var hb = localStorage.getItem('drg-home-bg'); if (hb !== 'red') document.documentElement.classList.add('home-dark'); } catch (e) { document.documentElement.classList.add('home-dark'); }
+    try { if (localStorage.getItem('drg-home-bg') === 'black') document.documentElement.classList.add('home-dark'); } catch (e) {}   /* red is the default */
   </script>
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -2780,7 +2780,7 @@
       const scene  = new THREE.Scene();
       // home background: red (the site's colour) or black — the square bottom left switches between them;
       // the visitor's choice is remembered in this browser. HOME_BG is the starting colour.
-      const HOME_BG = 0x000000, HOME_RED = 0xe10600;
+      const HOME_BG = 0xe10600, HOME_RED = 0xe10600;   // default: red
       let homeDark = HOME_BG !== HOME_RED;
       try { const v = localStorage.getItem('drg-home-bg'); if (v) homeDark = v === 'black'; } catch (e) {}
       let setDragonLook = null;   // set once the model has loaded
