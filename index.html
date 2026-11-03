@@ -2870,6 +2870,7 @@
         spinVX *= 0.9; spinVY *= 0.9;
       }
 
+      const HOVER_SPARKLES = false;
       let DRAGONFLY_GLASS = homeDark;   // glass dragonfly on the black page, the original black chrome on the red page
       // ── Hover glow: when the pointer is over the dragonfly itself (not just the red around it)
       const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
@@ -2890,7 +2891,8 @@
           spotTarget.copy(h).addScaledVector(toCam, DRAGONFLY_GLASS ? -0.35 : 0.45);
           fillTarget.copy(h).addScaledVector(toCam, 0.45);
           spotOn = 1;
-          if (hoverEvt !== lastSparkEvt) { lastSparkEvt = hoverEvt; sparkleAt(hoverEvt.clientX, hoverEvt.clientY); }   // only when the cursor moves
+          // (sparkle glare on hover removed — set HOVER_SPARKLES = true to bring it back)
+          if (HOVER_SPARKLES && hoverEvt !== lastSparkEvt) { lastSparkEvt = hoverEvt; sparkleAt(hoverEvt.clientX, hoverEvt.clientY); }
         } else spotOn = 0;
       }
       // a warm light that follows the cursor across the dragonfly — it lights the model only (no glow around it)
@@ -3168,10 +3170,10 @@
         artist: 'ALISSIA',
         collaborators: 'AMAZON MUSIC, ALISSIA, NILE RODGERS, EARTHGANG',
         description: 'A short doc for Amazon Music, showcasing Producer of the Year Grammy nominee, Alissia\'s pivot from a producer to Artist with debut record "Hypnotic Nights" featuring Nile Rodgers and EARTHGANG.',
-        execution: 'Role: Creative Director, Editor, Designer',
+        execution: 'Categories: Creative Direction, Art Direction, Design, Social',
         press: 'PAPER Mag',
         extendedTeam: 'Park Avenue Artists<br>Amazon Music',
-        strategy: 'The "Hypnotic Nights" campaign established a unified visual world across the single\'s identity, a behind-the-scenes short doc, and a cohesive design system. The aesthetic leaned into moody contrast, deep shadows, and a signature pop of red to frame Alissia\'s regal, funk-driven presence. The short doc highlighted her role as a generational bridge—showcasing Nile Rodgers and EarthGang recording together in the same studio where CHIC created its signature sound. The rollout followed her historic Producer of the Year Grammy nomination, where she became only the ninth woman ever recognized in the category. Strategically, the campaign centered on intimacy and craft, combining storytelling-led content, interactive text activations, and NYC/LA posters to introduce a clear sonic-and-visual identity for this new era.',
+        strategy: 'Led the creative and design direction for Alissia\u2019s \u201cHypnotic Nights\u201d campaign, establishing a cohesive visual identity across artwork, documentary content, and promotional materials. The aesthetic combined moody contrast, deep shadows, and bold red accents to reflect her funk driven sound. A short documentary positioned Alissia as a bridge between generations, capturing Nile Rodgers and EarthGang recording together in the same studio where CHIC developed its signature sound. An interactive text message activation invited fans to share their wildest \u201cHypnotic Nights\u201d stories directly with Alissia, bringing the world of the song to life through audience participation. The campaign extended across digital content and posters in New York and Los Angeles, creating a unified visual identity for this chapter of her career.',
         video: { type: 'youtube', id: 'DvAv4StoKd4' },
         images: ['alissia_02.jpg', 'alissia_03.jpg', 'alissia_04.jpg', 'alissia_05.jpg'],
         imageRows: [
@@ -3193,12 +3195,12 @@
         breadcrumb: 'A.I.M. 20TH ANNIVERSARY',
         artist: 'A.I.M. by Kyle Abraham',
         collaborators: 'LINCOLN CENTER, NYC BALLET',
-        description: 'The event was the 20th Anniversary Homecoming Gala for A.I.M by Kyle Abraham, held on September 26, 2025 at Jazz at Lincoln Center\'s Frederick P. Rose Hall. It marked the official launch of A.I.M\'s 20th Anniversary season and honored arts leaders Sarah Arison and Antwaun Sargent for their contributions to the arts. The evening began with cocktails, followed by a performance by the company in Rose Theater — including a solo by Artistic Director Kyle Abraham and live pieces featuring Baby Rose singing a suite of Nina Simone songs in the work If We Were a Love Song. After the performance, guests enjoyed a multi-course dinner curated by James Beard Award–winning chef Kwame Onwuachi, followed by an auction and a dance party. The night brought together a distinguished roster of artists, supporters, and cultural leaders to celebrate A.I.M\'s impact and legacy.',
-        execution: 'Role: Creative Director, Editor, Designer',
+        description: 'The 20th Anniversary Homecoming Gala marked the official launch of A.I.M by Kyle Abraham\u2019s 20th Anniversary season, celebrating two decades of artistic innovation and cultural impact. Held at Jazz at Lincoln Center on September 26, 2025, the event honored arts leaders Sarah Arison and Antwaun Sargent and featured a special dance performance celebrating the musical legacy of Nina Simone.',
+        execution: 'Categories: Photography, Videography, Edit',
         press: '',
         pressLogos: ['press_logo_broadwayworld.png', 'press_logo_essence_02.png'],
         extendedTeam: 'Kyle Abraham<br>Baby Rose',
-        strategy: 'Led end-to-end creative execution across direction, cinematography, editing, and photography — capturing live performances, behind-the-scenes moments, and audience atmosphere. The work blended documentary and cinematic storytelling, and was designed for cultural distribution across social and editorial platforms. The project focused on preserving the emotional weight, legacy, and contemporary relevance of Nina Simone through an intimate, performance-forward visual lens.',
+        strategy: 'Led photography, videography, and editing for A.I.M by Kyle Abraham\u2019s 20th Anniversary Homecoming Gala, documenting live performances, key moments, and the atmosphere of the event. The visual coverage focused on capturing the artistry of the company\u2019s performance honoring Nina Simone, while highlighting A.I.M\u2019s legacy and cultural impact.',
         video: { type: 'vimeo', id: '1156668464' },
         images: ['NYC_Ballet_02.jpg', 'NYC_Ballet_03.jpg'],
         imageRows: [
@@ -3307,7 +3309,7 @@
         artist: '',
         collaborators: '',
         description: 'A program built by TikTok to support and uplift the Black excellence of entrepreneurs, innovators, and small business owners nationwide on the platform.',
-        execution: 'Role: Creative Director, Art Director, Strategist, Writer & Designer',
+        execution: 'Categories: Creative Direction, Art Direction, Strategy, Design, Copywriting, Animation, Photography, Edit',
         press: '',
         pressLogos: ['press_logo_adweek.png', 'press_logo_nbcnews.png', 'press_logo_smt.png'],
         extendedTeam: 'Sofia Hernandez<br>Rona Matthew<br>Sondra Kinney<br>Yinka Taiwo-Peters<br>Mefah Joyner<br>Alex Williams<br>Todd Triplet',
@@ -3439,10 +3441,10 @@
         artist: 'LUKA DON\u010cI\u0106',
         collaborators: 'TEAM SLOVENIA, FIBA',
         description: 'A real time docu-series following Team Slovenia, led by global superstar, Luka Don\u010di\u0107, during the 2023 FIBA Basketball World Cup from their hometown, to Spain, Japan and the Philippines.',
-        execution: 'Role: Art Director, Strategist, Writer, Editor & Designer<br>Brand Identity<br>29 Short Form Episodes',
+        execution: 'Categories: Art Direction, Strategy, Design, Edit, Social<br>Brand Identity<br>29 Short Form Episodes',
         press: '',
         pressLogos: ['press_logo_variety.png', 'press_logo_si.png', 'press_logo_imdb.png', 'press_logo_barstool.png', 'press_logo_thesun.png'],
-        extendedTeam: '',
+        extendedTeam: '77x<br>Even/Odd<br>Entity Films',
         strategy: 'A profound, intimate portrait of the Slovenian national basketball team as they strive for FIBA World Cup glory. Chronicling the riveting journey of competition, brotherhood, and national pride, the series provides an unfiltered look into the relentless pursuit of a small yet determined team battling giants on the international stage.<br><br>Through short, mobile-friendly episodes, \u2018Everything It Takes\u2019 gives audiences a never-before-seen perspective on the FIBA Basketball World Cup, as it unfolds in real-time.',
         manifesto: '\u201cSmall Nation. Big Dreams.<br>Slovenia, we are a small nation but with very big dreams.<br>We learn that early. The game has become our life. It\u2019s where we grow, together, as a team. It\u2019s where we inspire others. We believe. We do it together, as a country.\u201d<br>\u2014 Luka Don\u010di\u0107',
         video: null,
@@ -3629,7 +3631,7 @@
         artist: '',
         collaborators: 'RED BULL',
         description: 'The Red Bull Bracket Reel is a university dance video competition featuring a bracket-style format where teams submit their best edits. Three expert judges evaluate each video, while fans vote for their favorites to advance.',
-        execution: 'Role: Art Direction & Digital Production<br>Front End Web Design<br>Logo<br>Hero Spot & Promotional Videos<br>Welcome Kits',
+        execution: 'Categories: Art Direction, Production<br>Front End Web Design<br>Logo<br>Hero Spot & Promotional Videos<br>Welcome Kits',
         press: '',
         extendedTeam: '',
         strategy: 'Red Bull Bracket Reel was a four week dance competition that challenged crews to create original choreography and video edits, combining dance, filmmaking, and audience participation. Each round was evaluated by a panel of judges, accounting for 90% of the score, while fan voting contributed the remaining 10%. The competition culminated in a live streamed finale from Los Angeles, where audiences voted in real time to help crown the 2018 champions. The winning crew earned the opportunity to produce a professional music video alongside industry experts.<br><br>The format connected digital storytelling with live competition, using weekly content and interactive voting to build audience engagement leading up to the finale.',
