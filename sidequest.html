@@ -298,6 +298,8 @@
     -webkit-background-clip:text;background-clip:text;color:transparent;
     filter:drop-shadow(3px 0 0 #000) drop-shadow(-3px 0 0 #000) drop-shadow(0 3px 0 #000) drop-shadow(0 -3px 0 #000) drop-shadow(5px 6px 0 #000)}
   .logo-px{display:block;position:relative;z-index:1;image-rendering:pixelated;image-rendering:crisp-edges}
+  @keyframes flyBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-12%)}}
+  .logo-fly{animation:flyBob 2.8s ease-in-out infinite}
   .logo-fly{display:block;width:clamp(58px,11vw,118px);margin:0 0 clamp(6px,1.4vw,14px);filter:drop-shadow(4px 4px 0 #000);pointer-events:none}
   .quote{font-family:var(--px)!important;font-size:clamp(9px,1.7vw,13px)!important;line-height:2.1!important;color:var(--shard);
     text-shadow:2px 2px 0 #000;max-width:640px!important;opacity:1!important}
@@ -547,7 +549,7 @@ const PHYS = {
   skyShield:2.2, shipEase:0.75         // level 3 respawn shield; ship speed/bob multiplier (lower = easier)
 };
 const BONUS = { enemies:15, coins:15, sweep:20 };
-const T = 32, ROWS = 12;
+const T = 32, ROWS = 12, CRUMBLE_T = 1.15;   // seconds a crumbling ledge holds once stepped on
 
 /* =========================================================
    SHOP CATALOG — add items here. price 0 = owned from start.
@@ -644,7 +646,7 @@ const LEVELS = [
     sky:['#3a1a2e','#4a2030','#5a2a2a','#2a1420','#140b12'], mesas:true,
     howTo:t=>[
       ['<b class="spring-i"></b>','New: SPRINGS. Step on one to launch way up. Use them to climb the canyon walls.'],
-      ['<b class="crumble-i"></b>','New: CRUMBLING LEDGES. They break a moment after you land, so keep moving. They come back after a few seconds.'],
+      ['<b class="crumble-i"></b>','New: CRUMBLING LEDGES. Once you land they start to crack apart and flash, then break, so keep moving. They come back after a few seconds.'],
       ['<i class="sh on"></i>','Find all 3 shards to wake the dragonfly at the cliff edge, then ride it across the canyon to the flag.']
     ],
     build(L){
@@ -1191,7 +1193,7 @@ function update(dt){
           burst(tx*T+T/2,ty*T+T-6,12,THEME.coin,160,.4); break; } } }
     // crumbling ledges start to go once you stand on them
     if(p.onGround){ const ty=Math.floor((p.y+p.h+1)/T), l=Math.floor(p.x/T), r=Math.floor((p.x+p.w-0.01)/T);
-      for(let tx=l;tx<=r;tx++) if(tileAt(tx,ty)===5){ const c=crumbles.find(q=>q.x===tx&&q.y===ty); if(c&&c.t<0) c.t=0.45; } }
+      for(let tx=l;tx<=r;tx++) if(tileAt(tx,ty)===5){ const c=crumbles.find(q=>q.x===tx&&q.y===ty); if(c&&c.t<0){ c.t=CRUMBLE_T; burst(tx*T+T/2,ty*T+2,4,THEME.platforms[2],60,.35); } } }
 
     // hop on the dragonfly
     if(df&&df.state==='perched'&&overlap(p,{x:df.x-30,y:df.y-24,w:60,h:40})){
@@ -1204,7 +1206,9 @@ function update(dt){
 
   // crumbling ledges: shake, fall, come back
   for(const c of crumbles){
-    if(c.t>=0){ c.t-=dt; if(c.t<0){ grid[c.y][c.x]=0; c.back=3; c.t=-1; burst(c.x*T+T/2,c.y*T+6,8,THEME.platforms[2],120,.5); } }
+    if(c.t>=0){ c.t-=dt;
+      const f=1-c.t/CRUMBLE_T; if(Math.random()<dt*(4+14*f)) parts.push({x:c.x*T+4+Math.random()*(T-8),y:c.y*T+9,vx:(Math.random()-.5)*20,vy:20+Math.random()*30,life:.6,max:.6,color:THEME.platforms[2],size:2});
+      if(c.t<0){ grid[c.y][c.x]=0; c.back=3; c.t=-1; burst(c.x*T+T/2,c.y*T+6,8,THEME.platforms[2],120,.5); } }
     else if(c.back>0){ c.back-=dt; if(c.back<=0){ const pr={x:c.x*T,y:c.y*T-2,w:T,h:12}; if(overlap(p,pr)) c.back=0.3; else grid[c.y][c.x]=5; } }
   }
   for(const k in springT){ springT[k]-=dt; if(springT[k]<=0) delete springT[k]; }
@@ -2082,9 +2086,22 @@ function render(){
       ctx.fillStyle=THEME.coin; ctx.fillRect(x+4,y+T-18+sq,T-8,5);
       ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(x+4,y+T-13+sq,T-8,2);
     } else if(t===5){
-      const c=crumbles.find(q=>q.x===tx&&q.y===ty), sh=c&&c.t>=0?(Math.random()-.5)*3:0;
-      ctx.fillStyle=THEME.platforms[2]; ctx.fillRect(x+sh,y,T+.5,8);
-      ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(x+sh+9,y,2,5); ctx.fillRect(x+sh+20,y+3,2,5); ctx.fillRect(x+sh,y+8,T+.5,3);
+      const c=crumbles.find(q=>q.x===tx&&q.y===ty), f=c&&c.t>=0?1-c.t/CRUMBLE_T:-1;
+      if(f<0){
+        ctx.fillStyle=THEME.platforms[2]; ctx.fillRect(x,y,T+.5,8);
+        ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(x+9,y,2,5); ctx.fillRect(x+20,y+3,2,5); ctx.fillRect(x,y+8,T+.5,3);
+      } else {
+        // decomposing: shakes harder, flashes a warning, chunks crack off and sag as the timer runs out
+        const sh=Math.round((Math.random()-.5)*(1+4*f)), warn=f>0.45&&Math.floor(time*(6+10*f))%2;
+        for(let by=0;by<2;by++)for(let bx=0;bx<8;bx++){
+          const h=(((tx*73856093)^(ty*19349663)^((bx+by*8)*83492791))>>>0)%1000/1000, thr=0.28+h*0.8;
+          if(f>thr) continue;                                   // chunk already fell off
+          const sag=f>thr-0.18?Math.round((f-(thr-0.18))*14):0;
+          ctx.fillStyle=warn?'#ff8a5a':THEME.platforms[2]; ctx.fillRect(x+bx*4+sh,y+by*4+sag,4,4);
+          if(h<f*0.9){ ctx.fillStyle='rgba(0,0,0,.55)'; ctx.fillRect(x+bx*4+sh+(h*1000|0)%3,y+by*4+sag,1,4); }   // spreading cracks
+        }
+        ctx.fillStyle=`rgba(0,0,0,${.35+.3*f})`; ctx.fillRect(x+sh,y+8,T+.5,3);
+      }
     } else if(t===3){
       ctx.fillStyle=THEME.spike;
       for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(x+i*8,y+T);ctx.lineTo(x+i*8+4,y+T-14);ctx.lineTo(x+i*8+8,y+T);ctx.fill()}
@@ -2281,27 +2298,38 @@ const GLYPHS={
   Q:[".####.","##..##","##..##","##..##","##.###","##..##",".###.#"],
   U:["##..##","##..##","##..##","##..##","##..##","##..##",".####."],
   T:["######","..##..","..##..","..##..","..##..","..##..","..##.."]};
-function drawLogoPx(){
+function drawLogoPx(tm=0){
+  // animated every ~5s: a light flash sweeps left→right, then a wave ripples through the letters
   const cv=$('logoPx'); if(!cv) return;
-  const word='SIDEQUEST', GW=6, GH=7, GAP=3, EX=2, PAD=1;
-  const W=word.length*(GW+GAP)-GAP+PAD*2+EX, H=GH+PAD*2+EX;
+  const word='SIDEQUEST', GW=6, GH=7, GAP=3, EX=2, PAD=1, WV=2;
+  const W=word.length*(GW+GAP)-GAP+PAD*2+EX, H=GH+PAD*2+EX+WV*2;
+  const cyc=tm%5.2, FL=1.05, fx=-12+(cyc/FL)*(W+24);                  // flash position (only during the first 0.9s)
   const face=[...Array(H)].map(()=>Array(W).fill(0));
-  [...word].forEach((ch,i)=>GLYPHS[ch].forEach((row,y)=>[...row].forEach((v,x)=>{ if(v==='#') face[y+PAD][x+PAD+i*(GW+GAP)]=1; })));
+  [...word].forEach((ch,i)=>{
+    const ph=(cyc-0.9-i*0.09)/0.42, dy=ph>0&&ph<1?-Math.round(WV*Math.sin(Math.PI*ph)):0;
+    GLYPHS[ch].forEach((row,y)=>[...row].forEach((v,x)=>{ if(v==='#') face[y+PAD+WV+dy][x+PAD+i*(GW+GAP)]=y+1; })); });
   const at=(g,x,y)=>y>=0&&y<H&&x>=0&&x<W&&g[y][x];
-  const g=cv.getContext('2d'); cv.width=W; cv.height=H; g.clearRect(0,0,W,H);
+  const g=cv.getContext('2d'); if(cv.width!==W||cv.height!==H){ cv.width=W; cv.height=H; sizeLogoPx(); } g.clearRect(0,0,W,H);
   const px=(x,y,c)=>{g.fillStyle=c;g.fillRect(x,y,1,1)};
-  // extrusion (3D block shadow down-right)
   const solid=[...Array(H)].map(()=>Array(W).fill(0));
   for(let y=0;y<H;y++)for(let x=0;x<W;x++) for(let e=0;e<=EX;e++) if(at(face,x-e,y-e)) solid[y][x]=1;
-  // black outline around everything
   for(let y=0;y<H;y++)for(let x=0;x<W;x++) if(!solid[y][x]&&(at(solid,x-1,y)||at(solid,x+1,y)||at(solid,x,y-1)||at(solid,x,y+1))) px(x,y,'#000');
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++) if(solid[y][x]&&!face[y][x]) px(x,y,at(face,x-1,y-1)?'#5a0a0c':'#2a0405');
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++) if(solid[y][x]&&!face[y][x]) px(x,y,cyc<FL&&Math.abs(x-fx+y*0.7)<3?'#d8505a':at(face,x-1,y-1)?'#5a0a0c':'#2a0405');
   const band=['#fff1ec','#ffc2b8','#ff8a7a','#f2efe9','#e5191c','#c8161a','#9e1115'];
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++) if(face[y][x]) px(x,y,band[y-PAD]);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++) if(face[y][x]){
+    let c=band[face[y][x]-1];
+    if(cyc<FL){ const d=Math.abs(x-fx+y*0.7); if(d<2) c='#ffffff'; else if(d<3.6) c='#fff4cf'; else if(d<5) c='#ffd9c9'; }
+    px(x,y,c); }
   // pixel glint on the top-left of each letter
-  for(let i=0;i<word.length;i++){ const x0=PAD+i*(GW+GAP); for(let x=x0;x<x0+GW;x++) if(face[PAD][x]){ px(x,PAD,'#ffffff'); break; } }
-  sizeLogoPx();
+  for(let x=0;x<W;x++) for(let y=0;y<H;y++) if(face[y][x]===1&&!at(face,x-1,y)){ px(x,y,'#ffffff'); break; }
 }
+(function animLogo(){
+  let last=-1;
+  const tick=now=>{ const cv=$('logoPx'), f=Math.floor(now/50);       // ~20fps steps keep it feeling 8-bit
+    if(cv&&cv.offsetParent&&f!==last){ last=f; drawLogoPx(now/1000); }
+    requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+})();
 function sizeLogoPx(){
   const cv=$('logoPx'); if(!cv||!cv.width) return;
   const k=Math.max(2,Math.floor(Math.min(innerWidth*0.86/cv.width,innerHeight*0.15/cv.height,760/cv.width)));
