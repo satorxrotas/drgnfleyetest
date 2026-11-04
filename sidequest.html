@@ -225,11 +225,13 @@
   .btn{flex-direction:column}
   .btn b{font-family:var(--px);font-size:18px;font-weight:400;display:block;line-height:1}
   .btn small{font-family:var(--px);font-size:6px;display:block;margin-top:5px}
-  #bJump{width:76px;height:76px} #bDash{width:64px;height:64px}
-  .stick-right #bJump{right:auto;left:calc(104px + env(safe-area-inset-left));bottom:calc(20px + env(safe-area-inset-bottom))}
-  .stick-right #bDash{right:auto;left:calc(22px + env(safe-area-inset-left));bottom:calc(70px + env(safe-area-inset-bottom))}
-  .stick-left #bJump{left:auto;right:calc(22px + env(safe-area-inset-right));bottom:calc(20px + env(safe-area-inset-bottom))}
-  .stick-left #bDash{left:auto;right:calc(110px + env(safe-area-inset-right));bottom:calc(70px + env(safe-area-inset-bottom))}
+  /* A and B stacked in one slim column hugging the screen edge (A at the bottom), so they cover as little of the game as possible */
+  #bJump,#bDash{width:58px;height:58px;opacity:.82}
+  .stick-right #bJump{right:auto;left:calc(10px + env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom))}
+  .stick-right #bDash{right:auto;left:calc(10px + env(safe-area-inset-left));bottom:calc(80px + env(safe-area-inset-bottom))}
+  .stick-left #bJump{left:auto;right:calc(10px + env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom))}
+  .stick-left #bDash{left:auto;right:calc(10px + env(safe-area-inset-right));bottom:calc(80px + env(safe-area-inset-bottom))}
+  .btn b{font-size:16px} .btn small{font-size:5px;margin-top:4px}
   /* ---- pause ---- */
   #pauseBtn{position:fixed;z-index:6;top:calc(8px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:none;width:34px;height:34px}
   #pauseBtn svg{width:16px;height:16px;fill:var(--ink)}
@@ -296,6 +298,58 @@
   @keyframes startFlash{0%,100%{background:var(--red);color:#fff;box-shadow:inset -3px -3px 0 #7d0d0f,inset 3px 3px 0 #ff6b6b,0 4px 0 #000}
     50%{background:#ff5a4a;color:#fff7c2;box-shadow:inset -3px -3px 0 #b3141a,inset 3px 3px 0 #ffd0c8,0 4px 0 #000,0 0 0 3px #ffe08a}}
   #startBtn:active{animation:none}
+  /* name dice */
+  .name-row{display:flex;gap:8px;align-items:stretch;justify-content:center}
+  .dice{font-family:var(--px);font-size:9px;background:#121a33;color:var(--gold);border:3px solid #000;cursor:pointer;padding:0 12px;
+    box-shadow:inset -3px -3px 0 #0a0f20,inset 3px 3px 0 var(--edge),0 4px 0 #000}
+  .dice:active{transform:translateY(3px)}
+  /* small title buttons */
+  .cta.sm{font-size:9px;padding:10px 12px}
+  .cta.locked{opacity:.55}
+  /* HUD power badges */
+  #hPow{display:flex;gap:6px} #hPow:empty{display:none}
+  .pw-b{font-family:var(--px);font-size:8px;padding:3px 5px;border:2px solid #000;background:#121a33;color:var(--gold);display:inline-flex;align-items:center;gap:4px}
+  .pw-b img,.pw-ico{image-rendering:pixelated;width:16px;height:16px;display:inline-block;vertical-align:middle}
+  /* casino */
+  #casino{background-color:#0b0d14}
+  #casino .cas{display:grid;grid-template-columns:auto minmax(220px,300px);gap:18px;align-items:start;justify-content:center;text-align:left}
+  @media (max-aspect-ratio:1/1){ #casino .cas{grid-template-columns:1fr;justify-items:center} }
+  .slot{width:fit-content;margin:0 auto;background:#2a0e14;border:4px solid #000;padding:10px;box-shadow:inset 0 0 0 3px #b3141a,0 6px 0 #000;position:relative}
+  .slot .marquee{font-family:var(--px);font-size:10px;text-align:center;color:var(--gold);margin-bottom:8px;letter-spacing:.1em;text-shadow:2px 2px 0 #000}
+  .slot .lights{display:flex;justify-content:space-between;margin:6px 2px 0}
+  .slot .lights i{width:8px;height:8px;background:#5a3a10;display:block}
+  .slot.spinning .lights i:nth-child(odd),.slot.won .lights i{animation:lit .3s steps(1) infinite}
+  .slot.spinning .lights i:nth-child(even){animation:lit .3s steps(1) infinite reverse}
+  @keyframes lit{50%{background:#ffe08a}}
+  #reels{display:block;image-rendering:pixelated;image-rendering:crisp-edges;background:#000}
+  #casMsg{font-family:var(--px);font-size:9px;line-height:1.7;text-align:center;min-height:32px;margin:8px 0 0;max-width:none}
+  #casMsg.win{color:var(--gold)} #casMsg.pw{color:var(--shard)}
+  .bets{display:flex;gap:6px;justify-content:center;margin-top:8px}
+  .bet{font-family:var(--px);font-size:9px;padding:8px 10px;border:3px solid #000;background:#121a33;color:var(--ink);cursor:pointer}
+  .bet.on{background:var(--gold);color:#000}
+  #spinBtn{width:100%;justify-content:center;margin-top:8px}
+  .cas-side{display:flex;flex-direction:column;gap:8px}
+  .cas-side .lbl{color:var(--shard)}
+  .paytable{font-family:var(--px);font-size:7px;line-height:1.5;display:grid;grid-template-columns:auto 1fr;gap:3px 8px;align-items:center}
+  .paytable .pt{display:flex;gap:1px}
+  .pw-list{display:flex;flex-direction:column;gap:6px}
+  .pw-row{display:grid;grid-template-columns:20px 1fr auto;gap:8px;align-items:center;background:#0b0d14;border:2px solid var(--line);padding:6px}
+  .pw-row b{font-family:var(--px);font-size:8px;font-weight:400;display:block}
+  .pw-row small{font-size:14px;opacity:.75;line-height:1}
+  .pw-row button{font-family:var(--px);font-size:7px;padding:7px 8px;border:2px solid #000;background:var(--red);color:#fff;cursor:pointer}
+  .pw-row button:disabled{background:#2a2f3d;color:#8a90a3;cursor:default}
+  @media (max-height:520px){
+    #casino .stack{gap:6px} #casino h2{font-size:8px} .cas-side{gap:5px}
+    .pw-row{padding:3px 6px;gap:6px} .pw-row small{font-size:12px} .pw-row b{font-size:7px}
+    .paytable{grid-template-columns:auto 1fr auto 1fr;font-size:6px;gap:2px 6px}
+    #casMsg{min-height:0;margin-top:4px} .slot .marquee{margin-bottom:4px;font-size:8px} .slot{padding:6px} }
+  .unlock-note{font-family:var(--px);font-size:9px;color:var(--gold);line-height:1.7;animation:blink 1.1s steps(1) infinite}
+  /* global ranks */
+  .ranks li{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center}
+  .ranks li.me{border-color:var(--gold)}
+  .ranks small{display:block;font-family:var(--vt);font-size:15px;opacity:.7;margin-top:2px}
+  .rank-note{font-size:16px;opacity:.75;line-height:1.1}
+  .myscore{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
   .brand-top{font-family:var(--px);font-size:clamp(12px,2.6vw,22px);color:var(--shard);letter-spacing:.14em;text-shadow:1px 0 0 currentColor,-1px 0 0 currentColor,3px 3px 0 #000,4px 3px 0 #000}
   .logo-band{width:100vw;max-width:1100px;padding:clamp(14px,3vw,28px) 0 clamp(22px,4.5vw,40px);margin:2px 0 4px;
     background-color:#0f1830;
@@ -367,6 +421,7 @@
     <span class="stat" title="Coins this run"><i class="coin-i"></i><b class="g" id="hCoins">0/0</b></span>
     <span class="stat" title="Bank"><svg class="ic"><use href="#i-bank"/></svg><b class="g" id="hBank">0</b></span>
     <span class="stat" id="hShards" title="Shards" hidden><i class="sh"></i><i class="sh"></i><i class="sh"></i></span>
+    <span class="stat" id="hPow"></span>
     <span class="stat" id="hHoops" title="Hoops" hidden><svg class="ic"><use href="#i-ring"/></svg><b class="g" id="hHoopsN">0/9</b></span>
   </div>
   <div class="right">
@@ -402,6 +457,7 @@
     <button class="cta ghost" id="pRestart">Restart level</button>
     <button class="cta ghost" id="pMap">Map</button>
     <button class="cta ghost" data-profile>Profile &amp; Store</button>
+    <button class="cta gold" data-casino>Casino · Power-ups</button>
     <button class="cta ghost touch-only" id="pSwap">Joystick: right</button>
     <button class="cta ghost" id="pQuit">Quit to title</button>
   </div>
@@ -425,13 +481,16 @@
   <h2 id="titleSub" class="blink">Test build · Level 4 selected</h2>
   <div class="levels" id="levelPick"></div>
   <div class="row"><button class="cta" id="startBtn">Start</button>
-    <button class="cta ghost" data-profile><svg><use href="#i-user"/></svg>Profile</button></div>
+    <button class="cta ghost" data-profile><svg><use href="#i-user"/></svg>Profile</button>
+    <button class="cta gold sm" data-casino id="titleCasino">Casino</button>
+    <button class="cta ghost sm" data-ranks>Ranks</button></div>
 </div></div>
 
 <div class="overlay hidden" id="nameModal"><button class="back-btn" data-back="name" aria-label="Back">◀ Back</button><div class="stack">
   <h2>Who's playing?</h2>
   <p>Add a name for the leaderboard, or skip and play as Guest.</p>
-  <input class="txt" id="nameInput" maxlength="16" placeholder="Your name" autocomplete="off" autocapitalize="characters" spellcheck="false">
+  <div class="name-row"><input class="txt" id="nameInput" maxlength="16" placeholder="Your name" autocomplete="off" autocapitalize="characters" spellcheck="false">
+    <button class="dice" id="nameDice" type="button" aria-label="Random name">RANDOM</button></div>
   <div class="row"><button class="cta" id="nameGo">Let's go</button><button class="cta ghost" id="nameSkip">Skip</button></div>
 </div></div>
 
@@ -489,6 +548,7 @@
   <h2 id="winSub">Level Clear</h2>
   <h1 id="winHead">NICE.</h1>
   <p id="winStats"></p>
+  <div class="unlock-note" id="casinoUnlock" hidden>CASINO UNLOCKED! Spin the slots for coins &amp; power-ups</div>
   <div class="bonuses" id="bonuses"></div>
   <p id="bonusTotal"></p>
   <div><h3 id="winBoardTitle">Leaderboard · Best times</h3><ol class="board" id="winBoard"></ol></div>
@@ -497,10 +557,30 @@
     <button class="cta ghost" data-profile><svg><use href="#i-user"/></svg>Profile</button></div>
 </div></div>
 
+<div class="overlay hidden" id="casino"><button class="back-btn" id="casBack" aria-label="Back">◀ Back</button><div class="stack">
+  <h2>DRGNFLEYE CASINO</h2>
+  <div class="cas">
+    <div>
+      <div class="slot" id="slotBox"><div class="marquee">★ SIDEQUEST SLOTS ★</div><canvas id="reels"></canvas>
+        <div class="lights"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+      <p id="casMsg">Line up 3 to win. 2 power symbols win a power-up.</p>
+      <div class="bets" id="bets"></div>
+      <button class="cta gold" id="spinBtn">Spin</button>
+    </div>
+    <div class="cas-side">
+      <div class="lblrow"><div class="lbl">Bank</div><div class="wallet"><svg class="ic"><use href="#i-bank"/></svg><span id="casBank">0</span></div></div>
+      <div class="lbl">Your power-ups</div>
+      <div class="pw-list" id="casPowers"></div>
+      <div class="lbl">Pays (× bet)</div>
+      <div class="paytable" id="payTable"></div>
+    </div>
+  </div>
+</div></div>
+
 <div class="overlay hidden" id="profile">
   <div class="card">
     <header>
-      <div class="seg"><button class="segb" data-view="me">Profile</button><button class="segb" data-view="store">Store</button><button class="segb" data-view="map">Map</button></div>
+      <div class="seg"><button class="segb" data-view="me">Profile</button><button class="segb" data-view="store">Store</button><button class="segb" data-view="map">Map</button><button class="segb" data-view="ranks">Ranks</button></div>
       <div class="wallet" title="Bank"><svg class="ic"><use href="#i-bank"/></svg><span id="pBank">0</span></div>
       <button class="x" id="closeProfile" aria-label="Close">✕</button>
     </header>
@@ -519,6 +599,13 @@
       </div>
       <div class="share-note" id="shareNote"></div>
     </section>
+    <section class="view" id="viewRanks" hidden>
+      <div class="lbl">Your score</div>
+      <div class="myscore stats" id="myScore"></div>
+      <div class="rank-note">Score = coins collected + swag bought + speed points (faster level times score more).</div>
+      <div class="lblrow"><div class="lbl">Global leaderboard</div><button class="segb" id="ranksRefresh">Refresh</button></div>
+      <ol class="board ranks" id="ranksList"></ol>
+    </section>
     <section class="view" id="viewMap" hidden>
       <div class="map-intro">Replay any level to beat your best time and stack more coins.</div>
       <ol class="map" id="mapList"></ol>
@@ -526,7 +613,7 @@
     <section class="view" id="viewStore" hidden>
       <div class="tabs" id="tabs"></div>
       <div class="items" id="items"></div>
-      <button class="cta" id="actBtn">Wear</button>
+      <div class="row"><button class="cta" id="actBtn">Wear</button><button class="cta gold" id="useBtn" hidden>Use</button></div>
     </section>
   </div>
 </div>
@@ -750,7 +837,8 @@ LEVELS.push({ name:'Level 4', cols:20, mode:'boxing', title:'BOSS FIGHT', intro:
    ========================================================= */
 const SAVE_KEY='drgnfleye_sidequest_TEST';   // separate save so testing never touches real progress
 const save={name:'',bank:0,owned:[],unlocked:1,equip:{outfit:'coat-b',jewelry:'j-none',shoes:'sh-b',head:'beanie-w'},
-  stats:{runs:0,wins:0,best:null,bestByLevel:{},coinsEarned:0,kills:0,falls:0,sweeps:0,flights:0,combos:0,bossWins:0},boards:{}};
+  stats:{runs:0,wins:0,best:null,bestByLevel:{},coinsEarned:0,kills:0,falls:0,sweeps:0,flights:0,combos:0,bossWins:0,swagSpent:null},boards:{},
+  powers:{inv:0,dj:0,df:0}, armed:{inv:false,dj:false,df:false}, casino:false, pid:''};
 try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
   if(s){ save.bank=Math.max(0,s.bank|0); if(Array.isArray(s.owned)) save.owned=s.owned;
     Object.assign(save.equip,s.equip||{}); Object.assign(save.stats,s.stats||{});
@@ -758,12 +846,18 @@ try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
     if(typeof s.name==='string') save.name=s.name;
     if(s.unlocked) save.unlocked=Math.max(1,s.unlocked|0);
     if(s.boards&&typeof s.boards==='object') save.boards=s.boards;
+    if(s.powers) Object.assign(save.powers,s.powers); if(s.armed) Object.assign(save.armed,s.armed);
+    if(s.casino) save.casino=true; if(typeof s.pid==='string') save.pid=s.pid;
     else if(Array.isArray(s.board)) save.boards={1:s.board};                  // migrate old single board
     if(save.stats.best!=null&&save.stats.bestByLevel[1]==null) save.stats.bestByLevel[1]=save.stats.best;
     if((save.boards[1]||[]).length) save.unlocked=Math.max(save.unlocked,2);  // cleared L1 before levels existed
   } }catch(e){}
 save.unlocked=LEVELS.length;   // TEST BUILD: every level unlocked
 for(const c in SHOP) for(const it of SHOP[c]) if(it.price===0&&!save.owned.includes(it.id)) save.owned.push(it.id);
+if(save.stats.swagSpent==null){ let t=0; for(const c in SHOP) for(const it of SHOP[c]) if(save.owned.includes(it.id)) t+=it.price; save.stats.swagSpent=t; }
+if(!save.pid) save.pid=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));
+if(save.stats.bestByLevel[1]!=null) save.casino=true;   // already beat Level 1 → casino open
+let pw={invT:0,dj:false,df:false};   // active power-ups for the current run
 const persist=()=>{ try{ localStorage.setItem(SAVE_KEY,JSON.stringify(save)); }catch(e){} };
 const getItem=(cat,id)=>SHOP[cat].find(i=>i.id===id)||SHOP[cat][0];
 const lookFrom=eq=>({outfit:getItem('outfit',eq.outfit),jewelry:getItem('jewelry',eq.jewelry),shoes:getItem('shoes',eq.shoes),head:getItem('head',eq.head)});
@@ -990,8 +1084,17 @@ function startGame(){
   if(state==='lost'){ beginRun(runName,lvl); return; }
   askName();
 }
+/* random PG, playful names + 2 digits, max 16 chars */
+const NAME_A=['SNEAKY','BOUNCY','COSMIC','FUZZY','TURBO','SILLY','LUCKY','ZIPPY','WOBBLY','SPICY','SPARKY','JAZZY','CHEEKY','GOOFY','MIGHTY','NIFTY','PIXEL','SUNNY','FRESH','DIZZY','RADICAL','SWIFT','COMFY','FANCY','GROOVY','HAPPY','JOLLY','QUIRKY','SNAZZY','ZESTY'];
+const NAME_N=['NOODLE','PICKLE','WAFFLE','TACO','GECKO','MUFFIN','PANDA','NUGGET','BISCUIT','OTTER','LLAMA','WIZARD','ROCKET','PEANUT','DONUT','PRETZEL','BEAGLE','KOALA','MANGO','PENGUIN','YETI','RAMEN','GOBLIN','HAMSTER','SPROUT','BEAN','DRAGON','COMET','BANJO','MOCHI'];
+function randomName(){
+  for(let i=0;i<20;i++){ const a=NAME_A[Math.random()*NAME_A.length|0], n=NAME_N[Math.random()*NAME_N.length|0];
+    if(a.length+n.length<=14) return a+n+String(Math.floor(Math.random()*100)).padStart(2,'0'); }
+  return 'PIXELPANDA'+String(Math.floor(Math.random()*100)).padStart(2,'0');
+}
+$('nameDice').addEventListener('click',()=>{ $('nameInput').value=randomName(); });
 function askName(){
-  nameOpen=true; $('nameInput').value=save.name||''; $('nameModal').classList.remove('hidden');
+  nameOpen=true; $('nameInput').value=save.name||randomName(); $('nameModal').classList.remove('hidden');
   if(!touchOn) setTimeout(()=>$('nameInput').focus(),30);
 }
 function submitName(skip){
@@ -1030,7 +1133,10 @@ $('nameInput').addEventListener('keydown',e=>{
 function beginRun(name,n){
   runName=name; nameOpen=false; $('nameModal').classList.add('hidden');
   introOpen=false; $('introModal').classList.add('hidden'); hidePause();
-  reset(n); runActive=true; save.stats.runs++; persist();
+  reset(n); runActive=true; save.stats.runs++;
+  pw={invT:0,dj:false,df:false};
+  if(LV.mode!=='boxing') for(const k of ['inv','dj','df']) if(save.armed[k]){ save.armed[k]=false; activatePower(k,true); }
+  persist(); updateHUD(true);
   $('title').classList.add('hidden'); $('win').classList.add('hidden'); $('koModal').classList.add('hidden');
   clearInput();
   if(LV.howTo){
@@ -1064,6 +1170,211 @@ $('againBtn').addEventListener('click',()=>{ if(state==='win') beginRun(runName,
 $('nextBtn').addEventListener('click',()=>{ if(state==='win'&&lvl<LEVELS.length) beginRun(runName,lvl+1); });
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) openPause(); });
 
+
+/* =========================================================
+   POWER-UPS (won in the casino or bought in the store)
+   ========================================================= */
+const POWERS={
+  inv:{id:'inv',name:'Invincible',sym:'SHIELD',price:40,short:'Untouchable for 15s',desc:'15 seconds where nothing can hurt you (except falling in a pit). Enemies you touch go down.'},
+  dj:{id:'dj',name:'Double Jump',sym:'WING',price:60,short:'Mid-air jump · 1 level',desc:'Jump again in mid-air for one whole level.'},
+  df:{id:'df',name:'Dragonfly',sym:'DFLY',price:150,short:'Fly any level · rare',desc:'Ride the dragonfly through any level. On flying levels nothing can touch you.'}
+};
+function inLevelNow(){ return runActive&&LV.mode!=='boxing'&&(state==='paused'||state==='play'||state==='profile'||state==='casino'); }
+function powerUse(k){
+  const n=save.powers[k]|0;
+  if(!n) return {ok:false,label:'None owned'};
+  if(save.armed[k]) return {ok:false,label:'Ready for next level'};
+  if(inLevelNow()){ if(k==='inv'&&pw.invT>0||k==='dj'&&pw.dj||k==='df'&&pw.df) return {ok:false,label:'Active'};
+    return {ok:true,label:`Use now (×${n})`}; }
+  return {ok:true,label:`Arm for next level (×${n})`};
+}
+function usePower(k){
+  if(!powerUse(k).ok) return;
+  save.powers[k]--;
+  if(inLevelNow()) activatePower(k,false);
+  else { save.armed[k]=true; toast(`${POWERS[k].name} is armed for your next level`); }
+  persist(); updateHUD(true);
+}
+function mountDF(){
+  if(LV.mode==='sky'||LV.mode==='boxing') return;
+  const p=player;
+  if(!df) df={perchX:p.x+9,perchY:p.y+50,x:p.x+9,y:p.y+50,face:1,state:'ridden'};
+  df.state='ridden'; p.riding=true; p.vy=-40; save.stats.flights++;
+}
+function activatePower(k,atStart){
+  if(k==='inv'){ pw.invT=15; toast('INVINCIBLE for 15s!',2.5); }
+  if(k==='dj'){ pw.dj=true; toast('DOUBLE JUMP for this whole level',2.5); }
+  if(k==='df'){ pw.df=true; mountDF(); toast(LV.mode==='sky'?'DRAGONFLY POWER: untouchable this whole level':'DRAGONFLY POWER: fly anywhere ( ↑ ↓ / joystick )',3); }
+  if(player) burst(player.x+player.w/2,player.y+player.h/2,30,THEME.coin,220,.8);
+  updateHUD(true);
+}
+
+/* ---- pixel symbols (10×10) shared by the slot reels, store and HUD ---- */
+const SYM_PAL={r:'#e5191c',R:'#ffc2b8',d:'#7d0d0f',g:'#4cc04c',G:'#1f6b2a',y:'#f2b531',Y:'#ffe08a',o:'#c98a12',b:'#2f7fe0',B:'#9fd4ff',w:'#f2efe9',c:'#7fe3ff',k:'#0b0d14',p:'#b07de0'};
+const SYMS={
+  CHERRY:["......GG..",".....G.G..","....G...G.","...G....G.",".rrr...rr.","rRrrr.rRrr","rrrrr.rrrr","rrrrd.rrrd",".rdd...dd.",".........."],
+  BAR:   ["..........","kkkkkkkkkk","kyyyyyyyyk","kyk.kyk.yk","kyykkyykyk","kyk.kykkyk","kyykkyk.yk","kyyyyyyyyk","kkkkkkkkkk",".........."],
+  BELL:  ["....yy....","...yYyy...","..yYyyyy..","..yYyyyy..","..yYyyyy..",".yYyyyyyy.","yyyyyyyyyy","oooooooooo","....oo....",".........."],
+  COIN:  ["...oooo...","..oyyyyo..",".oyYyyyyo.",".oYyoyyyo.",".oyyoyyyo.",".oyyoyyyo.",".oyyoyyyo.",".oyyyyyyo.","..oyyyyo..","...oooo..."],
+  SEVEN: ["rrrrrrrrr.","rRRRRRRrr.","dddddRrr..",".....rrd..","....rrd...","...rrd....","...rrd....","..rrd.....","..rrd.....","..dd......"],
+  SHIELD:[".bbbbbbbb.",".bBBbbbbb.",".bBbbwbbb.",".bBbwwwbb.",".bbbbwbbb.","..bbbbbb..","..bbbbbb..","...bbbb...","....bb....",".........."],
+  WING:  ["w........w","ww......ww","wcw....wcw","wccw..wccw","wcccwwcccw",".wccccccw.","..wccccw..","...wccw...","....ww....",".........."],
+  DFLY:  ["....rr....","cc.rccr.cc","cccrrrrccc",".ccrrrrcc.","..crrrrc..","....rr....","....rr....","....rd....","....rd....",".....d...."]
+};
+const SYM_ORDER=['CHERRY','BAR','BELL','COIN','SEVEN','SHIELD','WING','DFLY'];
+const SYM_W={CHERRY:8,BAR:6,BELL:4,COIN:7,SEVEN:2,SHIELD:2.2,WING:1.7,DFLY:0.75};   // reel weights (see odds note below)
+const symCache={};
+function symURL(k){
+  if(symCache[k]) return symCache[k];
+  const c=document.createElement('canvas'); c.width=c.height=10; const g=c.getContext('2d');
+  SYMS[k].forEach((row,y)=>[...row].forEach((ch,x)=>{ if(ch!=='.'){ g.fillStyle=SYM_PAL[ch]; g.fillRect(x,y,1,1); } }));
+  return symCache[k]=c.toDataURL();
+}
+function drawSym(g,k,x,y){ SYMS[k].forEach((row,yy)=>[...row].forEach((ch,xx)=>{ if(ch!=='.'){ g.fillStyle=SYM_PAL[ch]; g.fillRect(x+xx,y+yy,1,1); } })); }
+
+/* =========================================================
+   CASINO · 3-reel slot. Unlocked by beating Level 1.
+   Odds (simulated): coin payouts return ~89% of bets on their own (a normal slot house edge),
+   but power-ups land on top of that (2 matching power symbols anywhere): Invincible ≈1 in 72 spins,
+   Double Jump ≈1 in 120, Dragonfly ≈1 in 600. With power-ups counted the 5-coin bet is in your favour (~115%),
+   10 coins ≈ break-even, 25 coins ≈ 94%.
+   ========================================================= */
+const PAY3={SEVEN:50,BELL:20,BAR:12,COIN:10,CHERRY:6};
+const BETS=[5,10,25];
+let bet=5, spinning=false, casinoFrom=null, reelPos=[0,7,13], reelTarget=null, reelStart=0, reelRes=null, lastSpinAt=0;
+const reelsCv=$('reels'), rg=reelsCv.getContext('2d');
+const CELL=14, RW=14, RH=CELL*3;   // each reel 14 px wide, 3 symbols tall
+reelsCv.width=RW*3+8; reelsCv.height=RH;
+const STRIP=(()=>{ const s=[]; for(const k of SYM_ORDER) for(let i=0;i<Math.round(SYM_W[k]*2);i++) s.push(k);
+  for(let i=s.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [s[i],s[j]]=[s[j],s[i]]; } return s; })();
+function pickSym(){ const tot=SYM_ORDER.reduce((a,k)=>a+SYM_W[k],0); let r=Math.random()*tot; for(const k of SYM_ORDER){ r-=SYM_W[k]; if(r<0) return k; } return 'CHERRY'; }
+function stripIndexOf(k,near){ const N=STRIP.length; for(let i=0;i<N;i++){ const j=(near+i)%N; if(STRIP[j]===k) return j; } return 0; }
+function evalSpin(r){
+  for(const k of ['DFLY','WING','SHIELD']) if(r.filter(x=>x===k).length>=2) return {pay:0,power:{DFLY:'df',WING:'dj',SHIELD:'inv'}[k]};
+  if(r[0]===r[1]&&r[1]===r[2]) return {pay:PAY3[r[0]]};
+  if(r[0]==='CHERRY'&&r[1]==='CHERRY') return {pay:3};
+  if(r.filter(x=>x==='COIN').length===2) return {pay:2};
+  if(r[0]==='CHERRY') return {pay:1};
+  return {pay:0};
+}
+function drawReels(){
+  const g=rg, N=STRIP.length; g.fillStyle='#f2efe9'; g.fillRect(0,0,reelsCv.width,RH);
+  for(let i=0;i<3;i++){
+    const x0=i*(RW+4), pos=reelPos[i], base=Math.floor(pos), off=Math.round((pos-base)*CELL);
+    g.save(); g.beginPath(); g.rect(x0,0,RW,RH); g.clip();
+    g.fillStyle='#fff8ec'; g.fillRect(x0,0,RW,RH);
+    for(let r=-1;r<=3;r++){ const k=STRIP[((base+r-1)%N+N)%N]; drawSym(g,k,x0+2,r*CELL+off+2); }
+    g.fillStyle='rgba(0,0,0,.18)'; g.fillRect(x0,0,RW,3); g.fillRect(x0,RH-3,RW,3);
+    g.restore();
+    if(i<2){ g.fillStyle='#2a0e14'; g.fillRect(x0+RW,0,4,RH); }
+  }
+  g.fillStyle='rgba(229,25,28,.85)'; g.fillRect(0,CELL+CELL/2-0.5|0,reelsCv.width,1);     // payline
+}
+function sizeReels(){ const k=Math.max(3,Math.min(7,Math.floor(Math.min(innerWidth*0.42,innerHeight*0.36)/RH)));
+  reelsCv.style.width=reelsCv.width*k+'px'; reelsCv.style.height=reelsCv.height*k+'px'; }
+addEventListener('resize',sizeReels);
+function renderCasino(){
+  $('casBank').textContent=save.bank;
+  $('bets').innerHTML=BETS.map(b=>`<button class="bet${b===bet?' on':''}" data-b="${b}">${b}</button>`).join('');
+  $('spinBtn').innerHTML=save.bank<bet?`Need ${bet-save.bank} more`:`Spin · <i class="coin-i"></i>${bet}`;
+  $('spinBtn').disabled=spinning||save.bank<bet;
+  $('casPowers').innerHTML=Object.values(POWERS).map(P=>{ const u=powerUse(P.id);
+    return `<div class="pw-row"><img class="pw-ico" src="${symURL(P.sym)}" alt=""><div><b>${P.name} ×${save.powers[P.id]|0}</b><small>${P.short}</small></div>
+      <button data-use="${P.id}" ${u.ok?'':'disabled'}>${u.ok?(inLevelNow()?'Use':'Arm'):(save.armed[P.id]?'Armed':(u.label==='Active'?'Active':'—'))}</button></div>`; }).join('');
+  const row=(syms,txt)=>`<span class="pt">${syms.map(k=>`<img class="pw-ico" style="width:12px;height:12px" src="${symURL(k)}">`).join('')}</span><span>${txt}</span>`;
+  $('payTable').innerHTML=[row(['SEVEN','SEVEN','SEVEN'],'50×'),row(['BELL','BELL','BELL'],'20×'),row(['BAR','BAR','BAR'],'12×'),
+    row(['COIN','COIN','COIN'],'10×'),row(['CHERRY','CHERRY','CHERRY'],'6×'),row(['CHERRY','CHERRY'],'3× (reels 1–2)'),row(['COIN','COIN'],'2× (any 2)'),
+    row(['CHERRY'],'1× (reel 1)'),row(['SHIELD','SHIELD'],'Invincible'),row(['WING','WING'],'Double Jump'),row(['DFLY','DFLY'],'Dragonfly (rare)')].join('');
+}
+$('bets').addEventListener('click',e=>{ const b=e.target.closest('.bet'); if(!b||spinning) return; bet=+b.dataset.b; renderCasino(); });
+$('casPowers').addEventListener('click',e=>{ const b=e.target.closest('[data-use]'); if(!b) return; usePower(b.dataset.use); renderCasino(); });
+function openCasino(){
+  if(!save.casino){ toast('Beat Level 1 to unlock the Casino',2.8); return; }
+  casinoFrom=state; if(state==='play'){ openPause(); casinoFrom='paused'; }
+  if(pauseOpen) $('pauseModal').classList.add('hidden');
+  if(profileOpen) closeProfile();
+  state=state==='paused'?'casino':state; clearInput();
+  $('casino').classList.remove('hidden'); sizeReels(); drawReels(); renderCasino();
+  $('casMsg').className=''; $('casMsg').textContent='Line up 3 to win. 2 power symbols win a power-up.';
+}
+function closeCasino(){
+  if(spinning) return;
+  $('casino').classList.add('hidden');
+  if(casinoFrom==='paused'&&runActive){ state='paused'; $('pauseModal').classList.remove('hidden'); }
+  updateHUD(true); updateTitleCasino();
+}
+$('casBack').addEventListener('click',closeCasino);
+document.querySelectorAll('[data-casino]').forEach(b=>b.addEventListener('click',openCasino));
+function updateTitleCasino(){ const b=$('titleCasino'); b.classList.toggle('locked',!save.casino); b.textContent=save.casino?'Casino':'Casino 🔒'; }
+updateTitleCasino();
+function spin(){
+  if(spinning||save.bank<bet) return;
+  save.bank-=bet; persist(); spinning=true; $('slotBox').classList.add('spinning'); $('slotBox').classList.remove('won');
+  reelRes=[pickSym(),pickSym(),pickSym()];
+  reelStart=performance.now(); const N=STRIP.length;
+  reelTarget=reelRes.map((k,i)=>{ const cur=Math.floor(reelPos[i]); const idx=stripIndexOf(k,(cur+5+(Math.random()*N|0))%N);
+    let tgt=idx; while(tgt<reelPos[i]+N*(2+i)) tgt+=N; return {from:reelPos[i],to:tgt,dur:900+i*420}; });
+  $('casMsg').className=''; $('casMsg').textContent='Spinning…'; renderCasino();
+}
+$('spinBtn').addEventListener('click',spin);
+addEventListener('keydown',e=>{ if($('casino').classList.contains('hidden')) return;
+  if(e.code==='Space'||e.code==='Enter'){ e.preventDefault(); e.stopImmediatePropagation(); spin(); }
+  else if(e.code==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); closeCasino(); } },true);
+(function reelTick(now){
+  if(spinning&&reelTarget){
+    let done=0;
+    for(let i=0;i<3;i++){ const R=reelTarget[i], t=Math.min(1,(now-reelStart)/R.dur), e=1-Math.pow(1-t,3);
+      reelPos[i]=R.from+(R.to-R.from)*e; if(t>=1){ reelPos[i]=R.to%STRIP.length; done++; } }
+    drawReels();
+    if(done===3){ spinning=false; reelTarget=null; $('slotBox').classList.remove('spinning'); settleSpin(); }
+  }
+  requestAnimationFrame(reelTick);
+})(0);
+function settleSpin(){
+  const res=evalSpin(reelRes), m=$('casMsg');
+  if(res.power){ const P=POWERS[res.power]; save.powers[res.power]++; m.className='pw';
+    m.textContent=`POWER-UP! ${P.name} added`; $('slotBox').classList.add('won'); }
+  else if(res.pay>0){ const w=res.pay*bet; save.bank+=w; m.className='win';
+    m.textContent=res.pay===1?`Cherry! Bet back · +${w}`:`WIN! +${w} coins`; if(res.pay>=6) $('slotBox').classList.add('won'); }
+  else { m.className=''; m.textContent='No luck. Spin again?'; }
+  persist(); renderCasino(); updateHUD(true);
+}
+
+/* =========================================================
+   GLOBAL LEADERBOARD · score = coins collected + swag bought + speed points
+   Set LB_API to the deployed leaderboard endpoint (see leaderboard-worker.js). Until then it shows your own score.
+   ========================================================= */
+const LB_API='';
+const PAR={1:60,2:90,3:120,4:150};    // seconds; finishing a level at par = 100 speed points, twice as fast = 200
+function myScore(){
+  const st=save.stats, b=st.bestByLevel; let speed=0;
+  for(const l in PAR) if(b[l]!=null&&b[l]>0) speed+=Math.min(400,Math.round(100*PAR[l]/b[l]));   // capped at 4× par per level
+  const coins=st.coinsEarned|0, swag=st.swagSpent|0;
+  return {coins,swag,speed,score:coins+swag+speed};
+}
+let ranksCache=null, ranksErr='';
+function submitScore(){
+  if(!LB_API) return;
+  const m=myScore();
+  fetch(LB_API.replace(/\/$/,'')+'/scores',{method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({id:save.pid,name:save.name||runName||'GUEST',...m,levels:save.stats.bestByLevel})}).catch(()=>{});
+}
+async function loadRanks(){
+  if(!LB_API){ ranksErr='Global board goes live once it is connected. Your score is saved and will post automatically.'; return; }
+  try{ const r=await fetch(LB_API.replace(/\/$/,'')+'/scores',{cache:'no-store'}); ranksCache=await r.json(); ranksErr=''; }
+  catch(e){ ranksErr='Could not reach the leaderboard. Try Refresh.'; }
+}
+function renderRanks(){
+  const m=myScore();
+  $('myScore').innerHTML=[['Score',m.score],['Coins',m.coins],['Swag',m.swag],['Speed',m.speed]].map(([l,v])=>`<div class="tile"><b>${v}</b><span>${l}</span></div>`).join('');
+  const el=$('ranksList'), list=(ranksCache||[]).slice(0,100);
+  if(!list.length){ el.innerHTML=`<li class="me"><span>1</span><span>${(save.name||'YOU')}<small>Coins ${m.coins} · Swag ${m.swag} · Speed ${m.speed}</small></span><span>${m.score}</span></li>`
+    +`<li class="empty">${ranksErr||'Loading…'}</li>`; }
+  else el.innerHTML=list.map((e,i)=>`<li class="${e.id===save.pid?'me':''}"><span>${i+1}</span><span>${String(e.name||'GUEST').replace(/[<>&]/g,'')}<small>Coins ${e.coins|0} · Swag ${e.swag|0} · Speed ${e.speed|0}</small></span><span>${e.score|0}</span></li>`).join('');
+}
+$('ranksRefresh').addEventListener('click',async()=>{ await loadRanks(); renderRanks(); });
+document.querySelectorAll('[data-view="ranks"],[data-ranks]').forEach(b=>b.addEventListener('click',async()=>{ submitScore(); await loadRanks(); if(pView==='ranks') renderRanks(); }));
+
 /* ---------- PAUSE ---------- */
 let pauseOpen=false;
 function ctrlText(){
@@ -1093,7 +1404,7 @@ function quitToTitle(){ hidePause(); runActive=false; state='title'; reset(lvl);
   $('titleSub').textContent='Press start'; $('titleSub').classList.add('blink'); $('startBtn').textContent='Start';
   $('levelPick').hidden=false; selectedLevel=lvl; renderLevelPick(); $('title').classList.remove('hidden'); }
 $('pQuit').addEventListener('click',quitToTitle);
-window.__sq={beginRun:(n,l)=>beginRun(n,l),quitToTitle:()=>quitToTitle(),winGame:()=>winGame(),matchLost:()=>matchLost(),p:()=>player,grid:()=>grid,crumbles:()=>crumbles};   // test hooks
+window.__sq={beginRun:(n,l)=>beginRun(n,l),quitToTitle:()=>quitToTitle(),winGame:()=>winGame(),matchLost:()=>matchLost(),p:()=>player,grid:()=>grid,crumbles:()=>crumbles,save:()=>save,pw:()=>pw,openCasino:()=>openCasino(),spin:()=>spin()};   // test hooks
 /* a Back button on every in-between screen: name → title · rules → name · win / KO → title (level select) */
 document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{
   const w=b.dataset.back;
@@ -1120,8 +1431,10 @@ function burst(x,y,n,color,spd=140,life=0.5){
     parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-40,life,max:life,color,size:2+Math.random()*2.5})}
 }
 const springT={};
-function die(){
+function die(reason){
   if(player.deadT>0) return;
+  if(reason!=='pit'&&pw.invT>0) return;                       // invincibility power-up
+  if(LV.mode==='sky'&&pw.df) return;                           // dragonfly power-up: untouchable on flying levels
   player.deadT=0.7; deaths++; save.stats.falls++; persist();
   burst(player.x+player.w/2,player.y+player.h/2,22,THEME.red,200,.7);
   burst(player.x+player.w/2,player.y+player.h/2,10,'#fff',160,.5);
@@ -1135,13 +1448,16 @@ function update(dt){
   time+=dt; elapsed+=dt;
   if(LV.mode==='boxing'){ updateBoxing(dt); return; }
   const p=player;
+  if(pw.invT>0){ pw.invT-=dt; if(p.deadT<=0&&Math.random()<0.6) parts.push({x:p.x+Math.random()*p.w,y:p.y+Math.random()*p.h,vx:(Math.random()-.5)*30,vy:-30-Math.random()*30,life:.4,max:.4,color:Math.random()<.5?THEME.coin:'#fff',size:2});
+    if(pw.invT<=0) toast('Invincibility wore off'); updateHUD(true); }
 
   for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.life-=dt;q.vy+=900*dt;q.x+=q.vx*dt;q.y+=q.vy*dt;if(q.life<=0)parts.splice(i,1)}
 
   if(p.deadT>0){ p.deadT-=dt;
     if(p.deadT<=0){ Object.assign(p,makePlayer(respawn.x,respawn.y)); p.inv=PHYS.respawnShield;
       for(const c of crumbles){ c.t=-1; c.back=0; grid[c.y][c.x]=5; }
-      if(LV.mode==='sky'){ p.riding=true; p.vx=PHYS.skyCruise; p.inv=PHYS.skyShield; resetShips(); } }
+      if(LV.mode==='sky'){ p.riding=true; p.vx=PHYS.skyCruise; p.inv=PHYS.skyShield; resetShips(); }
+      else if(pw.df) mountDF(); }
     jumpQueued=dashQueued=false; updateCamera(dt); return; }
   if(LV.mode==='sky'){ updateSky(dt); return; }
   if(p.inv>0) p.inv-=dt;
@@ -1187,13 +1503,16 @@ function update(dt){
     if(p.buffer>0&&p.coyote>0){
       p.vy=-PHYS.jump; p.buffer=0; p.coyote=0; p.onGround=false; p.cut=false; p.dashT=0;
       burst(p.x+p.w/2,p.y+p.h,6,'rgba(242,239,233,.7)',80,.3);
+    } else if(p.buffer>0&&pw.dj&&!p.dj2&&!p.onGround){       // double-jump power-up
+      p.vy=-PHYS.jump*0.92; p.buffer=0; p.dj2=true; p.cut=false; p.dashT=0;
+      burst(p.x+p.w/2,p.y+p.h,10,THEME.shard,120,.4);
     }
     if(!p.cut&&!input.jump&&p.vy<0){p.vy*=PHYS.jumpCut;p.cut=true}
     if(moveX(p,p.vx*dt)){ p.vx=0; p.dashT=0; }
     const wasGround=p.onGround;
     if(moveY(p,p.vy*dt)) p.vy=0;
     p.onGround=p.vy>=0&&standing(p);
-    if(p.onGround){ p.airDash=true; if(!wasGround) burst(p.x+p.w/2,p.y+p.h,5,'rgba(242,239,233,.5)',60,.25); }
+    if(p.onGround){ p.airDash=true; p.dj2=false; if(!wasGround) burst(p.x+p.w/2,p.y+p.h,5,'rgba(242,239,233,.5)',60,.25); }
     // springs: touching one with your feet launches you high
     if(p.vy>=0){ const fy=p.y+p.h, l=Math.floor(p.x/T), r=Math.floor((p.x+p.w-0.01)/T);
       for(let tx=l;tx<=r;tx++){ const ty=Math.floor((fy-4)/T);
@@ -1222,10 +1541,10 @@ function update(dt){
   }
   for(const k in springT){ springT[k]-=dt; if(springT[k]<=0) delete springT[k]; }
   // hazards
-  if(p.y>ROWS*T+80) die();
+  if(p.y>ROWS*T+80) die('pit');
   if(!p.riding){
     const l=Math.floor(p.x/T), r=Math.floor((p.x+p.w-0.01)/T), tt=Math.floor(p.y/T), bb=Math.floor((p.y+p.h-0.01)/T);
-    for(let ty=tt;ty<=bb;ty++)for(let tx=l;tx<=r;tx++) if(tileAt(tx,ty)===3&&p.y+p.h>ty*T+14) die();
+    for(let ty=tt;ty<=bb;ty++)for(let tx=l;tx<=r;tx++) if(tileAt(tx,ty)===3&&p.y+p.h>ty*T+14) die('spike');
   }
   if(p.inv<=0) for(const s of sparks){ const sp=sparkPos(s);
     const bx=clamp(sp.x,p.x,p.x+p.w), by=clamp(sp.y,p.y,p.y+p.h+(p.riding?10:0));
@@ -1245,7 +1564,7 @@ function update(dt){
     updateHUD(true);
   }
   // hint at the canyon if shards are missing
-  if(df&&!gapHinted&&df.state==='hidden'&&p.x>df.perchX-5*T){ gapHinted=true;
+  if(df&&!gapHinted&&!pw.df&&df.state==='hidden'&&p.x>df.perchX-5*T){ gapHinted=true;
     toast(`Too wide to jump. Find all ${shards.length} shards to call the dragonfly (${runShards}/${shards.length})`,3.5); }
 
   // enemies
@@ -1262,7 +1581,7 @@ function update(dt){
     const hitbox=p.riding?{x:p.x-8,y:p.y,w:p.w+16,h:p.h+12}:p;
     if(p.deadT<=0&&overlap(hitbox,e)){
       const prevBot=p.y+p.h-p.vy*dt;
-      if(p.riding||p.dashT>0||(p.vy>0&&prevBot<=e.y+10)){
+      if(p.riding||p.dashT>0||pw.invT>0||(p.vy>0&&prevBot<=e.y+10)){
         e.alive=false; e.deadT=0.4; save.stats.kills++; burst(e.x+e.w/2,e.y+e.h/2,14,THEME.red,180,.5);
         if(!p.riding&&p.dashT<=0){ p.vy=-PHYS.jump*0.65; p.cut=!input.jump; }
       } else if(p.inv<=0) die();
@@ -1283,6 +1602,7 @@ function resetShips(){ for(const s of ships) if(s.alive){ s.x=s.x0; s.y=s.y0; s.
 function updateSky(dt){
   const p=player;
   if(p.inv>0) p.inv-=dt;
+  if(pw.invT>0){ pw.invT-=dt; if(pw.invT<=0) toast('Invincibility wore off'); updateHUD(true); }
   if(p.power>0){ p.power-=dt; if(p.power<=0){ toast('Overdrive over. Dodge the ships!'); updateHUD(true); } }
   if(gateToastT>0) gateToastT-=dt;
   const dirY=(input.down?1:0)-(input.jump?1:0);
@@ -1331,7 +1651,7 @@ function updateSky(dt){
     if(!s.active){ if(s.x0-p.x<viewW*0.9+60) s.active=true; else continue; }
     s.t+=dt; s.x+=s.vx*dt; s.y=s.y0+Math.sin(s.t*s.spd+s.ph)*s.amp;
     if(p.deadT<=0&&overlap(hb,{x:s.x-15,y:s.y-7,w:30,h:14})){
-      if(p.power>0){ s.alive=false; s.deadT=.5; earn(1); save.stats.kills++; persist();
+      if(p.power>0||pw.invT>0||pw.df){ s.alive=false; s.deadT=.5; earn(1); save.stats.kills++; persist();
         burst(s.x,s.y,18,THEME.red,220,.6); burst(s.x,s.y,8,THEME.coin,140,.5); updateHUD(true); }
       else if(p.inv<=0){ die(); return; }
     }
@@ -1694,6 +2014,7 @@ function winGame(){
   const st=save.stats; st.wins++; if(sweep) st.sweeps++;
   const board=boardFor(lvl), prevBest=board.length?board[0].time:Infinity;
   if(st.bestByLevel[lvl]==null||t<st.bestByLevel[lvl]) st.bestByLevel[lvl]=t;
+  const casinoNew=lvl===1&&!save.casino; if(casinoNew) save.casino=true;
   const unlockedNew=lvl<LEVELS.length&&save.unlocked<lvl+1;
   if(unlockedNew) save.unlocked=lvl+1;
   const entry={name:runName,level:lvl,time:Math.round(t*100)/100,coins:gotC,kills:k,sweep,date:Date.now()};
@@ -1717,6 +2038,8 @@ function winGame(){
   $('bonusTotal').innerHTML=`Bonus <b style="color:var(--gold)">+${bonus}</b> · Bank <b style="color:var(--gold)">${save.bank}</b>`;
   $('winBoardTitle').textContent=`${LV.name} leaderboard · Best times`;
   renderBoard($('winBoard'),save.boards[lvl],5,rank);
+  $('casinoUnlock').hidden=!casinoNew; if(casinoNew) setTimeout(()=>toast('You unlocked the CASINO! Gamble coins for more coins & power-ups',4.5),900);
+  pw={invT:0,dj:false,df:false}; submitScore();
   const hasNext=lvl<LEVELS.length;
   $('nextBtn').hidden=!hasNext; $('againBtn').className=hasNext?'cta ghost':'cta';
   updateHUD(true);
@@ -1749,11 +2072,14 @@ let lastHUD='';
 function updateHUD(force){
   const meter=LV.mode==='sky'?(player&&player.power>0?3:runShards%3):runShards;
   const hp=hoops.filter(h=>h.passed).length;
-  const s=`${coins.filter(o=>o.got).length}/${totalCoins}|${save.bank}|${fmt(elapsed)}|${deaths}|${meter}|${hp}`;
+  const pws=(pw.invT>0?'inv'+Math.ceil(pw.invT):'')+(pw.dj?'dj':'')+(pw.df?'df':'');
+  const s=`${coins.filter(o=>o.got).length}/${totalCoins}|${save.bank}|${fmt(elapsed)}|${deaths}|${meter}|${hp}|${pws}`;
   if(s===lastHUD&&!force) return; lastHUD=s;
   const [a,b,c,d]=s.split('|'); $('hCoins').textContent=a; $('hBank').textContent=b; $('hTime').textContent=c; $('hDeaths').textContent=d;
   $('hShards').querySelectorAll('.sh').forEach((el,i)=>el.classList.toggle('on',i<meter));
   $('hHoopsN').textContent=`${hp}/${hoops.length}`;
+  $('hPow').innerHTML=(pw.invT>0?`<span class="pw-b"><img src="${symURL('SHIELD')}" alt="">${Math.ceil(pw.invT)}s</span>`:'')
+    +(pw.dj?`<span class="pw-b"><img src="${symURL('WING')}" alt="">2× JUMP</span>`:'')+(pw.df?`<span class="pw-b"><img src="${symURL('DFLY')}" alt="">DRAGONFLY</span>`:'');
 }
 
 /* =========================================================
@@ -1766,9 +2092,10 @@ const swatch=it=>it.color==='transparent'?'repeating-linear-gradient(45deg,#2a2f
 document.querySelectorAll('.card > header .segb').forEach(b=>b.addEventListener('click',()=>{pView=b.dataset.view;renderProfile();}));
 $('pBoardSeg').innerHTML=LEVELS.map((L,i)=>`<button class="segb" data-l="${i+1}">L${i+1}</button>`).join('');
 $('pBoardSeg').addEventListener('click',e=>{const b=e.target.closest('.segb'); if(!b)return; pBoardLvl=+b.dataset.l; renderMe();});
-tabsEl.innerHTML=CATS.map(([id,label])=>`<button class="tab" data-cat="${id}">${label}</button>`).join('');
+tabsEl.innerHTML=CATS.map(([id,label])=>`<button class="tab" data-cat="${id}">${label}</button>`).join('')+`<button class="tab tab-pw" data-cat="power">Power-ups</button>`;
 tabsEl.addEventListener('click',e=>{const b=e.target.closest('.tab'); if(!b)return; shopCat=b.dataset.cat; renderShop();});
 itemsEl.addEventListener('click',e=>{const b=e.target.closest('.item'); if(!b)return; sel[shopCat]=b.dataset.id; renderShop();});
+$('useBtn').addEventListener('click',()=>{ usePower(sel.power||'inv'); renderShop(); });
 $('pName').addEventListener('input',e=>{ save.name=cleanName(e.target.value); persist(); });
 $('pName').addEventListener('keydown',e=>{ if(e.key==='Enter') e.target.blur(); });
 $('pSwag').addEventListener('click',e=>{const b=e.target.closest('.swag-i'); if(!b)return;
@@ -1776,9 +2103,9 @@ $('pSwag').addEventListener('click',e=>{const b=e.target.closest('.swag-i'); if(
 
 function renderProfile(){
   document.querySelectorAll('.card > header .segb').forEach(b=>b.classList.toggle('on',b.dataset.view===pView));
-  $('viewMe').hidden=pView!=='me'; $('viewStore').hidden=pView!=='store'; $('viewMap').hidden=pView!=='map';
+  $('viewMe').hidden=pView!=='me'; $('viewStore').hidden=pView!=='store'; $('viewMap').hidden=pView!=='map'; $('viewRanks').hidden=pView!=='ranks';
   $('pBank').textContent=save.bank;
-  if(pView==='me') renderMe(); else if(pView==='map') renderMap(); else renderShop();
+  if(pView==='me') renderMe(); else if(pView==='map') renderMap(); else if(pView==='ranks') renderRanks(); else renderShop();
 }
 function renderMe(){
   const st=save.stats, bl=st.bestByLevel;
@@ -1874,6 +2201,19 @@ $('shareRow').addEventListener('click',e=>{ const b=e.target.closest('[data-shar
 function renderShop(){
   $('pBank').textContent=save.bank;
   tabsEl.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.cat===shopCat));
+  $('useBtn').hidden=shopCat!=='power';
+  if(shopCat==='power'){
+    const cur=sel.power||'inv';
+    itemsEl.innerHTML=Object.values(POWERS).map(P=>`<button class="item${cur===P.id?' sel':''}" data-id="${P.id}">
+      <span class="sw" style="background:#0b0d14 url(${symURL(P.sym)}) center/80% no-repeat;image-rendering:pixelated"></span><span class="n">${P.name}<small style="display:block;font-family:var(--vt);font-size:14px;opacity:.75">${P.short}</small></span>
+      <span class="pr">${save.powers[P.id]?'×'+save.powers[P.id]+' · ':''}<i class="coin-i"></i>${P.price}</span></button>`).join('');
+    const P=POWERS[cur];
+    itemsEl.insertAdjacentHTML('beforeend',`<div class="rank-note" style="grid-column:1/-1">${P.desc}</div>`);
+    actBtn.disabled=save.bank<P.price;
+    actBtn.innerHTML=save.bank<P.price?`Need ${P.price-save.bank} more`:`Buy · <i class="coin-i"></i>${P.price}`;
+    const u=powerUse(P.id); $('useBtn').disabled=!u.ok; $('useBtn').textContent=u.label;
+    return;
+  }
   itemsEl.innerHTML=SHOP[shopCat].map(it=>{
     const owned=save.owned.includes(it.id), eq=save.equip[shopCat]===it.id;
     const tag=eq?'Wearing':owned?'Owned':`<i class="coin-i"></i>${it.price}`;
@@ -1887,8 +2227,10 @@ function renderShop(){
     (save.bank<it.price?`Need ${it.price-save.bank} more`:`Buy &amp; wear · <i class="coin-i"></i>${it.price}`);
 }
 actBtn.addEventListener('click',()=>{
-  const it=getItem(shopCat,sel[shopCat]);
-  if(!save.owned.includes(it.id)){ if(save.bank<it.price) return; save.bank-=it.price; save.owned.push(it.id); }
+  const it=shopCat==='power'?null:getItem(shopCat,sel[shopCat]);
+  if(shopCat==='power'){ const P=POWERS[sel.power||'inv']; if(save.bank<P.price) return; save.bank-=P.price; save.powers[P.id]++;
+    persist(); renderShop(); updateHUD(true); toast(`${P.name} added · use it from the Store or Casino`); return; }
+  if(!save.owned.includes(it.id)){ if(save.bank<it.price) return; save.bank-=it.price; save.owned.push(it.id); save.stats.swagSpent+=it.price; submitScore(); }
   save.equip[shopCat]=it.id; LOOK=lookFrom(save.equip); persist(); renderShop(); updateHUD(true);
 });
 function openProfile(){
@@ -1905,6 +2247,7 @@ $('closeProfile').addEventListener('click',closeProfile);
 $('hudProfile').addEventListener('click',openProfile);
 document.querySelectorAll('[data-profile]').forEach(b=>b.addEventListener('click',openProfile));
 document.querySelectorAll('[data-shop]').forEach(b=>b.addEventListener('click',()=>{ openProfile(); pView='store'; renderProfile(); }));
+document.querySelectorAll('[data-ranks]').forEach(b=>b.addEventListener('click',()=>{ openProfile(); pView='ranks'; renderProfile(); }));
 
 const pc=$('preview'), pctx=pc.getContext('2d');
 const prevP={x:-9,y:-44,w:18,h:44,vx:PHYS.run,vy:0,face:1,onGround:true,dashT:0,anim:0};
