@@ -287,6 +287,15 @@
   #rulesModal .howto .ico{width:34px}
   /* ---- title screen ---- */
   #title{background-color:#0b0d14}
+  /* title extras: pixel starfield flying at you, a faint attract-mode playthrough behind the logo, a flashing Start */
+  #titleStars{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none;z-index:0}
+  #title>.stack{position:relative;z-index:1}
+  .logo-band{position:relative;overflow:hidden}
+  #attract{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges;opacity:.42;pointer-events:none}
+  #startBtn{animation:startFlash 1.2s steps(1) infinite}
+  @keyframes startFlash{0%,100%{background:var(--red);color:#fff;box-shadow:inset -3px -3px 0 #7d0d0f,inset 3px 3px 0 #ff6b6b,0 4px 0 #000}
+    50%{background:#ff5a4a;color:#fff7c2;box-shadow:inset -3px -3px 0 #b3141a,inset 3px 3px 0 #ffd0c8,0 4px 0 #000,0 0 0 3px #ffe08a}}
+  #startBtn:active{animation:none}
   .brand-top{font-family:var(--px);font-size:clamp(12px,2.6vw,22px);color:var(--shard);letter-spacing:.14em;text-shadow:1px 0 0 currentColor,-1px 0 0 currentColor,3px 3px 0 #000,4px 3px 0 #000}
   .logo-band{width:100vw;max-width:1100px;padding:clamp(14px,3vw,28px) 0 clamp(22px,4.5vw,40px);margin:2px 0 4px;
     background-color:#0f1830;
@@ -398,9 +407,9 @@
   </div>
 </div></div>
 
-<div class="overlay" id="title"><div class="stack">
+<div class="overlay" id="title"><canvas id="titleStars" aria-hidden="true"></canvas><div class="stack">
   <div class="brand-top">DRGNFLEYE</div>
-  <div class="logo-band"><div class="logo">
+  <div class="logo-band"><canvas id="attract" aria-hidden="true"></canvas><div class="logo">
     <svg class="logo-fly" viewBox="0 0 48 48" shape-rendering="crispEdges" aria-hidden="true">
       <polygon fill="#7fe3ff" fill-opacity=".22" stroke="#7fe3ff" stroke-width="1" points="24,1 28,10 37,4 35,14 46,13 38,21 47,27 37,29 42,39 32,35 30,46 24,38 18,46 16,35 6,39 11,29 1,27 10,21 2,13 13,14 11,4 20,10"/>
       <g fill="#bfe3f0" fill-opacity=".9"><rect x="4" y="16" width="18" height="5"/><rect x="26" y="16" width="18" height="5"/><rect x="6" y="23" width="16" height="4"/><rect x="26" y="23" width="16" height="4"/></g>
@@ -2337,6 +2346,74 @@ function sizeLogoPx(){
 }
 addEventListener('resize',sizeLogoPx);
 drawLogoPx();
+/* ---- title screen: pixel starfield + attract-mode demo run (both drawn low-res and scaled up crisp) ---- */
+(function titleFX(){
+  const sc=$('titleStars'), sg=sc.getContext('2d'), ac=$('attract'), ag=ac.getContext('2d');
+  const STAR_COL=['#ffffff','#bfe3f0','#7fe3ff','#ffc2b8','#ffe08a'];
+  const stars=[...Array(140)].map(()=>newStar(Math.random()));
+  function newStar(z){ return {x:(Math.random()*2-1), y:(Math.random()*2-1), z:z||1, c:STAR_COL[Math.random()*STAR_COL.length|0]}; }
+  function drawStars(dt){
+    const PX=4, W=Math.ceil(sc.clientWidth/PX), H=Math.ceil(sc.clientHeight/PX); if(!W||!H) return;
+    if(sc.width!==W||sc.height!==H){ sc.width=W; sc.height=H; }
+    sg.clearRect(0,0,W,H); const cx=W/2, cy=H/2;
+    for(const st of stars){
+      const pz=st.z; st.z-=dt*0.32;
+      const X=cx+st.x/st.z*cx, Y=cy+st.y/st.z*cy;
+      if(st.z<=0.04||X<0||X>=W||Y<0||Y>=H){ Object.assign(st,newStar(1)); continue; }
+      const X0=cx+st.x/pz*cx, Y0=cy+st.y/pz*cy, near=1-st.z;
+      sg.globalAlpha=Math.min(1,0.15+near*1.1); sg.fillStyle=st.c;
+      // pixel streak from last spot to this one, chunkier as it gets close
+      const n=Math.max(1,Math.round(Math.hypot(X-X0,Y-Y0))), sz=near>0.75?2:1;
+      for(let i=0;i<=n;i++){ const t=i/n; sg.fillRect(Math.round(X0+(X-X0)*t),Math.round(Y0+(Y-Y0)*t),sz,sz); }
+    }
+    sg.globalAlpha=1;
+  }
+  // attract mode: an endless auto-run through a procedural slice of Level 1
+  const VIEW_H=140, GROUND=4;                                     // world px tall; ground row (tiles)
+  const hh=(i,k)=>{ let n=(i*374761393+k*668265263)|0; n=Math.imul(n^(n>>>13),1274126177); return ((n^(n>>>16))>>>0)/4294967295; };
+  const col=i=> i<6?{g:1}:{ g:hh(i,1)<0.13?0:1, spike:hh(i,2)<0.08, plat:hh(i>>2,3)<0.45&&((i&3)<3), coin:hh(i,4)<0.35 };
+  const isGround=i=>{ const c=col(i); if(c.g) return true; return !(col(i-1).g===0&&col(i-2).g===0); };   // gaps max 2 wide
+  const got=new Set();
+  const D={x:0,y:GROUND*T-44,w:18,h:44,vx:PHYS.run,vy:0,face:1,onGround:true,dashT:0,anim:0};
+  let dCam=0, dVW=400;
+  function stepDemo(dt){
+    D.x+=D.vx*dt; D.anim+=Math.abs(D.vx)*dt*0.055;
+    const ahead=Math.floor((D.x+D.w+26)/T), under=Math.floor((D.x+D.w/2)/T);
+    if(D.onGround&&(!isGround(ahead)||!isGround(ahead+1)||col(ahead).spike&&isGround(ahead)||hh(Math.floor(D.x/T),9)<0.012)){ D.vy=-PHYS.jump; D.onGround=false; }
+    if(!D.onGround){ D.vy=Math.min(D.vy+PHYS.grav*dt,PHYS.maxFall); D.y+=D.vy*dt;
+      if(D.vy>0&&D.y+D.h>=GROUND*T&&D.y+D.h<GROUND*T+18&&isGround(under)){ D.y=GROUND*T-D.h; D.vy=0; D.onGround=true; } }
+    if(D.y>VIEW_H+200){ D.y=GROUND*T-D.h-60; D.vy=0; D.onGround=false; }      // safety net
+    for(let i=Math.floor(D.x/T)-1;i<=Math.floor(D.x/T)+1;i++){ const c=col(i); if(!c.coin||got.has(i)) continue;
+      const cx=i*T+16, cy=c.plat&&isGround(i)?(GROUND-3)*T-14:(GROUND-1)*T-6;
+      if(Math.abs(cx-(D.x+D.w/2))<16&&Math.abs(cy-(D.y+D.h/2))<30) got.add(i); }
+    if(got.size>400) got.clear();
+    dCam+=((D.x-dVW*0.13)-dCam)*Math.min(1,dt*6);
+  }
+  function drawDemo(){
+    const PX=3, W=Math.ceil(ac.clientWidth/PX), H=Math.ceil(ac.clientHeight/PX); if(!W||!H) return;
+    if(ac.width!==W||ac.height!==H){ ac.width=W; ac.height=H; }
+    const k=H/VIEW_H, vw=W/k, g=ag; dVW=vw;
+    g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,W,H); g.imageSmoothingEnabled=false;
+    g.setTransform(k,0,0,k,Math.round(-dCam*k),0);
+    const c0=Math.floor(dCam/T)-1, c1=Math.ceil((dCam+vw)/T)+1;
+    for(let i=c0;i<=c1;i++){ const c=col(i), x=i*T;
+      if(isGround(i)){ g.fillStyle=BASE_THEME.ground; g.fillRect(x,GROUND*T,T+.5,VIEW_H); g.fillStyle=BASE_THEME.groundEdge; g.fillRect(x,GROUND*T,T+.5,3);
+        if(c.spike){ g.fillStyle=BASE_THEME.spike; for(let s=0;s<4;s++){ g.beginPath(); g.moveTo(x+s*8,GROUND*T); g.lineTo(x+s*8+4,GROUND*T-12); g.lineTo(x+s*8+8,GROUND*T); g.fill(); } } }
+      if(c.plat&&isGround(i)){ g.fillStyle=BASE_THEME.platforms[(i>>2)%3]; g.fillRect(x,(GROUND-3)*T,T+.5,8); }
+      if(c.coin&&!got.has(i)){ const cy=c.plat&&isGround(i)?(GROUND-3)*T-14:(GROUND-1)*T-6, sx=Math.abs(Math.cos(time*4+i));
+        g.fillStyle=BASE_THEME.coin; g.fillRect(x+16-6*sx,cy-6,12*sx+1,12); g.fillStyle=BASE_THEME.coinShine; g.fillRect(x+15,cy-4,2,5); }
+    }
+    drawPlayer(D,1,true,g,LOOK);     // red runner silhouette reads clearly through the haze
+  }
+  let lastT=0;
+  (function tick(now){
+    const dt=Math.min(0.05,(now-lastT)/1000||0); lastT=now;
+    const title=$('title');
+    if(title&&!title.classList.contains('hidden')){ drawStars(dt); stepDemo(dt); drawDemo(); }
+    requestAnimationFrame(tick);
+  })(0);
+})();
+
 /* ---- title dragonfly icon: rasterised to a small pixel sprite with a hard black outline ---- */
 (function pixelFly(){
   const svg=document.querySelector('#title .logo-fly'); if(!svg) return;
