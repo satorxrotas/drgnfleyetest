@@ -287,7 +287,7 @@
   #rulesModal .howto .ico{width:34px}
   /* ---- title screen ---- */
   #title{background-color:#0b0d14}
-  .brand-top{font-family:var(--px);font-size:clamp(12px,2.6vw,22px);color:var(--shard);letter-spacing:.14em;text-shadow:3px 3px 0 #000}
+  .brand-top{font-family:var(--px);font-size:clamp(12px,2.6vw,22px);color:var(--shard);letter-spacing:.14em;text-shadow:1px 0 0 currentColor,-1px 0 0 currentColor,3px 3px 0 #000,4px 3px 0 #000}
   .logo-band{width:100vw;max-width:1100px;padding:clamp(14px,3vw,28px) 0 clamp(22px,4.5vw,40px);margin:2px 0 4px;
     background-color:#0f1830;
     background-image:linear-gradient(rgba(127,227,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(127,227,255,.22) 1px,transparent 1px);
@@ -297,6 +297,7 @@
     background:linear-gradient(180deg,#ffc2b8 0 36%,#ff8a7a 36% 50%,#f2efe9 50% 56%,#ff8a7a 56% 63%,#f2efe9 63% 68%,#e5191c 68% 100%);
     -webkit-background-clip:text;background-clip:text;color:transparent;
     filter:drop-shadow(3px 0 0 #000) drop-shadow(-3px 0 0 #000) drop-shadow(0 3px 0 #000) drop-shadow(0 -3px 0 #000) drop-shadow(5px 6px 0 #000)}
+  .logo-px{display:block;position:relative;z-index:1;image-rendering:pixelated;image-rendering:crisp-edges}
   .logo-fly{display:block;width:clamp(58px,11vw,118px);margin:0 0 clamp(6px,1.4vw,14px);filter:drop-shadow(4px 4px 0 #000);pointer-events:none}
   .quote{font-family:var(--px)!important;font-size:clamp(9px,1.7vw,13px)!important;line-height:2.1!important;color:var(--shard);
     text-shadow:2px 2px 0 #000;max-width:640px!important;opacity:1!important}
@@ -407,7 +408,7 @@
       <rect x="22" y="22" width="4" height="4" fill="#e5191c"/><rect x="22" y="26" width="4" height="4" fill="#b3141a"/>
       <rect x="22" y="30" width="4" height="4" fill="#e5191c"/><rect x="22" y="34" width="4" height="4" fill="#b3141a"/><rect x="23" y="38" width="2" height="5" fill="#e5191c"/>
     </svg>
-    <span class="logo-word">SIDEQUEST</span>
+    <canvas class="logo-px" id="logoPx" role="img" aria-label="SIDEQUEST"></canvas>
   </div></div>
   <p class="quote">“FOLLOW THE DRAGONFLY!<br>NOW GO FINISH YOUR SIDEQUEST!”</p>
   <h2 id="titleSub" class="blink">Test build · Level 4 selected</h2>
@@ -927,7 +928,7 @@ document.addEventListener('contextmenu',e=>{ if(!(e.target&&e.target.tagName==='
    GAME STATE
    ========================================================= */
 const $=id=>document.getElementById(id);
-const canvas=$('game'), ctx=canvas.getContext('2d');
+const canvas=$('game'); let ctx=canvas.getContext('2d');
 let cw=0,ch=0,dpr=1,scale=1,viewW=0,viewH=0,bgGrad;
 let state='title', time=0, elapsed=0, deaths=0, camX=0, camY=0;
 let player, respawn, parts=[], skyline=[], stars=[], clouds=[];
@@ -1933,12 +1934,29 @@ function makeBackdrop(){
   for(let i=0;i<70;i++) stars.push({x:Math.random(),y:Math.random()*0.6,r:Math.random()*1.2+.3,a:Math.random()*.5+.15});
 }
 
+const dfSpr=document.createElement('canvas'); dfSpr.width=64; dfSpr.height=48;
+const dfX=dfSpr.getContext('2d',{willReadFrequently:true});
 function drawDragonfly(x,y,face,alpha,flapSpd){
-  const c=ctx; c.save(); c.globalAlpha=alpha; c.translate(x,y); c.scale(face*1.6,1.6);
+  // drawn smooth into a small buffer, then snapped to hard pixels with a 1px black outline (sprite look)
+  const W=dfSpr.width, H=dfSpr.height; dfX.setTransform(1,0,0,1,0,0); dfX.clearRect(0,0,W,H);
+  drawDragonflyVec(dfX,W/2,H/2,face,flapSpd,0.5);
+  const im=dfX.getImageData(0,0,W,H), d=im.data, a0=new Uint8Array(W*H);
+  for(let i=0;i<W*H;i++){ const a=d[i*4+3];
+    if(a<60){ d[i*4+3]=0; continue; }
+    const q=a>200?255:150; a0[i]=q===255?2:1; d[i*4+3]=q;
+    for(let c=0;c<3;c++) d[i*4+c]=Math.min(255,Math.round(d[i*4+c]/32)*32); }
+  for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){ const i=y*W+x; if(a0[i]) continue;
+    if(a0[i-1]===2||a0[i+1]===2||a0[i-W]===2||a0[i+W]===2){ d[i*4]=d[i*4+1]=d[i*4+2]=8; d[i*4+3]=255; } }
+  dfX.putImageData(im,0,0);
+  ctx.save(); ctx.globalAlpha=alpha; ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(dfSpr,Math.round(x-W),Math.round(y-H),W*2,H*2); ctx.restore();
+}
+function drawDragonflyVec(c,x,y,face,flapSpd,k=1){
+  c.save(); c.translate(x,y); c.scale(face*1.6*k,1.6*k);
   const flap=Math.sin(time*flapSpd);
   const wing=(ang,len,wid)=>{ c.save(); c.translate(2,-3); c.rotate(ang+flap*0.35);
     c.scale(1,0.55+0.45*Math.abs(flap)); c.beginPath(); c.ellipse(len/2,0,len/2,wid,0,0,7);
-    c.fillStyle=THEME.dfWing; c.fill(); c.strokeStyle='rgba(255,255,255,.55)'; c.lineWidth=0.6; c.stroke(); c.restore(); };
+    c.fillStyle=THEME.dfWing; c.fill(); c.strokeStyle='rgba(255,255,255,.8)'; c.lineWidth=1.4; c.stroke(); c.restore(); };
   wing(-2.45,30,5.5); wing(-2.15,27,5);         // rear pair
   // abdomen
   for(let i=9;i>=0;i--){ c.fillStyle=i%2?THEME.dfBody2:THEME.dfBody; c.beginPath(); c.arc(-4-i*3.6,1+i*0.25,3.3-i*0.2,0,7); c.fill(); }
@@ -1969,11 +1987,18 @@ function drawShip(s){
   ctx.fillStyle='#5b6070'; ctx.beginPath(); ctx.ellipse(x,y+2.5,14,3.5,0,0,7); ctx.fill();
   for(let i=-2;i<=2;i++){ ctx.fillStyle=(Math.floor(time*6)+i)%2?THEME.red:'#ffe08a'; ctx.fillRect(x+i*7-1,y-1,2.2,2.2); }
 }
-function render(){
-  if(LV.mode==='boxing'){ renderBoxing(); return; }
-  const dpr=1, scale=1, cw=canvas.width, ch=canvas.height;   // draw 1:1 on the low-res pixel canvas
-  ctx.setTransform(dpr,0,0,dpr,0,0);
-  ctx.fillStyle=bgGrad; ctx.fillRect(0,0,cw,ch);
+const BGP=3, bgBuf=document.createElement('canvas'), bgB=bgBuf.getContext('2d',{willReadFrequently:true});
+const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+function drawBackdropPx(){
+  // the whole backdrop is painted at 1/3 resolution, its colours crushed with a 4x4 ordered dither, then blown up
+  // with hard edges: same chunky, banded look as the rest of the game
+  const bw=Math.ceil(canvas.width/BGP), bh=Math.ceil(canvas.height/BGP);
+  if(bgBuf.width!==bw||bgBuf.height!==bh){ bgBuf.width=bw; bgBuf.height=bh; }
+  const main=ctx; ctx=bgB; const cw=bw, ch=bh, k=1/BGP;
+  try{
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.save(); ctx.scale(1,bh/canvas.height); ctx.fillStyle=bgGrad; ctx.fillRect(0,0,cw,canvas.height); ctx.restore();
+
   if(LV.space){
     // drifting nebula clouds that slowly cycle through the spectrum
     const neb=[[0.18,0.30,0.55,0],[0.62,0.22,0.45,120],[0.88,0.58,0.5,230],[0.40,0.70,0.4,300]];
@@ -1984,7 +2009,7 @@ function render(){
       ctx.fillStyle=g; ctx.fillRect(0,0,cw,ch);
     }
     // a slow psychedelic swirl band
-    ctx.save(); ctx.globalAlpha=.12; ctx.lineWidth=3;
+    ctx.save(); ctx.globalAlpha=.28; ctx.lineWidth=1;
     for(let i=0;i<5;i++){ ctx.strokeStyle=`hsl(${(time*30+i*72)%360},100%,65%)`; ctx.beginPath();
       for(let x=0;x<=cw;x+=8){ const y=ch*0.55+Math.sin(x*0.012+time*0.6+i*0.8)*ch*0.12+i*10; x?ctx.lineTo(x,y):ctx.moveTo(x,y); } ctx.stroke(); }
     ctx.restore();
@@ -1993,13 +2018,12 @@ function render(){
     const pg=ctx.createRadialGradient(px-pr*.35,py-pr*.35,pr*.1,px,py,pr);
     pg.addColorStop(0,`hsl(${(time*12+30)%360},90%,72%)`); pg.addColorStop(1,`hsl(${(time*12+300)%360},80%,28%)`);
     ctx.fillStyle=pg; ctx.beginPath(); ctx.arc(px,py,pr,0,7); ctx.fill();
-    ctx.strokeStyle=`hsla(${(time*12+180)%360},100%,70%,.55)`; ctx.lineWidth=3;
+    ctx.strokeStyle=`hsla(${(time*12+180)%360},100%,70%,.55)`; ctx.lineWidth=1;
     ctx.beginPath(); ctx.ellipse(px,py,pr*1.9,pr*.45,-0.35,0,7); ctx.stroke();
   }
   for(const s of stars){ctx.fillStyle=LV.space?`hsla(${(s.x*720+time*40)%360},100%,${70+20*Math.sin(time*3+s.x*50)}%,${Math.min(1,s.a*1.8)})`:`rgba(242,239,233,${s.a})`;
-    const sx=((s.x*cw*1.5-camX*0.05*scale)%(cw*1.5)+cw*1.5)%(cw*1.5);ctx.fillRect(sx,s.y*ch*(LV.space?1.6:1),s.r*(LV.space?1.6:1),s.r*(LV.space?1.6:1))}
+    const sx=((s.x*cw*1.5-camX*0.05*k)%(cw*1.5)+cw*1.5)%(cw*1.5);ctx.fillRect(Math.round(sx),Math.round(s.y*ch*(LV.space?1.6:1)),1,1)}
 
-  const k=dpr*scale;
   ctx.setTransform(k,0,0,k,Math.round(-camX*0.3*k),Math.round(-camY*k));
   const base=ROWS*T-40;
   if(LV.space){ /* no skyline in space */ } else if(LV.mesas){
@@ -2025,6 +2049,20 @@ function render(){
     for(let x=s0-48;x<camX+viewW+48;x+=48){ ctx.fillStyle=LV.space?`hsla(${(x*0.5+time*60)%360},100%,60%,0.16)`:'rgba(242,239,233,0.06)';
       ctx.beginPath(); ctx.arc(x,ROWS*T+8+Math.sin(x*.05+(LV.space?time*2:0))*6,30,0,7); ctx.fill(); }
   }
+  } finally { ctx=main; }
+  const im=bgB.getImageData(0,0,bw,bh), d=im.data, STEP=LV.space?28:14;
+  for(let y=0;y<bh;y++)for(let x=0;x<bw;x++){ const i=(y*bw+x)*4, t=(BAYER[(y&3)*4+(x&3)]/16-0.5)*STEP;
+    for(let c=0;c<3;c++){ const v=Math.round((d[i+c]+t)/STEP)*STEP; d[i+c]=v<0?0:v>255?255:v; } d[i+3]=255; }
+  bgB.putImageData(im,0,0);
+  ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(bgBuf,0,0,bw*BGP,bh*BGP);
+}
+function render(){
+  if(LV.mode==='boxing'){ renderBoxing(); return; }
+  const dpr=1, scale=1, cw=canvas.width, ch=canvas.height;   // draw 1:1 on the low-res pixel canvas
+  drawBackdropPx();
+  const k=dpr*scale;
+  ctx.setTransform(k,0,0,k,Math.round(-camX*k),Math.round(-camY*k));
   const c0=Math.max(0,Math.floor(camX/T)), c1=Math.min(COLS-1,Math.ceil((camX+viewW)/T));
   for(let ty=0;ty<ROWS;ty++)for(let tx=c0;tx<=c1;tx++){
     const t=grid[ty][tx], x=tx*T, y=ty*T; if(!t) continue;
@@ -2234,6 +2272,44 @@ function frame(now){
 }
 
 try{ document.fonts&&document.fonts.load('8px "Press Start 2P"'); }catch(e){}
+/* ---- pixel-art title logo: hand-drawn bold bitmap letters, extruded, outlined, scaled in whole pixels ---- */
+const GLYPHS={
+  S:[".#####","##....","##....",".####.","....##","....##","#####."],
+  I:["######","..##..","..##..","..##..","..##..","..##..","######"],
+  D:["#####.","##..##","##..##","##..##","##..##","##..##","#####."],
+  E:["######","##....","##....","#####.","##....","##....","######"],
+  Q:[".####.","##..##","##..##","##..##","##.###","##..##",".###.#"],
+  U:["##..##","##..##","##..##","##..##","##..##","##..##",".####."],
+  T:["######","..##..","..##..","..##..","..##..","..##..","..##.."]};
+function drawLogoPx(){
+  const cv=$('logoPx'); if(!cv) return;
+  const word='SIDEQUEST', GW=6, GH=7, GAP=3, EX=2, PAD=1;
+  const W=word.length*(GW+GAP)-GAP+PAD*2+EX, H=GH+PAD*2+EX;
+  const face=[...Array(H)].map(()=>Array(W).fill(0));
+  [...word].forEach((ch,i)=>GLYPHS[ch].forEach((row,y)=>[...row].forEach((v,x)=>{ if(v==='#') face[y+PAD][x+PAD+i*(GW+GAP)]=1; })));
+  const at=(g,x,y)=>y>=0&&y<H&&x>=0&&x<W&&g[y][x];
+  const g=cv.getContext('2d'); cv.width=W; cv.height=H; g.clearRect(0,0,W,H);
+  const px=(x,y,c)=>{g.fillStyle=c;g.fillRect(x,y,1,1)};
+  // extrusion (3D block shadow down-right)
+  const solid=[...Array(H)].map(()=>Array(W).fill(0));
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++) for(let e=0;e<=EX;e++) if(at(face,x-e,y-e)) solid[y][x]=1;
+  // black outline around everything
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++) if(!solid[y][x]&&(at(solid,x-1,y)||at(solid,x+1,y)||at(solid,x,y-1)||at(solid,x,y+1))) px(x,y,'#000');
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++) if(solid[y][x]&&!face[y][x]) px(x,y,at(face,x-1,y-1)?'#5a0a0c':'#2a0405');
+  const band=['#fff1ec','#ffc2b8','#ff8a7a','#f2efe9','#e5191c','#c8161a','#9e1115'];
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++) if(face[y][x]) px(x,y,band[y-PAD]);
+  // pixel glint on the top-left of each letter
+  for(let i=0;i<word.length;i++){ const x0=PAD+i*(GW+GAP); for(let x=x0;x<x0+GW;x++) if(face[PAD][x]){ px(x,PAD,'#ffffff'); break; } }
+  sizeLogoPx();
+}
+function sizeLogoPx(){
+  const cv=$('logoPx'); if(!cv||!cv.width) return;
+  const k=Math.max(2,Math.floor(Math.min(innerWidth*0.86/cv.width,innerHeight*0.17/cv.height,900/cv.width)));
+  cv.style.width=cv.width*k+'px'; cv.style.height=cv.height*k+'px';
+}
+addEventListener('resize',sizeLogoPx);
+drawLogoPx();
+
 resize(); makeBackdrop(); reset(selectedLevel); renderLevelPick();
 requestAnimationFrame(frame);
 })();
