@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>𓆤 DRGNFLEYE AGENCY 𓆤</title>
+  <title>𓆤 DRGNFLEYE 𓆤</title>
   <!-- About page (v2) type, self-hosted: Anton (tall condensed) + Archivo variable (expanded widths) -->
   <link rel="preload" href="font_anton.woff2" as="font" type="font/woff2" crossorigin />
   <style>
@@ -785,7 +785,7 @@
       .logo-carousel-track { animation: none; }
     }
 
-    /* Agency name block */
+    /* Name block */
     #about-title {
       font-size: clamp(2.5rem, 5vw, 4.5rem);
       font-weight: 700;
@@ -2569,7 +2569,7 @@
   </div>
 
   <div id="site-logo">
-    <img src="DRGNFLEYE_Logo_square_01.svg" alt="DRGNFLEYE Agency" />
+    <img src="DRGNFLEYE_Logo_square_01.svg" alt="DRGNFLEYE" />
   </div>
 
   <p id="gallery-hint">SCROLL TO EXPLORE</p>
@@ -2608,7 +2608,7 @@
   <!-- ── CONTACT PANEL ── -->
   <div id="contact-panel">
     <div id="contact-topbar">
-      <span id="contact-label">DRGNFLEYE AGENCY &nbsp;|&nbsp; Contact</span>
+      <span id="contact-label">DRGNFLEYE &nbsp;|&nbsp; Contact</span>
       <button id="contact-close"><i class="px px-x px-sm" aria-hidden="true"></i> &nbsp;CLOSE</button>
     </div>
     <div id="contact-form-row">
@@ -2633,7 +2633,7 @@
   <!-- ── ABOUT PANEL ── -->
   <div id="about-panel">
     <div id="about-topbar">
-      <span id="about-breadcrumb">DRGNFLEYE AGENCY &nbsp;|&nbsp; About</span>
+      <span id="about-breadcrumb">DRGNFLEYE &nbsp;|&nbsp; About</span>
       <button id="about-close" aria-label="Close"><i class="px px-x px-sm" aria-hidden="true"></i></button>
     </div>
     <div id="about-body">
@@ -2643,9 +2643,9 @@
         <div class="logo-carousel-track" id="logo-carousel-track"></div>
       </div>
 
-      <!-- Agency name + roles -->
+      <!-- Name + roles -->
       <div>
-        <h2 id="about-title">DRGNFLEYE AGENCY</h2>
+        <h2 id="about-title">DRGNFLEYE</h2>
         <div id="about-subtitle">
           <span>Art Directors + Designers</span>
           <span>Specialties : Art Direction, Marketing Campaigns,</span>
@@ -2710,7 +2710,7 @@
       <div id="lb-topbar">
         <button id="lb-list-toggle" aria-label="View project list"><i class="px px-menu" aria-hidden="true"></i></button>
         <span id="lb-breadcrumb-wrap">
-          <span id="lb-breadcrumb">DRGNFLEYE AGENCY &nbsp;|&nbsp; A.I.M. 20TH ANNIVERSARY</span>
+          <span id="lb-breadcrumb">DRGNFLEYE &nbsp;|&nbsp; A.I.M. 20TH ANNIVERSARY</span>
           <div id="lb-breadcrumb-tooltip"></div>
         </span>
         <button id="lb-close" aria-label="Close"><i class="px px-x px-sm" aria-hidden="true"></i></button>
@@ -3872,11 +3872,11 @@
     function renderProjectDetail(idx) {
       const d = getProjectDetail(idx);
 
-      const breadcrumbFullText = `DRGNFLEYE AGENCY &nbsp;|&nbsp; ${d.breadcrumb}`;
+      const breadcrumbFullText = `DRGNFLEYE &nbsp;|&nbsp; ${d.breadcrumb}`;
       lbBreadcrumb.classList.remove('lb-breadcrumb-marquee');
       lbBreadcrumb.innerHTML = breadcrumbFullText;
       const lbBreadcrumbTooltip = document.getElementById('lb-breadcrumb-tooltip');
-      if (lbBreadcrumbTooltip) lbBreadcrumbTooltip.textContent = `DRGNFLEYE AGENCY | ${d.breadcrumb}`;
+      if (lbBreadcrumbTooltip) lbBreadcrumbTooltip.textContent = `DRGNFLEYE | ${d.breadcrumb}`;
 
       // If the title doesn't fit, turn it into a seamlessly-looping ticker instead of
       // just truncating with an ellipsis — the hover/tap tooltip still works underneath.
