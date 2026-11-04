@@ -239,23 +239,28 @@
     /* background switch: a small square, bottom left — black on the red page, red on the black page */
     #bg-toggle {
       position: absolute; left: 1.75rem; bottom: 1.75rem; width: 18px; height: 18px; padding: 0;
-      border: 0; background: #0a0a0a; cursor: pointer; pointer-events: auto;
+      border: 0; background: #ffffff; cursor: pointer; pointer-events: auto;   /* white, like the other home icons */
       transition: background .3s ease, transform .2s ease, opacity .2s ease;
     }
     #bg-toggle::before { content: ''; position: absolute; inset: -12px; }   /* bigger tap area */
-    #bg-toggle:hover { transform: scale(1.18); }
+    #bg-toggle:hover { transform: scale(1.18); background: #0a0a0a; }          /* hover: the colour it switches to */
+    html.home-dark #bg-toggle:hover { background: #e10600; }
     #bg-toggle:focus { outline: none; }
     #bg-toggle:focus-visible { outline: 1px solid #f0ede6; outline-offset: 4px; }
-    html.home-dark #bg-toggle { background: #e10600; }
     /* game controller (bottom right, mirroring the background square) — pixel icon like the X and index */
     .px-pad { --px: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2011%208%22%20fill%3D%22%23000%22%20shape-rendering%3D%22crispEdges%22%3E%3Crect%20x%3D%221%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%222%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%223%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%227%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%228%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%229%22%20y%3D%220%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%220%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%221%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%222%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%223%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%224%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%225%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%226%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%227%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%228%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%229%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%2210%22%20y%3D%221%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%220%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%221%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%223%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%224%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%225%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%226%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%227%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%229%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%2210%22%20y%3D%222%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%220%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%224%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%225%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%226%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%227%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%228%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%229%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%2210%22%20y%3D%223%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%220%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%221%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%223%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%224%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%225%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%226%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%228%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%229%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%2210%22%20y%3D%224%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%220%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%221%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%222%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%223%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%224%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%225%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%226%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%227%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%228%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%229%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%2210%22%20y%3D%225%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%220%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%221%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%222%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%223%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%227%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%228%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%229%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%2210%22%20y%3D%226%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%220%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%221%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%222%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%228%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%229%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22/%3E%3Crect%20x%3D%2210%22%20y%3D%227%22%20width%3D%221%22%20height%3D%221%22/%3E%3C/svg%3E"); width: 22px; height: 16px; }
     #game-btn {
       position: fixed; z-index: 9690; right: 1.75rem; bottom: calc(1.75rem + 1px); padding: 0; border: 0; background: none;   /* above every page and popup (the game itself sits above it) */
-      width: 22px; height: 16px; color: #ffd400; cursor: pointer; pointer-events: auto;
+      width: 22px; height: 16px; color: #ffffff; cursor: pointer; pointer-events: auto;   /* matches the page's other nav icons */
       display: flex; align-items: center; justify-content: center; transition: color .2s ease, transform .2s ease, opacity .2s ease;
     }
     #game-btn::before { content: ''; position: absolute; inset: -12px; }
-    #game-btn:hover { color: #ffe866; transform: scale(1.12); }
+    #game-btn:hover { color: #ffd400 !important; transform: scale(1.12); }   /* always yellow on hover */
+    /* Work gallery over the white video: nav icons are black, so the controller is too —
+       anything opened on top of it (a project, the index, About, Contact) puts it back to white */
+    html:not(.work-dark):has(#side-nav.work-open) #game-btn { color: #0a0a0a; }
+    html:not(._):has(#lightbox.open) #game-btn, html:not(._):has(#pindex.open) #game-btn, html:not(._):has(#inquire.open) #game-btn,
+    html:not(._):has(#about2.open) #game-btn, html:not(._):has(#about-panel.open) #game-btn { color: #ffffff; }
     #game-btn:focus { outline: none; }
     #game-btn:focus-visible { outline: 1px solid #f0ede6; outline-offset: 4px; }
     /* the game opens full screen over the home page */
@@ -275,7 +280,7 @@
     #sidequest .sq-close:focus { outline: none; }
     #sidequest .sq-close:focus-visible { outline: 1px solid #e10600; }
     @media (max-width: 750px) { #sidequest .sq-close { top: .75rem; right: .75rem; } }
-    #game-btn { filter: drop-shadow(0 1px 3px rgba(0,0,0,.45)); }
+    #game-btn { filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
     #sidequest.open ~ #game-btn, body.sq-open #game-btn { opacity: 0; pointer-events: none; }
     /* index (dot grid) on the home page — top left, like the gallery and project pages */
     #home-index {
@@ -296,7 +301,8 @@
       opacity: 0; pointer-events: none; transition: background .3s ease, transform .2s ease, opacity .3s ease;
     }
     #work-bg-toggle::before { content: ''; position: absolute; inset: -12px; }
-    #work-bg-toggle:hover { transform: scale(1.18); }
+    #work-bg-toggle:hover { transform: scale(1.18); background: #0a0a0a; }     /* hover: the colour it switches to */
+    html.work-dark #work-bg-toggle:hover { background: #ffffff; }
     #work-bg-toggle:focus { outline: none; }
     #side-nav.work-open #work-bg-toggle { opacity: 1; pointer-events: auto; }
     html.work-dark #work-bg-toggle { background: #ffffff; }
