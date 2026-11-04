@@ -160,7 +160,7 @@
       left: 50%;
       transform: translate(-50%, -50%);
       width: clamp(180px, 18vw, 300px);
-      z-index: 9000;
+      z-index: 9680;                 /* above every page and popup (only the game sits higher) */
       pointer-events: none;
       opacity: 1;
       transition: opacity 0.35s ease;
@@ -171,8 +171,17 @@
     #site-logo.hidden-for-about {
       opacity: 0;
     }
-    #site-logo.hidden-for-lightbox {
-      opacity: 0;
+    /* (the logo now stays visible over project pages, the index and the contact popup) */
+    /* over a dark page opened on top of the white Work gallery, the logo goes back to white */
+    html:not(._):has(#lightbox.open) #site-logo.force-black img, html:not(._):has(#pindex.open) #site-logo.force-black img,
+    html:not(._):has(#inquire.open) #site-logo.force-black img { filter: none; }
+    /* project top bar: the name sits to the left of the logo (scrolling if it's long); phones show just the logo */
+    #lb-breadcrumb-wrap { flex: 0 1 auto !important; max-width: calc(50vw - clamp(180px, 18vw, 300px) / 2 - 6rem); }
+    @media (max-width: 750px) { #lb-breadcrumb-wrap { visibility: hidden; } }
+    #lb-close { margin-left: auto; }   /* the X stays at the far right */
+    @media (max-width: 750px) {
+      #pindex .pi-tabs { top: 4.4rem !important; }
+      #pindex .pi-body { top: 11rem !important; }
     }
     #site-logo.force-black img {
       filter: invert(1);
@@ -3882,11 +3891,11 @@
     function renderProjectDetail(idx) {
       const d = getProjectDetail(idx);
 
-      const breadcrumbFullText = `DRGNFLEYE &nbsp;|&nbsp; ${d.breadcrumb}`;
+      const breadcrumbFullText = `${d.breadcrumb}`;   // (the DRGNFLEYE logo sits beside it now)
       lbBreadcrumb.classList.remove('lb-breadcrumb-marquee');
       lbBreadcrumb.innerHTML = breadcrumbFullText;
       const lbBreadcrumbTooltip = document.getElementById('lb-breadcrumb-tooltip');
-      if (lbBreadcrumbTooltip) lbBreadcrumbTooltip.textContent = `DRGNFLEYE | ${d.breadcrumb}`;
+      if (lbBreadcrumbTooltip) lbBreadcrumbTooltip.textContent = `${d.breadcrumb}`;
 
       // If the title doesn't fit, turn it into a seamlessly-looping ticker instead of
       // just truncating with an ellipsis — the hover/tap tooltip still works underneath.
