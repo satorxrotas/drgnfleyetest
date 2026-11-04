@@ -179,6 +179,10 @@
     #lb-breadcrumb-wrap { flex: 0 1 auto !important; max-width: calc(50vw - clamp(180px, 18vw, 300px) / 2 - 6rem); }
     @media (max-width: 750px) { #lb-breadcrumb-wrap { visibility: hidden; } }
     #lb-close { margin-left: auto; }   /* the X stays at the far right */
+    /* project top bar lines up exactly with every other page: dot grid 1.5rem from the top-left,
+       X 1.5rem from the top-right, both centred on the logo's line */
+    #lightbox #lb-topbar { padding: 1.5rem 1.5rem 1.1rem !important; gap: 1rem; }
+    #lightbox #lb-close, #lightbox #lb-list-toggle { width: 2.25rem !important; height: 2.25rem !important; flex: 0 0 2.25rem; }
     @media (max-width: 750px) {
       #pindex .pi-tabs { top: 4.4rem !important; }
       #pindex .pi-body { top: 11rem !important; }
@@ -288,7 +292,7 @@
     #sidequest .sq-close:hover { color: #e10600; }
     #sidequest .sq-close:focus { outline: none; }
     #sidequest .sq-close:focus-visible { outline: 1px solid #e10600; }
-    @media (max-width: 750px) { #sidequest .sq-close { top: .75rem; right: .75rem; } }
+
     #game-btn { filter: drop-shadow(0 1px 2px rgba(0,0,0,.25)); }
     #sidequest.open ~ #game-btn, body.sq-open #game-btn { opacity: 0; pointer-events: none; }
     /* index (dot grid) on the home page — top left, like the gallery and project pages */
@@ -2335,7 +2339,7 @@
     #pindex.open { opacity: 1; pointer-events: auto; visibility: visible; transition: opacity .4s ease; }
     #pindex .pi-close {
       position: absolute; top: 1.5rem; right: 1.5rem; z-index: 5;
-      width: 2.5rem; height: 2.5rem; background: none; border: 0; color: #f0ede6; cursor: pointer;
+      width: 2.25rem; height: 2.25rem; background: none; border: 0; color: #f0ede6; cursor: pointer;
       display: flex; align-items: center; justify-content: center; transition: color .2s;
     }
     #pindex .pi-close:hover { color: #e10600; }
@@ -2395,7 +2399,7 @@
     }
     #pindex .pi-cap .pi-open { color: #f0ede6; margin-left: .6em; white-space: nowrap; }
     @media (max-width: 750px) {
-      #pindex .pi-close { top: .9rem; right: .9rem; }
+      #pindex .pi-close { top: 1.5rem; right: 1.5rem; width: 2.25rem; height: 2.25rem; }
       #pindex .pi-tabs { top: 1.4rem; left: 1.25rem; right: 4rem; gap: .5rem; }
       #pindex .pi-tab { font-size: .7rem; }
       #pindex .pi-body { top: 8.2rem; bottom: 1rem; grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); padding: 0 1.25rem; align-items: stretch; }
@@ -2513,7 +2517,7 @@
     #about2 .a2-send .px-ne { width: 10px; height: 10px; }
     #about2 .a2-status { font-size: 10px; line-height: 1.3; color: rgba(255,255,255,.7); }
     @media (max-width: 750px) {
-      #about2 .a2-top { padding: 0 1rem; }
+      #about2 .a2-top { padding: 0 1.5rem; }
       #about2 .a2-sec { padding: 5.5rem 1.25rem 3rem; }
       #about2 .a2-hero { width: 100%; }
       #about2 .a2-wide { font-size: clamp(1rem, 5.2vw, 1.4rem); }
