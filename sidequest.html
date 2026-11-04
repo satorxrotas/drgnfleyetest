@@ -1920,7 +1920,7 @@ function resize(){
   if(LV.mode==='boxing'){ canvas.width=Math.round(cw*dpr); canvas.height=Math.round(ch*dpr); }
   else { canvas.width=Math.ceil(viewW); canvas.height=Math.ceil(viewH); }
   bgGrad=ctx.createLinearGradient(0,0,0,canvas.height);
-  ((LV&&LV.sky)||['#1a2036','#161b2e','#121626','#0e111d','#0b0d14']).forEach((c,i,a)=>{ bgGrad.addColorStop(i/a.length,c); bgGrad.addColorStop((i+1)/a.length-0.001,c); });
+  ((LV&&LV.sky)||['#1a2036','#161b2e','#121626','#0e111d','#0b0d14']).forEach((c,i,a)=>bgGrad.addColorStop(i/(a.length-1),c));
   if(player) updateCamera(0,true);
   layoutBoxing();
   if(typeof applyStickSide==='function') applyStickSide();
@@ -1987,8 +1987,8 @@ function drawShip(s){
   ctx.fillStyle='#5b6070'; ctx.beginPath(); ctx.ellipse(x,y+2.5,14,3.5,0,0,7); ctx.fill();
   for(let i=-2;i<=2;i++){ ctx.fillStyle=(Math.floor(time*6)+i)%2?THEME.red:'#ffe08a'; ctx.fillRect(x+i*7-1,y-1,2.2,2.2); }
 }
-const BGP=3, bgBuf=document.createElement('canvas'), bgB=bgBuf.getContext('2d',{willReadFrequently:true});
-const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+const BGP=2, bgBuf=document.createElement('canvas'), bgB=bgBuf.getContext('2d',{willReadFrequently:true});
+const BAYER=(()=>{let m=[[0]];for(let n=1;n<8;n*=2){const r=[];for(let y=0;y<n*2;y++){r.push([]);for(let x=0;x<n*2;x++){const q=m[y%n][x%n]*4;r[y].push(q+[[0,2],[3,1]][y<n?0:1][x<n?0:1]);}}m=r;}return m.flat();})();
 function drawBackdropPx(){
   // the whole backdrop is painted at 1/3 resolution, its colours crushed with a 4x4 ordered dither, then blown up
   // with hard edges: same chunky, banded look as the rest of the game
@@ -2050,8 +2050,8 @@ function drawBackdropPx(){
       ctx.beginPath(); ctx.arc(x,ROWS*T+8+Math.sin(x*.05+(LV.space?time*2:0))*6,30,0,7); ctx.fill(); }
   }
   } finally { ctx=main; }
-  const im=bgB.getImageData(0,0,bw,bh), d=im.data, STEP=LV.space?28:14;
-  for(let y=0;y<bh;y++)for(let x=0;x<bw;x++){ const i=(y*bw+x)*4, t=(BAYER[(y&3)*4+(x&3)]/16-0.5)*STEP;
+  const im=bgB.getImageData(0,0,bw,bh), d=im.data, STEP=LV.space?20:10;
+  for(let y=0;y<bh;y++)for(let x=0;x<bw;x++){ const i=(y*bw+x)*4, t=((BAYER[(y&7)*8+(x&7)]+0.5)/64-0.5)*STEP;
     for(let c=0;c<3;c++){ const v=Math.round((d[i+c]+t)/STEP)*STEP; d[i+c]=v<0?0:v>255?255:v; } d[i+3]=255; }
   bgB.putImageData(im,0,0);
   ctx.setTransform(1,0,0,1,0,0); ctx.imageSmoothingEnabled=false;
@@ -2304,11 +2304,35 @@ function drawLogoPx(){
 }
 function sizeLogoPx(){
   const cv=$('logoPx'); if(!cv||!cv.width) return;
-  const k=Math.max(2,Math.floor(Math.min(innerWidth*0.86/cv.width,innerHeight*0.17/cv.height,900/cv.width)));
+  const k=Math.max(2,Math.floor(Math.min(innerWidth*0.86/cv.width,innerHeight*0.15/cv.height,760/cv.width)));
   cv.style.width=cv.width*k+'px'; cv.style.height=cv.height*k+'px';
 }
 addEventListener('resize',sizeLogoPx);
 drawLogoPx();
+/* ---- title dragonfly icon: rasterised to a small pixel sprite with a hard black outline ---- */
+(function pixelFly(){
+  const svg=document.querySelector('#title .logo-fly'); if(!svg) return;
+  const N=32, src=svg.cloneNode(true); src.setAttribute('xmlns','http://www.w3.org/2000/svg'); src.setAttribute('width',N); src.setAttribute('height',N);
+  src.removeAttribute('class');
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement('canvas'); c.width=N+2; c.height=N+2;
+    const g=c.getContext('2d',{willReadFrequently:true}); g.drawImage(img,1,1,N,N);
+    const im=g.getImageData(0,0,c.width,c.height), d=im.data, W=c.width, H=c.height, on=new Uint8Array(W*H);
+    for(let i=0;i<W*H;i++){ const a=d[i*4+3];
+      if(a<50){ d[i*4+3]=0; continue; }
+      on[i]=a>150?2:1; d[i*4+3]=a>150?255:140;
+      for(let k=0;k<3;k++) d[i*4+k]=Math.min(255,Math.round(d[i*4+k]/32)*32); }
+    for(let y=1;y<H-1;y++)for(let x=1;x<W-1;x++){ const i=y*W+x; if(on[i]) continue;
+      if(on[i-1]||on[i+1]||on[i-W]||on[i+W]){ d[i*4]=d[i*4+1]=d[i*4+2]=0; d[i*4+3]=255; } }
+    g.putImageData(im,0,0);
+    c.className='logo-fly'; c.setAttribute('aria-hidden','true');
+    c.style.imageRendering='pixelated'; c.style.aspectRatio=W+'/'+H; c.style.height='auto';
+    svg.replaceWith(c);
+  };
+  img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(src));
+})();
+
 
 resize(); makeBackdrop(); reset(selectedLevel); renderLevelPick();
 requestAnimationFrame(frame);
