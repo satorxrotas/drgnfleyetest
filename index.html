@@ -284,9 +284,18 @@
     }
     #sidequest.open { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity .35s ease; }
     #sidequest iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #000; }
+    /* the game sits inside a pixel-dithered TV bezel in translucent purple plastic, which zooms in on open */
+    #sidequest { background: #120d24; }
+    #sidequest iframe { inset: auto; border-radius: 6px; }
+    #sidequest .sq-bezel { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;
+      image-rendering: pixelated; image-rendering: crisp-edges;
+      transform: scale(1.14); opacity: 0; transition: transform .6s cubic-bezier(.2,.85,.25,1), opacity .35s ease; }
+    #sidequest.open .sq-bezel { transform: none; opacity: 1; }
+    #sidequest iframe { opacity: 0; transition: opacity .35s ease .25s; }
+    #sidequest.open iframe { opacity: 1; }
     #sidequest .sq-close {
       position: absolute; top: 1.5rem; right: 1.5rem; z-index: 2; width: 2.25rem; height: 2.25rem;
-      background: rgba(0,0,0,.55); border: 0; color: #fff; cursor: pointer;
+      background: none; border: 0; color: #fff; filter: drop-shadow(1px 1px 0 #1d1438); cursor: pointer;
       display: flex; align-items: center; justify-content: center; transition: color .2s;
     }
     #sidequest .sq-close:hover { color: #e10600; }
@@ -2538,6 +2547,7 @@
   <!-- ── SIDE QUEST (the game, opened by the controller button) ── -->
   <div id="sidequest" role="dialog" aria-modal="true" aria-label="DRGNFLEYE Side Quest" aria-hidden="true">
     <iframe id="sq-frame" title="DRGNFLEYE Side Quest" allow="autoplay; fullscreen; clipboard-write; web-share" allowfullscreen></iframe>
+    <canvas class="sq-bezel" aria-hidden="true"></canvas>
     <button class="sq-close" type="button" aria-label="Close game"><i class="px px-x" aria-hidden="true"></i></button>
   </div>
 
@@ -2850,7 +2860,98 @@
       // It loads on open and unloads on close (progress is saved by the game itself).
       const GAME_URL = 'sidequest.html';
       const sq = document.getElementById('sidequest'), sqFrame = document.getElementById('sq-frame');
+      // ── the bezel: drawn at low resolution with ordered (Bayer) dithering, then scaled up crisp
+      const bezel = sq.querySelector('.sq-bezel');
+      const BZ_PAL = [[24,16,48],[46,34,86],[69,54,122],[101,83,163],[138,120,196],[173,159,220],[211,200,240]];
+      const BAYER = [0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5].map(v => v / 16);
+      const hsh = (x, y) => { let n = x * 374761393 + y * 668265263; n = (n ^ (n >>> 13)) * 1274126177; return ((n ^ (n >>> 16)) >>> 0) / 4294967295; };
+      const vnoise = (x, y) => { const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi, u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
+        const a = hsh(xi, yi), b = hsh(xi + 1, yi), c = hsh(xi, yi + 1), d = hsh(xi + 1, yi + 1); return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v; };
+      const logoImg = new Image(); logoImg.src = 'DRGNFLEYE_Logo_square_01.svg';
+      let bzLast = '';
+      function drawBezel() {
+        const W = sq.clientWidth, H = sq.clientHeight, key = W + 'x' + H;
+        if (!W || !H || (key === bzLast && bezel.width)) return;
+        bzLast = key;
+        const P = Math.min(W, H) < 560 ? 2 : 3;                       // size of one "pixel"
+        const w = Math.ceil(W / P), h = Math.ceil(H / P), vmin = Math.min(W, H);
+        const F = Math.round(Math.max(12, Math.min(48, vmin * 0.042)) / P);         // flat face
+        const B = Math.round(Math.max(10, Math.min(44, vmin * 0.04)) / P);          // sloped bevel
+        const FB = Math.round(Math.max(30, Math.min(84, vmin * 0.085)) / P);        // bottom face (logo)
+        const ix0 = F, iy0 = F, ix1 = w - F, iy1 = h - FB;                          // where the bevel starts
+        const sx0 = ix0 + B, sy0 = iy0 + B, sx1 = ix1 - B, sy1 = iy1 - B;           // the screen opening
+        const bulge = Math.max(1, Math.round(Math.min(w, h) * 0.006)), rad = Math.max(3, Math.round(Math.min(w, h) * 0.025));
+        bezel.width = w; bezel.height = h;
+        const ctx = bezel.getContext('2d'), img = ctx.createImageData(w, h), d = img.data;
+        const cx = (sx0 + sx1) / 2, cy = (sy0 + sy1) / 2, hw = (sx1 - sx0) / 2, hh = (sy1 - sy0) / 2;
+        const inScreen = (x, y) => {
+          const ex = bulge * (1 - ((y - cy) / hh) ** 2), ey = bulge * (1 - ((x - cx) / hw) ** 2);
+          const l = sx0 - ex, r = sx1 + ex, t = sy0 - ey, b = sy1 + ey;
+          if (x < l || x > r || y < t || y > b) return false;
+          const qx = x < l + rad ? l + rad : x > r - rad ? r - rad : x, qy = y < t + rad ? t + rad : y > b - rad ? b - rad : y;
+          return (x - qx) ** 2 + (y - qy) ** 2 <= rad * rad;
+        };
+        // a few darker "parts" seen through the clear plastic, like a Game Boy Color
+        const parts = [[0.08, 0.92, 0.10, 0.05], [0.80, 0.93, 0.07, 0.035], [0.015, 0.35, 0.012, 0.18], [0.975, 0.55, 0.012, 0.16], [0.30, 0.012, 0.16, 0.012]];
+        for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+          const o = (y * w + x) * 4;
+          if (inScreen(x, y)) { d[o + 3] = 0; continue; }
+          let t;
+          if (x < ix0 || x >= ix1 || y < iy0 || y >= iy1) {
+            t = 0.6;                                                             // flat front face
+            const e = Math.min(x, y, w - 1 - x, h - 1 - y);
+            if (e === 0) t = 0.05; else if (e === 1) t = 0.92; else if (e === 2) t = 0.78;   // crisp rim + highlight
+            const fx = x / w, fy = y / h;
+            for (const [px, py, pw, ph] of parts) if (Math.abs(fx - px) < pw / 2 && Math.abs(fy - py) < ph / 2) t -= 0.14;
+          } else {
+            // bevel: which side, and how deep toward the screen
+            const dl = x - ix0, dr = ix1 - 1 - x, dt = y - iy0, db = iy1 - 1 - y, m = Math.min(dl, dr, dt, db), depth = m / B;
+            t = m === dt ? 0.24 : m === dl ? 0.38 : m === dr ? 0.7 : 0.82;      // light from below-right, like the AWGE set
+            t -= depth * 0.12;
+            if (m === 0) t += 0.12;                                              // lip where the face turns into the bevel
+          }
+          // inner lip around the screen
+          if (!inScreen(x, y) && (inScreen(x + 1, y) || inScreen(x - 1, y) || inScreen(x, y + 1) || inScreen(x, y - 1))) t = 0.0;
+          // translucent mottling + fine grain
+          t += (vnoise(x / 22, y / 22) - 0.5) * 0.22 + (vnoise(x / 5 + 40, y / 5) - 0.5) * 0.08;
+          const n = BZ_PAL.length - 1, v = Math.max(0, Math.min(n, Math.floor(t * n + BAYER[(y & 3) * 4 + (x & 3)])));
+          const c = BZ_PAL[v]; d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2]; d[o + 3] = 255;
+        }
+        // GBC-style speaker holes, bottom right of the face
+        const spR = Math.max(3, Math.round(FB * 0.32)), spx = w - F - spR - 2, spy = h - Math.round(FB / 2);
+        for (let y = spy - spR; y <= spy + spR; y++) for (let x = spx - spR; x <= spx + spR; x++)
+          if ((x - spx) ** 2 + (y - spy) ** 2 <= spR * spR && ((x - spx) % 3 === 0) && ((y - spy) % 3 === 0) && x >= 0 && y >= 0 && x < w && y < h) {
+            const o = (y * w + x) * 4; d[o] = BZ_PAL[0][0]; d[o + 1] = BZ_PAL[0][1]; d[o + 2] = BZ_PAL[0][2]; }
+        // red power light, bottom left
+        const lx = F + 2, ly = h - Math.round(FB / 2);
+        for (let y = ly - 1; y <= ly; y++) for (let x = lx; x <= lx + 1; x++) { const o = (y * w + x) * 4; d[o] = 240; d[o + 1] = 40; d[o + 2] = 40; }
+        ctx.putImageData(img, 0, 0);
+        // debossed DRGNFLEYE: pressed into the bottom face — dark letters with a light lower rim
+        const drawLogo = () => {
+          const lh = Math.max(5, Math.round(FB * 0.36)), lw = Math.round(lh * 1201 / 100), x0 = Math.round((w - lw) / 2), y0 = Math.round(h - FB / 2 - lh / 2);
+          const m = document.createElement('canvas'); m.width = lw; m.height = lh;
+          const mc = m.getContext('2d'); mc.drawImage(logoImg, 0, 0, lw, lh);
+          const md = mc.getImageData(0, 0, lw, lh).data, out = ctx.getImageData(x0, y0 - 1, lw, lh + 2), od = out.data;
+          const at = (x, y) => x >= 0 && y >= 0 && x < lw && y < lh && md[(y * lw + x) * 4 + 3] > 110;
+          for (let y = -1; y <= lh; y++) for (let x = 0; x < lw; x++) {
+            const o = ((y + 1) * lw + x) * 4; let c = null;
+            if (at(x, y)) c = at(x, y - 1) ? BZ_PAL[1] : BZ_PAL[0];                  // inside the cut (top edge in shadow)
+            else if (at(x, y - 1)) c = BZ_PAL[6];                                    // light catching the lower rim
+            if (c) { od[o] = c[0]; od[o + 1] = c[1]; od[o + 2] = c[2]; }
+          }
+          ctx.putImageData(out, x0, y0 - 1);
+        };
+        if (logoImg.complete && logoImg.naturalWidth) drawLogo(); else logoImg.onload = () => { bzLast = ''; drawBezel(); };
+        // the game fills the screen opening
+        const pad = bulge;
+        Object.assign(sqFrame.style, { left: (sx0 - pad) * P + 'px', top: (sy0 - pad) * P + 'px',
+          width: (sx1 - sx0 + 2 * pad) * P + 'px', height: (sy1 - sy0 + 2 * pad) * P + 'px' });
+        const cb = sq.querySelector('.sq-close');
+        cb.style.top = Math.max(0, ((F + B) * P - 36) / 2) + 'px'; cb.style.right = Math.max(0, ((F + B) * P - 36) / 2) + 'px';
+      }
+      window.addEventListener('resize', () => { if (sq.classList.contains('open')) drawBezel(); });
       function openGame() {
+        drawBezel();
         document.body.classList.add('sq-open');
         sqFrame.src = GAME_URL;
         sq.classList.add('open'); sq.setAttribute('aria-hidden', 'false');
