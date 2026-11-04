@@ -2538,8 +2538,88 @@
     }
 
   </style>
+  <!-- ── TEMPORARY PASSWORD GATE (whole site) · remove this block + #pwgate to open the site to everyone ── -->
+  <script>
+    (function () {
+      // the password is never stored here as text, only its SHA-256 fingerprint
+      window.DRG_PW_HASH = 'e4262fa30462e69ebe8e088fa15af6979beaf1f4910b3768384e1a629341a915';
+      window.DRG_SITE_LOCK = true;           // set to false to switch the whole-site gate off (archived projects stay locked)
+      var ok = false; try { ok = localStorage.getItem('drg_pw') === window.DRG_PW_HASH; } catch (e) {}
+      if (window.DRG_SITE_LOCK && !ok) document.documentElement.classList.add('pw-locked');
+    })();
+  </script>
+  <style>
+    html.pw-locked, html.pw-locked body { overflow: hidden !important; }
+    html.pw-locked body > *:not(#pwgate) { visibility: hidden !important; }
+    #pwgate { position: fixed; inset: 0; z-index: 2147483000; display: none; align-items: center; justify-content: center;
+      padding: 16px; background: #000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #fff; }
+    html.pw-locked #pwgate, #pwgate.open { display: flex; visibility: visible !important; }
+    #pwgate.open { background: rgba(0,0,0,.82); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+    #pwgate .pw-card { width: min(340px, 100%); background: rgba(22,22,26,.6); border: 1px solid rgba(255,255,255,.16); border-radius: 6px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.5); overflow: hidden; }
+    #pwgate .pw-head { display: flex; align-items: flex-start; gap: 16px; padding: 22px 22px 6px; }
+    #pwgate .pw-brand { flex: 1; font-size: 11px; letter-spacing: .28em; color: rgba(255,255,255,.6); text-transform: uppercase; }
+    #pwgate h3 { margin: 0; padding: 0 22px 14px; color: #e10600; font-size: 18px; font-weight: 400; line-height: 1.2; text-transform: uppercase; }
+    #pwgate .pw-x { background: none; border: 0; color: #fff; cursor: pointer; font-size: 18px; line-height: 1; padding: 0; margin: -4px -4px 0 0; display: none; }
+    #pwgate.open .pw-x { display: block; }
+    #pwgate .pw-field { padding: 14px 22px 12px; border-top: 1px solid rgba(255,255,255,.22); border-bottom: 1px solid rgba(255,255,255,.22); }
+    #pwgate label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 6px; }
+    #pwgate input { display: block; width: 100%; background: none; border: 0; outline: none; color: #fff; font: 16px/1.4 inherit; padding: 2px 0; }
+    #pwgate .pw-field:focus-within label { color: #e10600; }
+    #pwgate .pw-foot { padding: 16px 22px 22px; display: flex; align-items: center; gap: 14px; }
+    #pwgate button.pw-go { min-width: 120px; height: 34px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28);
+      background: rgba(10,10,12,.55); color: #fff; cursor: pointer; font: 700 12px/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      letter-spacing: .14em; text-transform: uppercase; transition: background .2s, border-color .2s; }
+    #pwgate button.pw-go:hover { background: #e10600; border-color: #e10600; }
+    #pwgate .pw-msg { font-size: 12px; color: #e10600; }
+    #pwgate.shake .pw-card { animation: pwshake .35s; }
+    @keyframes pwshake { 25% { transform: translateX(-8px); } 50% { transform: translateX(8px); } 75% { transform: translateX(-4px); } }
+  </style>
 </head>
 <body>
+  <div id="pwgate" role="dialog" aria-modal="true" aria-labelledby="pw-title">
+    <form class="pw-card" id="pw-form" novalidate autocomplete="off">
+      <div class="pw-head"><div class="pw-brand">DRGNFLEYE</div><button class="pw-x" type="button" aria-label="Close">✕</button></div>
+      <h3 id="pw-title">This site is private for now</h3>
+      <div class="pw-field"><label for="pw-input">Password</label><input id="pw-input" type="password" autocomplete="current-password" autocapitalize="off" spellcheck="false" /></div>
+      <div class="pw-foot"><button class="pw-go" type="submit">Enter</button><span class="pw-msg" id="pw-msg" aria-live="polite"></span></div>
+    </form>
+  </div>
+  <script>
+    (function () {
+      var gate = document.getElementById('pwgate'), form = document.getElementById('pw-form'), input = document.getElementById('pw-input'),
+          msg = document.getElementById('pw-msg'), title = document.getElementById('pw-title'), onOk = null;
+      function sha256(t) {
+        if (window.crypto && crypto.subtle && window.TextEncoder)
+          return crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)).then(function (b) {
+            return Array.prototype.map.call(new Uint8Array(b), function (x) { return ('0' + x.toString(16)).slice(-2); }).join(''); });
+        return Promise.resolve('');
+      }
+      function close() { gate.classList.remove('open'); onOk = null; }
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        sha256(input.value.trim()).then(function (h) {
+          if (h !== window.DRG_PW_HASH) { msg.textContent = 'Wrong password'; gate.classList.remove('shake'); void gate.offsetWidth; gate.classList.add('shake'); input.select(); return; }
+          msg.textContent = ''; input.value = '';
+          if (onOk) { var f = onOk; close(); f(); return; }             // archived project unlock
+          try { localStorage.setItem('drg_pw', h); } catch (e) {}
+          document.documentElement.classList.remove('pw-locked');
+          window.dispatchEvent(new Event('resize'));
+        });
+      });
+      gate.querySelector('.pw-x').addEventListener('click', close);
+      gate.addEventListener('click', function (e) { if (e.target === gate && gate.classList.contains('open')) close(); });
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && gate.classList.contains('open')) { e.stopImmediatePropagation(); close(); } }, true);
+      // archived projects: same password, asked each visit (session) before the project opens
+      window.drgArchiveUnlocked = function () { try { return sessionStorage.getItem('drg_arch') === window.DRG_PW_HASH; } catch (e) { return false; } };
+      window.drgAskArchive = function (name, done) {
+        title.textContent = (name ? name + ' · ' : '') + 'Private project'; msg.textContent = ''; input.value = '';
+        onOk = function () { try { sessionStorage.setItem('drg_arch', window.DRG_PW_HASH); } catch (e) {} done(); };
+        gate.classList.add('open'); setTimeout(function () { input.focus(); }, 30);
+      };
+      if (document.documentElement.classList.contains('pw-locked')) setTimeout(function () { input.focus(); }, 30);
+    })();
+  </script>
 
   <!-- game controller — on every page, bottom right -->
   <button id="game-btn" type="button" aria-label="Side quest"><i class="px px-pad" aria-hidden="true"></i></button>
@@ -5987,7 +6067,11 @@
     document.addEventListener('keydown', e => { if (e.key === 'Escape' && inquireEl.classList.contains('open')) { e.stopImmediatePropagation(); closeInquire(); } }, true);
 
     function openLightbox(idx) {
-      if (isArchived(idx)) { openInquire(idx); return; }
+      if (isArchived(idx) && !(window.drgArchiveUnlocked && window.drgArchiveUnlocked())) {
+        const ap = PROJECTS.find(q => q.project === idx);
+        if (window.drgAskArchive) window.drgAskArchive(ap ? ap.title : '', () => openLightbox(idx)); else openInquire(idx);
+        return;
+      }
       currentProject = idx;
       renderProjectDetail(idx);
       lbBody.scrollTop = 0;
