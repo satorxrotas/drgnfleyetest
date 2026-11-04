@@ -2953,7 +2953,7 @@
       function openGame() {
         drawBezel();
         document.body.classList.add('sq-open');
-        sqFrame.src = GAME_URL;
+        sqFrame.src = GAME_URL + '?v=' + Date.now();   // always fetch the latest game build (no stale cache)
         sq.classList.add('open'); sq.setAttribute('aria-hidden', 'false');
         sqFrame.addEventListener('load', () => { try { sqFrame.focus(); sqFrame.contentWindow.focus(); } catch (err) {} }, { once: true });
       }
