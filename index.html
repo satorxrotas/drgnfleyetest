@@ -1252,6 +1252,8 @@
     }
     .lbs-hero video { width: 100%; height: 100%; object-fit: cover; display: block; }
     /* opening screen: title + description sit beside the banner */
+    #lb-title .t-part { white-space: nowrap; }
+    .lbs-beat, .lbs-sub, .a2-wide, .a2-studio, .pi-cap { text-wrap: pretty; }   /* browsers that support it avoid a lone last word in paragraphs too */
     .lbs-beat--desc h2 {
       font-size: clamp(1.4rem, 2.4vw, 2.5rem);
       font-weight: 700;
@@ -3869,6 +3871,13 @@
       </div>`;
     }
 
+    // project titles: "CLIENT :: PROJECT" may only break at the "::" — each half stays on one line
+    // (no lone word on the last line), and the title shrinks until the longest half fits
+    function titleHTML(t) {
+      const parts = String(t).split(' :: ');
+      if (parts.length < 2) return `<span class="t-part">${t}</span>`;
+      return `<span class="t-part">${parts[0]} ::</span> <span class="t-part">${parts.slice(1).join(' :: ')}</span>`;
+    }
     function renderProjectDetail(idx) {
       const d = getProjectDetail(idx);
 
@@ -4012,7 +4021,7 @@
         ${d.wheelLayout ? `<section class="lb-opener${d.wheelHeroFit === 'width' ? ' lb-opener--fitwidth' : ''}${d.wheelOpenerScroll ? ' lb-opener--scroll' : ''}">
           <div class="lb-opener-media">${heroMediaInner}<div class="lb-opener-shade"></div>
             <div class="lb-opener-titleblock">
-              <h2 id="lb-title">${d.title}</h2>
+              <h2 id="lb-title">${titleHTML(d.title)}</h2>
               ${artistLine}
               ${collabLine}
             </div>
@@ -4020,7 +4029,7 @@
           </div>
           <div class="lb-opener-content">` : heroBlock}
         <div id="lb-info">
-          ${d.wheelLayout ? '' : `<h2 id="lb-title">${d.title}</h2>
+          ${d.wheelLayout ? '' : `<h2 id="lb-title">${titleHTML(d.title)}</h2>
           ${artistLine}
           ${collabLine}`}
           <div id="lb-two-col" class="${d.singleColumn ? 'lb-single-col' : ''}">
@@ -4867,7 +4876,7 @@
           <div class="lbs-stage">
             ${heroSrc ? `<div class="lbs-hero">${heroMedia}</div>` : ''}
             <div class="lbs-beat lbs-beat--side lbs-beat--desc">
-              <h2 id="lb-title">${d.title}</h2>
+              <h2 id="lb-title">${titleHTML(d.title)}</h2>
               ${sub ? `<div class="lbs-sub">${sub}</div>` : ''}
               ${P.desc.length ? `<span class="lbs-beat-label">Description</span>${P.desc[0]}` : ''}
               <button class="lbs-down" type="button" aria-label="Scroll down"><span aria-hidden="true"></span></button>
@@ -5056,9 +5065,6 @@
       if (tEl && tEl._fitW !== vw) {
         tEl._fitW = vw; tEl.style.fontSize = '';
         let fs = parseFloat(getComputedStyle(tEl).fontSize);
-        // long "CLIENT // PROJECT" names step down a size so they don't stack into a tall tower
-        const tl = tEl.textContent.trim().length;
-        if (tl > 26) { fs *= tl > 40 ? 0.68 : 0.8; tEl.style.fontSize = fs + 'px'; }
         while (tEl.scrollWidth > tEl.clientWidth + 1 && fs > 12) { fs -= 1; tEl.style.fontSize = fs + 'px'; }
       }
       const dW = dEl.offsetWidth;
