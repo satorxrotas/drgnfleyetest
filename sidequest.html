@@ -252,6 +252,15 @@
   @keyframes rot{0%,45%{transform:rotate(0)}50%,95%{transform:rotate(-90deg)}}
   @media (orientation:portrait){ body.touch #rotate{display:flex} }
 
+  /* rotate prompt can be dismissed */
+  .rot-x{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;width:40px;height:40px;background:none;border:0;color:#f2efe9;font-size:22px;cursor:pointer}
+  body.rot-dismissed #rotate{display:none!important}
+  /* rules screens (Start → name → rules → play) */
+  .rules-page{display:flex;flex-direction:column;align-items:center;gap:12px}
+  .rules-page[hidden]{display:none}
+  .key-li{display:flex} body.touch .key-li{display:none!important} .touch-li{display:none!important} body.touch .touch-li{display:flex!important}
+  .rules-skip{background:none;border:0;color:var(--shard);font-family:var(--px);font-size:8px;letter-spacing:.06em;cursor:pointer;opacity:.8;padding:6px}
+  #rulesModal .howto .ico{width:34px}
   /* ---- title screen ---- */
   #title{background-color:#0b0d14}
   .brand-top{font-family:var(--px);font-size:clamp(12px,2.6vw,22px);color:var(--shard);letter-spacing:.14em;text-shadow:3px 3px 0 #000}
@@ -268,6 +277,14 @@
   .quote{font-family:var(--px)!important;font-size:clamp(9px,1.7vw,13px)!important;line-height:2.1!important;color:var(--shard);
     text-shadow:2px 2px 0 #000;max-width:640px!important;opacity:1!important}
   .blink{animation:blink 1.1s steps(1) infinite} @keyframes blink{50%{opacity:0}}
+  /* the title screen always fits on one screen: sizes follow the shorter side, the quote drops on short screens */
+  #title .stack{gap:clamp(6px,2.2vh,14px)}
+  #title .logo-word{font-size:clamp(20px,min(9.2vw,12vh),88px)}
+  #title .logo-fly{width:clamp(36px,min(11vw,13vh),118px)}
+  #title .logo-band{padding:clamp(8px,min(3vw,3.5vh),28px) 0 clamp(10px,min(4.5vw,5vh),40px)}
+  @media (max-height:520px){ #title .quote{display:none} #title .brand-top{font-size:11px} .overlay{padding:12px} .overlay .stack{gap:8px}
+    .howto li{padding:6px 10px;font-size:16px} #rulesModal h1{font-size:20px} }
+  @media (max-height:360px){ #title .logo-band{display:none} }
   /* home-screen legend */
   .legend{list-style:none;display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;max-width:560px;font-size:19px}
   .legend li{display:flex;align-items:center;gap:7px}
@@ -331,12 +348,13 @@
 </div>
 <button class="icon-btn" id="pauseBtn" aria-label="Pause"><svg viewBox="0 0 24 24" shape-rendering="crispEdges"><rect x="5" y="4" width="5" height="16"/><rect x="14" y="4" width="5" height="16"/></svg></button>
 
-<div id="rotate"><div class="stack">
+<div id="rotate"><button class="rot-x" id="rotClose" aria-label="Close">✕</button><div class="stack">
   <div class="rot-logo">SIDEQUEST</div>
   <svg class="rot-phone" viewBox="0 0 32 48" shape-rendering="crispEdges"><rect x="3" y="1" width="26" height="46" fill="#121a33" stroke="#7fe3ff" stroke-width="2"/><rect x="7" y="6" width="18" height="32" fill="#e5191c"/><rect x="13" y="41" width="6" height="2" fill="#7fe3ff"/></svg>
   <h2>Rotate your phone</h2>
   <p>DRGNFLEYE SIDEQUEST plays in landscape. Turn your phone sideways to play.</p>
   <button class="cta" id="fsBtn" hidden>Play fullscreen</button>
+  <button class="cta ghost" id="rotStay">Play upright anyway</button>
 </div></div>
 
 <div class="overlay hidden" id="pauseModal"><div class="stack">
@@ -369,15 +387,6 @@
   </div></div>
   <p class="quote">“FOLLOW THE DRAGONFLY!<br>NOW GO FINISH YOUR SIDEQUEST!”</p>
   <h2 id="titleSub" class="blink">Test build · Level 4 selected</h2>
-  <p class="hint-keys">← → move · SPACE jump · X / SHIFT dash · ESC pause · P profile</p>
-  <p class="hint-touch">Joystick to move · A jump · B dash · ❚❚ pause</p>
-  <ul class="legend">
-    <li><i class="coin-i"></i>Coins: grab them all</li>
-    <li><i class="en-i"></i>Enemies: stomp or dash</li>
-    <li><i class="sh on"></i>Shards: power ups</li>
-    <li><svg class="flag-i" viewBox="0 0 14 16" shape-rendering="crispEdges"><rect x="1" y="0" width="2" height="16" fill="#f2efe9"/><rect x="3" y="1" width="10" height="6" fill="#e5191c"/></svg>Reach the flag</li>
-  </ul>
-  <p class="swag-cta">★ Collect coins to buy more swag in the Store ★</p>
   <div class="levels" id="levelPick"></div>
   <div class="row"><button class="cta" id="startBtn">Start</button>
     <button class="cta ghost" data-profile><svg><use href="#i-user"/></svg>Profile</button></div>
@@ -388,6 +397,39 @@
   <p>Add a name for the leaderboard, or skip and play as Guest.</p>
   <input class="txt" id="nameInput" maxlength="16" placeholder="Your name" autocomplete="off" autocapitalize="characters" spellcheck="false">
   <div class="row"><button class="cta" id="nameGo">Let's go</button><button class="cta ghost" id="nameSkip">Skip</button></div>
+</div></div>
+
+<div class="overlay hidden" id="rulesModal"><div class="stack">
+  <h2 id="rulesStep">How to play · 1/3</h2>
+  <div class="rules-page" data-page="0">
+    <h1>CONTROLS</h1>
+    <ul class="howto">
+      <li class="touch-li"><span class="ico">◉</span><span>Joystick to move</span></li>
+      <li class="touch-li"><span class="ico">A</span><span>Jump</span></li>
+      <li class="touch-li"><span class="ico">B</span><span>Dash</span></li>
+      <li class="touch-li"><span class="ico">❚❚</span><span>Pause</span></li>
+      <li class="key-li"><span class="ico">← →</span><span>Move</span></li>
+      <li class="key-li"><span class="ico">SPC</span><span>Jump</span></li>
+      <li class="key-li"><span class="ico">X</span><span>Dash (or SHIFT)</span></li>
+      <li class="key-li"><span class="ico">ESC</span><span>Pause · P profile</span></li>
+    </ul>
+  </div>
+  <div class="rules-page" data-page="1" hidden>
+    <h1>THE GOAL</h1>
+    <ul class="howto">
+      <li><span class="ico"><i class="coin-i"></i></span><span>Coins: grab them all</span></li>
+      <li><span class="ico"><i class="en-i"></i></span><span>Enemies: stomp or dash</span></li>
+      <li><span class="ico"><i class="sh on"></i></span><span>Shards: power ups</span></li>
+      <li><span class="ico"><svg class="flag-i" viewBox="0 0 14 16" shape-rendering="crispEdges"><rect x="1" y="0" width="2" height="16" fill="#f2efe9"/><rect x="3" y="1" width="10" height="6" fill="#e5191c"/></svg></span><span>Reach the flag</span></li>
+    </ul>
+  </div>
+  <div class="rules-page" data-page="2" hidden>
+    <h1>SWAG</h1>
+    <p class="swag-cta">★ Collect coins to buy more swag in the Store ★</p>
+    <p>Your coins go in the bank. Spend them on new looks in Profile &amp; Store.</p>
+  </div>
+  <div class="row"><button class="cta ghost" id="rulesBack">Back</button><button class="cta" id="rulesNext">Next</button></div>
+  <button class="rules-skip" id="rulesSkip">Skip</button>
 </div></div>
 
 <div class="overlay hidden" id="introModal"><div class="stack">
@@ -894,8 +936,29 @@ function askName(){
 function submitName(skip){
   const n=skip?'':cleanName($('nameInput').value);
   if(n){ save.name=n; persist(); }
-  $('nameInput').blur(); beginRun(n||'GUEST', selectedLevel);
+  $('nameInput').blur();
+  if(!rulesShown){ nameOpen=false; $('nameModal').classList.add('hidden'); openRules(()=>beginRun(n||'GUEST', selectedLevel)); return; }
+  beginRun(n||'GUEST', selectedLevel);
 }
+/* rules: three short screens shown once per visit, after the name and before the first run */
+let rulesShown=false, rulesPage=0, rulesDone=null;
+const RULES_N=3;
+function showRulesPage(i){
+  rulesPage=i;
+  document.querySelectorAll('#rulesModal .rules-page').forEach(p=>{ p.hidden=+p.dataset.page!==i; });
+  $('rulesStep').textContent=`How to play · ${i+1}/${RULES_N}`;
+  $('rulesBack').style.visibility=i?'visible':'hidden';
+  $('rulesNext').textContent=i===RULES_N-1?'Play':'Next';
+}
+function openRules(done){ rulesDone=done; introOpen=true; showRulesPage(0); $('rulesModal').classList.remove('hidden'); }
+function closeRules(){ rulesShown=true; introOpen=false; $('rulesModal').classList.add('hidden'); const d=rulesDone; rulesDone=null; if(d) d(); }
+$('rulesNext').addEventListener('click',()=>{ if(rulesPage<RULES_N-1) showRulesPage(rulesPage+1); else closeRules(); });
+$('rulesBack').addEventListener('click',()=>{ if(rulesPage>0) showRulesPage(rulesPage-1); });
+$('rulesSkip').addEventListener('click',closeRules);
+addEventListener('keydown',e=>{ if($('rulesModal').classList.contains('hidden')) return;
+  if(e.code==='Enter'||e.code==='Space'||e.code==='ArrowRight'){ e.preventDefault(); e.stopImmediatePropagation(); $('rulesNext').click(); }
+  else if(e.code==='ArrowLeft'){ e.preventDefault(); e.stopImmediatePropagation(); $('rulesBack').click(); }
+  else if(e.code==='Escape'){ e.preventDefault(); e.stopImmediatePropagation(); closeRules(); } },true);
 $('nameGo').addEventListener('click',()=>submitName(false));
 $('nameSkip').addEventListener('click',()=>submitName(true));
 $('nameInput').addEventListener('keydown',e=>{
@@ -964,6 +1027,9 @@ function goLandscape(){
 }
 if(document.fullscreenEnabled||document.webkitFullscreenEnabled) $('fsBtn').hidden=false;
 $('fsBtn').addEventListener('click',goLandscape);
+const dismissRotate=()=>document.body.classList.add('rot-dismissed');
+$('rotClose').addEventListener('click',dismissRotate);
+$('rotStay').addEventListener('click',dismissRotate);
 matchMedia('(orientation: portrait)').addEventListener('change',e=>{ if(e.matches&&touchOn) openPause(); });
 
 function burst(x,y,n,color,spd=140,life=0.5){
