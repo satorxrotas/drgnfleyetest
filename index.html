@@ -1613,7 +1613,7 @@
       transform: translateX(-50%);
       z-index: 30;
       display: flex;
-      gap: clamp(4rem, 14vw, 13rem);                  /* room in the middle, like the mockup */
+      gap: clamp(3rem, 8vw, 7rem);                    /* room in the middle */
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.3s ease;
@@ -1642,9 +1642,10 @@
     .lb-bubble-nav:hover { color: #e10600; }
     #lb-bubble-prev:hover { transform: translateX(-3px); }
     #lb-bubble-next:hover { transform: translateX(3px); }
-    .lb-bn-label { font: 400 0.72rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.02em; text-transform: uppercase; }
-    @media (max-width: 750px) { .lb-bubble-nav-wrap { gap: 1.3rem; left: calc(50% - 18px); } .lb-bn-label { font-size: 0.6rem; } .lb-bubble-nav { gap: 0.5rem; } .lb-bubble-nav .px { width: 20px; height: 17px; } }   /* clear of the game button */
-    @media (max-width: 345px) { .lb-bubble-nav-wrap { gap: 0.7rem; left: calc(50% - 22px); } .lb-bn-label { font-size: 0.55rem; } }
+    .lb-bn-label { font: 400 0.72rem/1.25 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.02em; text-transform: uppercase; text-align: left; }   /* PREV / NEXT stacked over PROJECT */
+    .lb-bn-label--r { text-align: right; }
+    @media (max-width: 750px) { .lb-bubble-nav-wrap { gap: 2rem; } .lb-bn-label { font-size: 0.62rem; } .lb-bubble-nav { gap: 0.55rem; } .lb-bubble-nav .px { width: 20px; height: 17px; } }   /* clear of the game button */
+
     .lb-bubble-nav:focus { outline: none; }
     .lb-bubble-nav:focus-visible { outline: 1px solid #e10600; }
 
@@ -2732,8 +2733,8 @@
 
       <!-- Floating prev/next nav — persistent since browser back/forward do nothing on this single-page site -->
       <div class="lb-bubble-nav-wrap">
-        <button id="lb-bubble-prev" class="lb-bubble-nav" aria-label="Previous project"><i class="px px-left" aria-hidden="true"></i><span class="lb-bn-label">Previous Project</span></button>
-        <button id="lb-bubble-next" class="lb-bubble-nav" aria-label="Next project"><span class="lb-bn-label">Next Project</span><i class="px px-right" aria-hidden="true"></i></button>
+        <button id="lb-bubble-prev" class="lb-bubble-nav" aria-label="Previous project"><i class="px px-left" aria-hidden="true"></i><span class="lb-bn-label">Prev<br>Project</span></button>
+        <button id="lb-bubble-next" class="lb-bubble-nav" aria-label="Next project"><span class="lb-bn-label lb-bn-label--r">Next<br>Project</span><i class="px px-right" aria-hidden="true"></i></button>
       </div>
     </div><!-- /lb-panel -->
   </div><!-- /lightbox -->
