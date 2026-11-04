@@ -277,6 +277,23 @@
     @media (max-width: 750px) { #sidequest .sq-close { top: .75rem; right: .75rem; } }
     #side-nav.work-open #game-btn, #side-nav.about-open #game-btn, #side-nav.contact-open #game-btn { opacity: 0; pointer-events: none; }
     #side-nav.work-open #bg-toggle, #side-nav.about-open #bg-toggle, #side-nav.contact-open #bg-toggle { opacity: 0; pointer-events: none; }
+    /* Work gallery: the same square, same spot — black on the white video, white on the dark (About) video */
+    #work-bg-toggle {
+      position: absolute; left: 1.75rem; bottom: 1.75rem; width: 18px; height: 18px; padding: 0;
+      border: 0; background: #0a0a0a; cursor: pointer;
+      opacity: 0; pointer-events: none; transition: background .3s ease, transform .2s ease, opacity .3s ease;
+    }
+    #work-bg-toggle::before { content: ''; position: absolute; inset: -12px; }
+    #work-bg-toggle:hover { transform: scale(1.18); }
+    #work-bg-toggle:focus { outline: none; }
+    #side-nav.work-open #work-bg-toggle { opacity: 1; pointer-events: auto; }
+    html.work-dark #work-bg-toggle { background: #ffffff; }
+    /* dark video behind the Work gallery: the black links, logo and buttons turn white */
+    html.work-dark #side-nav.work-open a { color: #ffffff; }
+    html.work-dark #side-nav.work-open a:hover { color: #e10600; }
+    html.work-dark #site-logo.force-black img { filter: none; }
+    html.work-dark #gallery-close, html.work-dark #gallery-list-toggle:not(.active) { color: #ffffff !important; }
+    html.work-dark #gallery-close:hover, html.work-dark #gallery-list-toggle:not(.active):hover { color: #e10600 !important; opacity: 1; }
     #side-nav.work-open a {
       color: #0a0a0a;
     }
@@ -2544,6 +2561,7 @@
     <a href="#" id="nav-about">ABOUT</a>
     <a href="#" id="nav-contact">CONTACT</a>
     <button id="bg-toggle" type="button" aria-label="Switch background colour"></button>
+    <button id="work-bg-toggle" type="button" aria-label="Switch background video"></button>
     <button id="game-btn" type="button" aria-label="Side quest"><i class="px px-pad" aria-hidden="true"></i></button>
   </nav>
 
@@ -6293,7 +6311,7 @@
           previousLockedLink = null;
           if (toRestore.id === 'nav-work') {
             const video = document.getElementById('bg-video');
-            if (!video.src.endsWith('Dragonflye_inv.mp4')) video.src = 'Dragonflye_inv.mp4';
+            if (!video.src.endsWith(window.__workVideoSrc())) video.src = window.__workVideoSrc();
             video.currentTime = 0;
             video.play().catch(() => {});
           }
@@ -6349,16 +6367,36 @@
       setTimeout(() => { video.pause(); }, 700);
     });
 
+    /* ── WORK BACKGROUND VIDEO: white (default) or the dark About render — the square bottom left of
+          the Work gallery switches between them; the choice is remembered in this browser ── */
+    (function () {
+      const WHITE = 'Dragonflye_inv.mp4', DARK = 'drgnflye_loop_01.mp4';
+      let dark = false;
+      try { dark = localStorage.getItem('drg-work-bg') === 'dark'; } catch (e) {}
+      document.documentElement.classList.toggle('work-dark', dark);
+      window.__workVideoSrc = () => dark ? DARK : WHITE;
+      document.getElementById('work-bg-toggle').addEventListener('click', e => {
+        e.preventDefault(); e.stopPropagation();
+        dark = !dark;
+        document.documentElement.classList.toggle('work-dark', dark);
+        try { localStorage.setItem('drg-work-bg', dark ? 'dark' : 'white'); } catch (err) {}
+        const v = document.getElementById('bg-video');
+        v.src = window.__workVideoSrc();
+        try { v.currentTime = 0; } catch (err) {}
+        const pr = v.play(); if (pr && pr.catch) pr.catch(() => {});
+      });
+    })();
+
     /* ── NAV HOVER VIDEO ── */
     (function () {
       const navWork   = document.getElementById('nav-work');
       const videoWrap = document.getElementById('bg-video-wrap');
       const video     = document.getElementById('bg-video');
 
-      const WORK_VIDEO_SRC  = 'Dragonflye_inv.mp4';
       const ABOUT_VIDEO_SRC = 'drgnflye_loop_01.mp4';
 
       navWork.addEventListener('mouseover', () => {
+        const WORK_VIDEO_SRC = window.__workVideoSrc();
         if (!video.src.endsWith(WORK_VIDEO_SRC)) video.src = WORK_VIDEO_SRC;
         video.currentTime = 0;
         video.play().catch(() => {});
