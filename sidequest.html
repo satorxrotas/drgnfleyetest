@@ -252,6 +252,30 @@
   @keyframes rot{0%,45%{transform:rotate(0)}50%,95%{transform:rotate(-90deg)}}
   @media (orientation:portrait){ body.touch #rotate{display:flex} }
 
+  .spring-i{display:inline-block;width:18px;height:14px;background:linear-gradient(#f2b531 0 5px,transparent 5px 7px,#8a90a3 7px 9px,transparent 9px 11px,#8a90a3 11px 13px,transparent 13px)}
+  .crumble-i{display:inline-block;width:20px;height:9px;background:#c9a27a;box-shadow:inset 6px 0 0 -4px #000,inset -8px 0 0 -6px #000}
+  /* Back button on in-between screens */
+  .back-btn{position:absolute;top:calc(12px + env(safe-area-inset-top));left:calc(12px + env(safe-area-inset-left));z-index:2;
+    background:#121a33;color:var(--ink);border:3px solid #000;box-shadow:0 3px 0 #000;font-family:var(--px);font-size:8px;
+    letter-spacing:.04em;padding:9px 11px;cursor:pointer}
+  .back-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #000}
+  /* gold Shop button */
+  .cta.gold{background:var(--gold);color:#1a1205;box-shadow:inset -3px -3px 0 #b07a0e,inset 3px 3px 0 #ffe08a,0 4px 0 #000}
+  .cta.gold svg{fill:#1a1205}
+  .cta.gold:active{transform:translateY(3px);box-shadow:inset -3px -3px 0 #b07a0e,inset 3px 3px 0 #ffe08a,0 1px 0 #000}
+  /* everything stays inside the screen: one briefing tip per page, compact results on short screens */
+  #introModal .howto{width:min(560px,88vw)}
+  #introModal .howto li{font-size:clamp(15px,2.6vh,19px)}
+  .combo-list{display:grid;grid-template-columns:1fr;gap:4px}
+  @media (min-width:560px){ .combo-list{grid-template-columns:1fr 1fr;column-gap:14px} }
+  .combo-list small{display:block;font-size:.8em;opacity:.75}
+  @media (max-height:520px){
+    #win .stack,#koModal .stack{gap:6px} #win h1,#koModal h1{font-size:20px} #win p,#koModal p{font-size:15px}
+    #win .board li:nth-child(n+4){display:none} #win .bonuses{gap:4px} #win .bonus{padding:4px 8px;font-size:14px}
+    .cta{padding:9px 12px;font-size:9px} .row{gap:8px}
+    #profile .card{max-height:calc(100vh - 24px);overflow:auto}
+  }
+  @media (max-height:400px){ #win h3,#win .board{display:none} #win #bonusTotal{margin:0} .combo-list small{display:none} }
   /* rotate prompt can be dismissed */
   .rot-x{position:absolute;top:calc(14px + env(safe-area-inset-top));right:14px;width:40px;height:40px;background:none;border:0;color:#f2efe9;font-size:22px;cursor:pointer}
   body.rot-dismissed #rotate{display:none!important}
@@ -392,7 +416,7 @@
     <button class="cta ghost" data-profile><svg><use href="#i-user"/></svg>Profile</button></div>
 </div></div>
 
-<div class="overlay hidden" id="nameModal"><div class="stack">
+<div class="overlay hidden" id="nameModal"><button class="back-btn" data-back="name" aria-label="Back">◀ Back</button><div class="stack">
   <h2>Who's playing?</h2>
   <p>Add a name for the leaderboard, or skip and play as Guest.</p>
   <input class="txt" id="nameInput" maxlength="16" placeholder="Your name" autocomplete="off" autocapitalize="characters" spellcheck="false">
@@ -436,18 +460,20 @@
   <h2 id="introSub">New gameplay</h2>
   <h1 id="introTitle">SKY RUN</h1>
   <ul class="howto" id="introList"></ul>
-  <button class="cta" id="introGo">Let's fly</button>
+  <div class="row"><button class="cta ghost" id="introBack">Back</button><button class="cta" id="introGo">Let's fly</button></div>
+  <button class="rules-skip" id="introSkip">Skip</button>
 </div></div>
 
-<div class="overlay hidden" id="koModal"><div class="stack">
+<div class="overlay hidden" id="koModal"><button class="back-btn" data-back="result" aria-label="Back to level select">◀ Levels</button><div class="stack">
   <h2>Level 4 · Boss</h2>
   <h1>DOWN FOR THE COUNT</h1>
   <p id="koMsg"></p>
   <div class="row"><button class="cta" id="rematchBtn">Rematch</button>
+    <button class="cta gold" data-shop><svg><use href="#i-bank"/></svg>Shop</button>
     <button class="cta ghost" data-profile><svg><use href="#i-user"/></svg>Profile</button></div>
 </div></div>
 
-<div class="overlay hidden" id="win"><div class="stack">
+<div class="overlay hidden" id="win"><button class="back-btn" data-back="result" aria-label="Back to level select">◀ Levels</button><div class="stack">
   <h2 id="winSub">Level Clear</h2>
   <h1 id="winHead">NICE.</h1>
   <p id="winStats"></p>
@@ -455,6 +481,7 @@
   <p id="bonusTotal"></p>
   <div><h3 id="winBoardTitle">Leaderboard · Best times</h3><ol class="board" id="winBoard"></ol></div>
   <div class="row"><button class="cta" id="nextBtn">Next level</button><button class="cta" id="againBtn">Replay</button>
+    <button class="cta gold" data-shop><svg><use href="#i-bank"/></svg>Shop</button>
     <button class="cta ghost" data-profile><svg><use href="#i-user"/></svg>Profile</button></div>
 </div></div>
 
@@ -610,34 +637,48 @@ const LEVELS = [
       L.ground(144,169); L.coin(146,8); L.coin(148,8); L.coin(150,8);
       L.flag(160);
     }},
-  { name:'Level 2', cols:200, intro:'Level 2 · Find 3 shards to call the dragonfly',
+  { name:'Level 2', cols:210, intro:'Level 2 · Shard Canyon · springs, crumbling ledges, 3 shards', title:'SHARD CANYON',
+    // a different world from Level 1: dusk desert canyon, vertical climbs on springs, ledges that crumble under you
+    theme:{ ground:'#2a1712', groundEdge:'#f2b531', groundSide:'#3d2218', platforms:['#f2b531','#e0782a','#c9a27a'], spike:'#c9a27a' },
+    sky:['#3a1a2e','#4a2030','#5a2a2a','#2a1420','#140b12'], mesas:true,
+    howTo:t=>[
+      ['<b class="spring-i"></b>','New: SPRINGS. Step on one to launch way up. Use them to climb the canyon walls.'],
+      ['<b class="crumble-i"></b>','New: CRUMBLING LEDGES. They break a moment after you land, so keep moving. They come back after a few seconds.'],
+      ['<i class="sh on"></i>','Find all 3 shards to wake the dragonfly at the cliff edge, then ride it across the canyon to the flag.']
+    ],
     build(L){
-      // A — start
-      L.ground(0,16); L.coin(6,8); L.coin(8,8); L.coin(10,8); L.plat(12,7,3); L.coin(13,6);
-      // B — SHARD 1 up the platform climb
-      L.ground(20,38); L.enemy(26,22,29); L.plat(30,7,3); L.coin(31,6); L.plat(34,5,3); L.shard(35,3);
-      L.plat(40,7,2); L.coin(40,6);
-      // C — checkpoint, double spike run
-      L.ground(43,70); L.cp(44); L.spikes(50,52); L.plat(50,7,3); L.coin(51,6);
-      L.enemy(55,53,57); L.spikes(58,60); L.plat(58,7,3); L.coin(59,6);
-      L.block(64,7,1,3); L.coin(64,6); L.enemy(68,66,70);
-      L.plat(73,8,1); L.coin(73,7);
-      // D — SHARD 2 at the top of the sky stairs
-      L.ground(76,100); L.block(80,9,1,1); L.block(81,8,1,2); L.block(82,7,1,3);
-      L.plat(84,5,2); L.plat(87,3,2); L.shard(88,2); L.coin(84,4);
-      L.enemy(90,85,92); L.enemy(97,93,100); L.coin(94,8); L.coin(96,8);
-      L.plat(102,7,2); L.coin(103,6);
-      // E — checkpoint, SHARD 3 guarded by a sweeping spark above the spike pit
-      L.ground(105,138); L.cp(106); L.spikes(112,116); L.plat(113,7,3); L.shard(114,4); L.spark(114,3,44,2.2,'x');
-      L.enemy(121,118,124); L.enemy(127,125,129); L.coin(119,8); L.coin(125,8);
-      // Cliff edge: checkpoint, sign, dragonfly perch
-      L.cp(132); L.sign(134); L.dragonfly(137);
-      // F — THE CANYON (25 tiles — only crossable by dragonfly)
-      L.spark(144,5,70,1.6); L.spark(150,3,60,2.1); L.spark(150,8,45,1.7); L.spark(156,6,75,1.9); L.spark(161,4,55,2.4);
-      L.coin(147,5); L.coin(147,7); L.coin(153,5); L.coin(159,7); L.coin(159,3);
+      // A — start: the first spring launches you to a high coin ledge
+      L.ground(0,15); L.coin(6,8); L.coin(8,8); L.spring(11);
+      L.plat(9,3,6); L.coinLine(9,14,2,1);
+      // B — crumbling bridge over the first gorge
+      L.crumble(18,8,3); L.crumble(23,7,3); L.crumble(28,8,3); L.coin(19,7); L.coin(24,6); L.coin(29,7);
+      L.ground(33,50); L.enemy(38,34,42);
+      // canyon wall with SHARD 1 on top — only a spring gets you up there
+      L.block(44,4,3,6); L.spring(42); L.shard(45,2); L.coin(44,3); L.coin(46,3);
+      L.enemy(49,47,50);
+      // C — checkpoint, then a descending staircase of crumbling ledges over spikes
+      L.ground(53,60); L.cp(54);
+      L.crumble(62,7,2); L.crumble(65,4,2); L.crumble(70,6,2); L.crumble(74,8,2);
+      L.coin(62,6); L.coin(65,3); L.coin(70,5);
+      L.ground(61,79); L.spikes(61,76);
+      // D — the twin towers: spring up one, cross the top, grab SHARD 2, drop down the far side
+      L.ground(80,112); L.spring(83); L.block(86,3,2,7); L.block(96,3,2,7);
+      L.plat(88,3,8); L.shard(92,1); L.coinLine(89,95,2,2); L.spark(92,0,44,1.6,'x');
+      L.enemy(101,99,106); L.enemy(108,106,112); L.coin(103,8); L.coin(110,8);
+      // E — checkpoint, spring chain over a spike field to SHARD 3
+      L.ground(114,122); L.cp(115);
+      L.ground(123,150); L.spikes(123,146);
+      L.plat(125,8,2); L.spring(125,7); L.plat(131,5,2); L.spring(132,4); L.plat(138,2,3);
+      L.shard(139,0); L.spark(139,3,40,2.2,'x'); L.crumble(143,6,3); L.coin(144,5);
+      L.coin(126,5); L.coin(132,2);
+      // cliff edge: checkpoint, sign, dragonfly
+      L.ground(150,158); L.cp(151); L.sign(153); L.dragonfly(156);
+      // F — the canyon (only crossable on the dragonfly)
+      L.spark(164,5,70,1.6); L.spark(170,3,60,2.1); L.spark(170,8,45,1.7); L.spark(176,6,75,1.9); L.spark(181,4,55,2.4);
+      L.coin(167,5); L.coin(167,7); L.coin(173,5); L.coin(179,7); L.coin(179,3);
       // G — landing + finish
-      L.ground(164,199); L.enemy(173,168,178); L.coin(168,8); L.coin(182,8); L.coin(184,8);
-      L.flag(190);
+      L.ground(185,209); L.enemy(192,188,196); L.coin(188,8); L.coin(198,8); L.coin(200,8);
+      L.flag(202);
     }},
   { name:'Level 3', cols:240, mode:'sky', intro:'Level 3 · Sky Run · 9 hoops to the gate',
     title:'SKY RUN',
@@ -721,12 +762,13 @@ const boardFor=l=>(save.boards[l]=save.boards[l]||[]);
    LEVEL BUILD
    ========================================================= */
 let COLS=170, lvl=1, LV=LEVELS[0];
-let grid, coins, enemies, checkpoints, shards, sparks, df, signs, flagX, totalCoins;
+let grid, coins, enemies, checkpoints, shards, sparks, df, signs, flagX, totalCoins, crumbles=[];
+const isPlat=t=>t===2||t===5;   // one-way platforms (5 = crumbling)
 let hoops, ships, gate, skyStartPos;
 function buildLevel(n){
   lvl=n; LV=LEVELS[n-1]; COLS=LV.cols;
   grid=Array.from({length:ROWS},()=>new Array(COLS).fill(0));
-  coins=[]; enemies=[]; checkpoints=[]; shards=[]; sparks=[]; signs=[]; df=null;
+  coins=[]; enemies=[]; checkpoints=[]; shards=[]; sparks=[]; signs=[]; df=null; crumbles=[];
   hoops=[]; ships=[]; gate=null; skyStartPos=null; flagX=COLS+10;
   const L={
     ground:(a,b)=>{for(let x=a;x<=b;x++)for(let y=10;y<ROWS;y++)grid[y][x]=1},
@@ -747,7 +789,9 @@ function buildLevel(n){
     ship:(x,row,o={})=>ships.push({x0:x*T+16,y0:row*T,x:x*T+16,y:row*T,vx:(o.vx||0)*PHYS.shipEase,amp:(o.amp||0)*PHYS.shipEase,spd:(o.spd||1.5)*(0.5+PHYS.shipEase/2),
       ph:Math.random()*6,t:0,alive:true,active:false,deadT:0}),
     gate:x=>{gate={x:x*T}},
-    coinLine:(a,b,row,step=2)=>{for(let x=a;x<=b;x+=step) coins.push({x:x*T+T/2,y:row*T+T/2,got:false})}
+    coinLine:(a,b,row,step=2)=>{for(let x=a;x<=b;x+=step) coins.push({x:x*T+T/2,y:row*T+T/2,got:false})},
+    spring:(x,y=9)=>{ grid[y][x]=4; },                                      // sits on the ground / platform below it
+    crumble:(x,y,n)=>{ for(let i=0;i<n;i++){ grid[y][x+i]=5; crumbles.push({x:x+i,y,t:-1,back:0}); } }
   };
   LV.build(L);
   totalCoins=coins.length;
@@ -776,7 +820,7 @@ function moveY(e,dy){
   const l=Math.floor(e.x/T), r=Math.floor((e.x+e.w-0.01)/T);
   if(dy>0){const ty=Math.floor((e.y+e.h)/T);
     for(let tx=l;tx<=r;tx++){const t=tileAt(tx,ty);
-      if(t===1||(t===2&&prevBot<=ty*T+0.5)){e.y=ty*T-e.h;return true}}}
+      if(t===1||(isPlat(t)&&prevBot<=ty*T+0.5)){e.y=ty*T-e.h;return true}}}
   else if(dy<0){const ty=Math.floor(e.y/T);
     for(let tx=l;tx<=r;tx++) if(tileAt(tx,ty)===1){e.y=(ty+1)*T;return true}}
   return false;
@@ -785,7 +829,7 @@ function standing(e){
   const bot=e.y+e.h, ty=Math.floor((bot+1)/T);
   if(Math.abs(bot-ty*T)>0.6) return false;
   const l=Math.floor(e.x/T), r=Math.floor((e.x+e.w-0.01)/T);
-  for(let tx=l;tx<=r;tx++){const t=tileAt(tx,ty); if(t===1||t===2) return true}
+  for(let tx=l;tx<=r;tx++){const t=tileAt(tx,ty); if(t===1||isPlat(t)) return true}
   return false;
 }
 const overlap=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
@@ -809,7 +853,8 @@ addEventListener('keydown',e=>{
   if(nameOpen) return;
   if(pauseOpen&&!profileOpen){ if(e.code==='Escape'||e.code==='Space'||e.code==='Enter'){ e.preventDefault(); closePause(); } return; }
   if(e.code==='Escape'&&state==='play'){ e.preventDefault(); openPause(); return; }
-  if(introOpen&&!profileOpen){ if(e.code==='Space'||e.code==='Enter'){e.preventDefault();closeIntro();} return; }
+  if(introOpen&&!profileOpen&&$('rulesModal').classList.contains('hidden')){ if(e.code==='Space'||e.code==='Enter'||e.code==='ArrowRight'){e.preventDefault();$('introGo').click();}
+    else if(e.code==='ArrowLeft'||e.code==='Escape'){e.preventDefault();$('introBack').click();} return; }
   if(profileOpen){ if(e.code==='Escape'||e.code==='KeyP'){e.preventDefault();closeProfile();} return; }
   if(e.code==='KeyP'){ e.preventDefault(); openProfile(); return; }
   if(LV.mode==='boxing'&&state==='play'){
@@ -894,8 +939,10 @@ function toast(msg,dur=2.8){ const el=$('toast'); el.textContent=msg; el.classLi
 function makePlayer(x,y){return{x,y,w:18,h:44,vx:0,vy:0,face:1,onGround:false,coyote:0,buffer:0,
   dashT:0,dashCD:0,airDash:true,cut:true,anim:0,deadT:0,inv:0,riding:false,power:0,rev:false,trail:[]}}
 
+const BASE_THEME={...THEME};
 function reset(n=lvl){
   buildLevel(n);
+  for(const k in THEME) delete THEME[k]; Object.assign(THEME,BASE_THEME,LV.theme||{});
   respawn=skyStartPos?{...skyStartPos}:{x:3*T,y:10*T-44};
   player=makePlayer(respawn.x,respawn.y);
   if(LV.mode==='sky'){ player.riding=true; player.vx=PHYS.skyCruise; df.x=player.x+9; df.y=player.y+50; }
@@ -947,13 +994,14 @@ function showRulesPage(i){
   rulesPage=i;
   document.querySelectorAll('#rulesModal .rules-page').forEach(p=>{ p.hidden=+p.dataset.page!==i; });
   $('rulesStep').textContent=`How to play · ${i+1}/${RULES_N}`;
-  $('rulesBack').style.visibility=i?'visible':'hidden';
+  $('rulesBack').textContent=i?'Back':'Name';
   $('rulesNext').textContent=i===RULES_N-1?'Play':'Next';
 }
 function openRules(done){ rulesDone=done; introOpen=true; showRulesPage(0); $('rulesModal').classList.remove('hidden'); }
 function closeRules(){ rulesShown=true; introOpen=false; $('rulesModal').classList.add('hidden'); const d=rulesDone; rulesDone=null; if(d) d(); }
 $('rulesNext').addEventListener('click',()=>{ if(rulesPage<RULES_N-1) showRulesPage(rulesPage+1); else closeRules(); });
-$('rulesBack').addEventListener('click',()=>{ if(rulesPage>0) showRulesPage(rulesPage-1); });
+$('rulesBack').addEventListener('click',()=>{ if(rulesPage>0) showRulesPage(rulesPage-1);
+  else { introOpen=false; rulesDone=null; $('rulesModal').classList.add('hidden'); askName(); } });
 $('rulesSkip').addEventListener('click',closeRules);
 addEventListener('keydown',e=>{ if($('rulesModal').classList.contains('hidden')) return;
   if(e.code==='Enter'||e.code==='Space'||e.code==='ArrowRight'){ e.preventDefault(); e.stopImmediatePropagation(); $('rulesNext').click(); }
@@ -975,15 +1023,27 @@ function beginRun(name,n){
     introOpen=true; state='intro';
     $('introTitle').textContent=LV.title||LV.name;
     $('introSub').textContent=LV.mode==='boxing'?`${LV.name} · Boss level`:`${LV.name} · New gameplay`;
-    $('introList').innerHTML=LV.howTo(touchOn).map(([i,t])=>`<li><span class="ico">${i}</span><span>${t}</span></li>`).join('');
+    introItems=LV.howTo(touchOn); introPage=0; renderIntroPage();
     $('introModal').classList.remove('hidden');
   } else { state='play'; toast(LV.intro); }
 }
+/* level briefings are paged: one tip per screen (so nothing ever needs scrolling) */
+let introItems=[], introPage=0;
+function renderIntroPage(){
+  const n=introItems.length, [i,t]=introItems[introPage]||['',''];
+  $('introList').innerHTML=`<li><span class="ico">${i}</span><span>${t}</span></li>`;
+  $('introSub').textContent=`${LV.name} · ${LV.mode==='boxing'?'Boss level':'New gameplay'} · ${introPage+1}/${n}`;
+  $('introBack').textContent=introPage?'Back':'Title';
+  $('introGo').textContent=introPage<n-1?'Next':LV.mode==='boxing'?'Fight!':LV.mode==='sky'?"Let's fly":"Let's go";
+  $('introSkip').style.visibility=introPage<n-1?'visible':'hidden';
+}
+$('introBack').addEventListener('click',()=>{ if(introPage>0){ introPage--; renderIntroPage(); } else { introOpen=false; $('introModal').classList.add('hidden'); quitToTitle(); } });
+$('introSkip').addEventListener('click',()=>closeIntro());
 function closeIntro(){
   if(!introOpen) return;
   introOpen=false; $('introModal').classList.add('hidden'); clearInput(); state='play'; if(LV.intro) toast(LV.intro);
 }
-$('introGo').addEventListener('click',closeIntro);
+$('introGo').addEventListener('click',()=>{ if(introPage<introItems.length-1){ introPage++; renderIntroPage(); } else closeIntro(); });
 $('rematchBtn').addEventListener('click',()=>{ if(state==='lost') beginRun(runName,lvl); });
 $('startBtn').addEventListener('click',startGame);
 $('againBtn').addEventListener('click',()=>{ if(state==='win') beginRun(runName,lvl); });
@@ -1014,9 +1074,18 @@ $('pRestart').addEventListener('click',()=>{ hidePause(); beginRun(runName,lvl);
 $('pMap').addEventListener('click',()=>{ openProfile(); pView='map'; renderProfile(); });
 $('pSwap').addEventListener('click',()=>{ save.stickSide=(save.stickSide||'right')==='left'?'right':'left'; persist(); applyStickSide();
   $('pSwap').textContent=`Joystick: ${save.stickSide} side`; });
-$('pQuit').addEventListener('click',()=>{ hidePause(); runActive=false; state='title'; reset(lvl);
+function quitToTitle(){ hidePause(); runActive=false; state='title'; reset(lvl);
+  ['win','koModal','introModal','nameModal','rulesModal'].forEach(id=>$(id).classList.add('hidden')); nameOpen=false; introOpen=false;
   $('titleSub').textContent='Press start'; $('titleSub').classList.add('blink'); $('startBtn').textContent='Start';
-  $('levelPick').hidden=false; selectedLevel=lvl; renderLevelPick(); $('title').classList.remove('hidden'); });
+  $('levelPick').hidden=false; selectedLevel=lvl; renderLevelPick(); $('title').classList.remove('hidden'); }
+$('pQuit').addEventListener('click',quitToTitle);
+window.__sq={beginRun:(n,l)=>beginRun(n,l),quitToTitle:()=>quitToTitle(),winGame:()=>winGame(),matchLost:()=>matchLost(),p:()=>player,grid:()=>grid,crumbles:()=>crumbles};   // test hooks
+/* a Back button on every in-between screen: name → title · rules → name · win / KO → title (level select) */
+document.querySelectorAll('[data-back]').forEach(b=>b.addEventListener('click',()=>{
+  const w=b.dataset.back;
+  if(w==='name'){ nameOpen=false; $('nameModal').classList.add('hidden'); $('nameInput').blur(); }
+  else if(w==='result'){ quitToTitle(); }
+}));
 
 /* ---------- landscape on phones ---------- */
 function goLandscape(){
@@ -1036,6 +1105,7 @@ function burst(x,y,n,color,spd=140,life=0.5){
   for(let i=0;i<n&&parts.length<240;i++){const a=Math.random()*Math.PI*2,s=spd*(.3+Math.random()*.7);
     parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-40,life,max:life,color,size:2+Math.random()*2.5})}
 }
+const springT={};
 function die(){
   if(player.deadT>0) return;
   player.deadT=0.7; deaths++; save.stats.falls++; persist();
@@ -1056,6 +1126,7 @@ function update(dt){
 
   if(p.deadT>0){ p.deadT-=dt;
     if(p.deadT<=0){ Object.assign(p,makePlayer(respawn.x,respawn.y)); p.inv=PHYS.respawnShield;
+      for(const c of crumbles){ c.t=-1; c.back=0; grid[c.y][c.x]=5; }
       if(LV.mode==='sky'){ p.riding=true; p.vx=PHYS.skyCruise; p.inv=PHYS.skyShield; resetShips(); } }
     jumpQueued=dashQueued=false; updateCamera(dt); return; }
   if(LV.mode==='sky'){ updateSky(dt); return; }
@@ -1109,6 +1180,15 @@ function update(dt){
     if(moveY(p,p.vy*dt)) p.vy=0;
     p.onGround=p.vy>=0&&standing(p);
     if(p.onGround){ p.airDash=true; if(!wasGround) burst(p.x+p.w/2,p.y+p.h,5,'rgba(242,239,233,.5)',60,.25); }
+    // springs: touching one with your feet launches you high
+    if(p.vy>=0){ const fy=p.y+p.h, l=Math.floor(p.x/T), r=Math.floor((p.x+p.w-0.01)/T);
+      for(let tx=l;tx<=r;tx++){ const ty=Math.floor((fy-4)/T);
+        if(tileAt(tx,ty)===4&&fy>=ty*T+T-16&&fy<=ty*T+T+3){
+          p.vy=-PHYS.jump*1.6; p.cut=true; p.onGround=false; p.coyote=0; p.airDash=true; springT[tx+','+ty]=0.25;
+          burst(tx*T+T/2,ty*T+T-6,12,THEME.coin,160,.4); break; } } }
+    // crumbling ledges start to go once you stand on them
+    if(p.onGround){ const ty=Math.floor((p.y+p.h+1)/T), l=Math.floor(p.x/T), r=Math.floor((p.x+p.w-0.01)/T);
+      for(let tx=l;tx<=r;tx++) if(tileAt(tx,ty)===5){ const c=crumbles.find(q=>q.x===tx&&q.y===ty); if(c&&c.t<0) c.t=0.45; } }
 
     // hop on the dragonfly
     if(df&&df.state==='perched'&&overlap(p,{x:df.x-30,y:df.y-24,w:60,h:40})){
@@ -1119,6 +1199,12 @@ function update(dt){
   }
   p.anim+=Math.abs(p.vx)*dt*0.055;
 
+  // crumbling ledges: shake, fall, come back
+  for(const c of crumbles){
+    if(c.t>=0){ c.t-=dt; if(c.t<0){ grid[c.y][c.x]=0; c.back=3; c.t=-1; burst(c.x*T+T/2,c.y*T+6,8,THEME.platforms[2],120,.5); } }
+    else if(c.back>0){ c.back-=dt; if(c.back<=0){ const pr={x:c.x*T,y:c.y*T-2,w:T,h:12}; if(overlap(p,pr)) c.back=0.3; else grid[c.y][c.x]=5; } }
+  }
+  for(const k in springT){ springT[k]-=dt; if(springT[k]<=0) delete springT[k]; }
   // hazards
   if(p.y>ROWS*T+80) die();
   if(!p.riding){
@@ -1155,7 +1241,7 @@ function update(dt){
     else if(e.vx<0&&e.x<e.min){ e.x=e.min; e.vx*=-1; }
     else if(e.vx>0&&e.x+e.w>e.max){ e.x=e.max-e.w; e.vx*=-1; }
     else if(standing(e)){ const ax=e.vx>0?e.x+e.w+1:e.x-1, t=tileAt(Math.floor(ax/T),Math.floor((e.y+e.h+2)/T));
-      if(t!==1&&t!==2) e.vx*=-1; }
+      if(t!==1&&!isPlat(t)) e.vx*=-1; }
     if(moveY(e,e.vy*dt)) e.vy=0;
     const hitbox=p.riding?{x:p.x-8,y:p.y,w:p.w+16,h:p.h+12}:p;
     if(p.deadT<=0&&overlap(hitbox,e)){
@@ -1802,6 +1888,7 @@ function closeProfile(){
 $('closeProfile').addEventListener('click',closeProfile);
 $('hudProfile').addEventListener('click',openProfile);
 document.querySelectorAll('[data-profile]').forEach(b=>b.addEventListener('click',openProfile));
+document.querySelectorAll('[data-shop]').forEach(b=>b.addEventListener('click',()=>{ openProfile(); pView='store'; renderProfile(); }));
 
 const pc=$('preview'), pctx=pc.getContext('2d');
 const prevP={x:-9,y:-44,w:18,h:44,vx:PHYS.run,vy:0,face:1,onGround:true,dashT:0,anim:0};
@@ -1830,7 +1917,7 @@ function resize(){
   if(LV.mode==='boxing'){ canvas.width=Math.round(cw*dpr); canvas.height=Math.round(ch*dpr); }
   else { canvas.width=Math.ceil(viewW); canvas.height=Math.ceil(viewH); }
   bgGrad=ctx.createLinearGradient(0,0,0,canvas.height);
-  ['#1a2036','#161b2e','#121626','#0e111d','#0b0d14'].forEach((c,i,a)=>{ bgGrad.addColorStop(i/a.length,c); bgGrad.addColorStop((i+1)/a.length-0.001,c); });
+  ((LV&&LV.sky)||['#1a2036','#161b2e','#121626','#0e111d','#0b0d14']).forEach((c,i,a)=>{ bgGrad.addColorStop(i/a.length,c); bgGrad.addColorStop((i+1)/a.length-0.001,c); });
   if(player) updateCamera(0,true);
   layoutBoxing();
   if(typeof applyStickSide==='function') applyStickSide();
@@ -1890,9 +1977,17 @@ function render(){
 
   const k=dpr*scale;
   ctx.setTransform(k,0,0,k,Math.round(-camX*0.3*k),Math.round(-camY*k));
-  ctx.fillStyle='rgba(242,239,233,0.035)';
   const base=ROWS*T-40;
-  for(const b of skyline){ if(b.x+b.w<camX*0.3||b.x>camX*0.3+viewW) continue; ctx.fillRect(b.x,base-b.h,b.w,b.h+200) }
+  if(LV.mesas){
+    // dusk canyon: a low sun and flat-topped mesas instead of the city skyline
+    ctx.fillStyle='rgba(242,181,49,0.16)'; ctx.beginPath(); ctx.arc(camX*0.3+viewW*0.72,base-150,46,0,7); ctx.fill();
+    ctx.fillStyle='rgba(242,120,60,0.10)';
+    for(const b of skyline){ if(b.x+b.w*2<camX*0.3||b.x>camX*0.3+viewW) continue;
+      const w=b.w*1.6, h=b.h*0.7; ctx.beginPath(); ctx.moveTo(b.x,base+200); ctx.lineTo(b.x+w*0.18,base-h); ctx.lineTo(b.x+w*0.82,base-h); ctx.lineTo(b.x+w,base+200); ctx.fill(); }
+  } else {
+    ctx.fillStyle='rgba(242,239,233,0.035)';
+    for(const b of skyline){ if(b.x+b.w<camX*0.3||b.x>camX*0.3+viewW) continue; ctx.fillRect(b.x,base-b.h,b.w,b.h+200) }
+  }
 
   if(LV.mode==='sky'){
     ctx.setTransform(k,0,0,k,Math.round(-camX*0.6*k),Math.round(-camY*k));
@@ -1919,6 +2014,15 @@ function render(){
       ctx.globalAlpha=.18;ctx.fillStyle=col;ctx.fillRect(x-2,y-3,T+4,16);ctx.globalAlpha=1;
       ctx.fillStyle=col;ctx.fillRect(x,y,T+.5,8);
       ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(x,y+8,T+.5,3);
+    } else if(t===4){
+      const sq=springT[tx+','+ty]?6:0;            // squashes for a moment when used
+      ctx.fillStyle='#8a90a3'; for(let i=0;i<3;i++) ctx.fillRect(x+8,y+T-6-i*4+sq*i/3,16,2);
+      ctx.fillStyle=THEME.coin; ctx.fillRect(x+4,y+T-18+sq,T-8,5);
+      ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(x+4,y+T-13+sq,T-8,2);
+    } else if(t===5){
+      const c=crumbles.find(q=>q.x===tx&&q.y===ty), sh=c&&c.t>=0?(Math.random()-.5)*3:0;
+      ctx.fillStyle=THEME.platforms[2]; ctx.fillRect(x+sh,y,T+.5,8);
+      ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(x+sh+9,y,2,5); ctx.fillRect(x+sh+20,y+3,2,5); ctx.fillRect(x+sh,y+8,T+.5,3);
     } else if(t===3){
       ctx.fillStyle=THEME.spike;
       for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(x+i*8,y+T);ctx.lineTo(x+i*8+4,y+T-14);ctx.lineTo(x+i*8+8,y+T);ctx.fill()}
