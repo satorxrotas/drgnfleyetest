@@ -1448,6 +1448,10 @@
       will-change: transform, opacity;
     }
     .lbs-beat--side { text-align: left; width: min(28rem, 32vw); }
+    /* project text (description, case study, impact, team) can be selected and copied */
+    .lbs-beat, .lbs-beat *, .lb-body-text, .lb-body-text * { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; cursor: text; }
+    .lbs-beat a, .lb-body-text a { cursor: pointer; }
+    .lbs-beat img, .lbs-beat video, .lbs-beat iframe { cursor: auto; }
     /* CASE STUDY slide: execution + strategy in two columns */
     .lbs-beat.lbs-beat--case { width: min(36rem, 84vw); font-size: clamp(0.86rem, 0.92vw, 1.02rem); line-height: 1.55; }
     .lbs-beat.lbs-beat--case2 { width: min(66rem, 88vw); text-align: left; }
@@ -5408,8 +5412,8 @@
         const fit = Math.min(1, room / Math.max(1, el.offsetHeight));
         const s = (b.songx ? xs0 : 0.86 + 0.14 * ein) * g.s * fit;
         const o = (b.songx ? sRange(t, b.s - 0.3, b.s + 0.2) : ein) * g.o;
+        el.style.pointerEvents = o > 0.6 ? 'auto' : 'none';     // the scene on screen can be clicked and its text selected
         if (vidKind || b.kind === 'media') {
-          el.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
           const hidden = o < 0.05;
           // off-screen players pause; Vimeo background loops pick up again when their scene returns
           if (hidden !== !!el._paused) el.querySelectorAll('iframe').forEach(ifr => {
