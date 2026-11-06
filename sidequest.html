@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>DRGNFLEYE SIDEQUEST · L4 Test</title>
+<title>DRGNFLEYE SIDEQUEST</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
@@ -479,7 +479,7 @@
     <canvas class="logo-px" id="logoPx" role="img" aria-label="SIDEQUEST"></canvas>
   </div></div>
   <p class="quote">“FOLLOW THE DRAGONFLY!<br>NOW GO FINISH YOUR SIDEQUEST!”</p>
-  <h2 id="titleSub" class="blink">Test build · Level 4 selected</h2>
+  <h2 id="titleSub" class="blink">Press start</h2>
   <div class="levels" id="levelPick"></div>
   <div class="row"><button class="cta" id="startBtn">Start</button>
     <button class="cta ghost" data-profile><svg><use href="#i-user"/></svg>Profile</button>
@@ -836,7 +836,7 @@ LEVELS.push({ name:'Level 4', cols:20, mode:'boxing', title:'BOSS FIGHT', intro:
 /* =========================================================
    SAVE (name, coins, wardrobe, stats, leaderboards, unlocks) — browser localStorage
    ========================================================= */
-const SAVE_KEY='drgnfleye_sidequest_TEST';   // separate save so testing never touches real progress
+const SAVE_KEY='drgnfleye_sidequest';
 const save={name:'',bank:0,owned:[],unlocked:1,equip:{outfit:'coat-b',jewelry:'j-none',shoes:'sh-b',head:'beanie-w'},
   stats:{runs:0,wins:0,best:null,bestByLevel:{},coinsEarned:0,kills:0,falls:0,sweeps:0,flights:0,combos:0,bossWins:0,swagSpent:null},boards:{},
   powers:{inv:0,dj:0,df:0}, armed:{inv:false,dj:false,df:false}, casino:false, pid:''};
@@ -853,7 +853,9 @@ try{ const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
     if(save.stats.best!=null&&save.stats.bestByLevel[1]==null) save.stats.bestByLevel[1]=save.stats.best;
     if((save.boards[1]||[]).length) save.unlocked=Math.max(save.unlocked,2);  // cleared L1 before levels existed
   } }catch(e){}
-save.unlocked=LEVELS.length;   // TEST BUILD: every level unlocked
+// levels unlock one at a time: beating a level opens the next
+for(const l in save.stats.bestByLevel) if(save.stats.bestByLevel[l]!=null) save.unlocked=Math.max(save.unlocked,Math.min(LEVELS.length,(+l)+1));
+save.unlocked=Math.max(1,Math.min(LEVELS.length,save.unlocked|0));
 for(const c in SHOP) for(const it of SHOP[c]) if(it.price===0&&!save.owned.includes(it.id)) save.owned.push(it.id);
 if(save.stats.swagSpent==null){ let t=0; for(const c in SHOP) for(const it of SHOP[c]) if(save.owned.includes(it.id)) t+=it.price; save.stats.swagSpent=t; }
 if(!save.pid) save.pid=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));
@@ -1039,7 +1041,7 @@ let cw=0,ch=0,dpr=1,scale=1,viewW=0,viewH=0,bgGrad;
 let state='title', time=0, elapsed=0, deaths=0, camX=0, camY=0;
 let player, respawn, parts=[], skyline=[], stars=[], clouds=[];
 let runActive=false, runName='GUEST', nameOpen=false, profileOpen=false;
-let runShards=0, gapHinted=false, selectedLevel=4, introOpen=false, gateToastT=0;
+let runShards=0, gapHinted=false, selectedLevel=save.unlocked, introOpen=false, gateToastT=0;
 
 let toastTimer=null;
 function toast(msg,dur=2.8){ const el=$('toast'); el.textContent=msg; el.classList.add('on');
@@ -1072,7 +1074,7 @@ function renderLevelPick(){
   const el=$('levelPick'); el.replaceChildren();
   LEVELS.forEach((L,i)=>{ const n=i+1, b=document.createElement('button');
     b.className='lvl'+(n===selectedLevel?' on':''); b.disabled=n>save.unlocked;
-    b.textContent=n>save.unlocked?`${L.name} 🔒`:L.name;
+    b.textContent=n>save.unlocked?`${L.name} 🔒`:L.name; if(n>save.unlocked) b.title=`Beat Level ${n-1} to unlock`;
     b.addEventListener('click',()=>{selectedLevel=n;renderLevelPick();}); el.appendChild(b); });
 }
 
