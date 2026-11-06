@@ -1,7 +1,7 @@
 // DRGNFLEYE SIDEQUEST · public leaderboard
 // A tiny Cloudflare Worker backed by one KV namespace (binding name: SCORES).
 //   GET  /scores  → top 200 players, highest score first (public, anyone can read)
-//   POST /scores  → { id, name, coins, swag, speed } · upserts that player's latest totals
+//   POST /scores  → { id, name, coins, swag, speed, levels:{1:sec,…} } · upserts that player's latest totals + best level times
 // Score = coins collected + swag bought + speed points (each level capped at 400 speed points).
 // Deploy: Cloudflare dashboard → Workers & Pages → Create Worker → paste this file → Settings → Bindings →
 //         add KV namespace "SCORES" → Deploy. Put the worker URL into LB_API in sidequest.html.
@@ -26,6 +26,10 @@ export default {
       const name = String(b.name || 'GUEST').toUpperCase().replace(/[^A-Z0-9 _.-]/g, '').trim().slice(0, 16) || 'GUEST';
       const num = (v, max) => Math.max(0, Math.min(max, Math.floor(Number(v) || 0)));
       const e = { id: b.id, name, coins: num(b.coins, 1e6), swag: num(b.swag, 1e6), speed: num(b.speed, 1600), t: Date.now() };
+      // best clear time (seconds) per level, used for the per-level boards
+      e.levels = {};
+      if (b.levels && typeof b.levels === 'object')
+        for (const l of ['1', '2', '3', '4']) { const v = Number(b.levels[l]); if (v > 3 && v < 36000) e.levels[l] = Math.round(v * 100) / 100; }
       e.score = e.coins + e.swag + e.speed;
       board[e.id] = e;
       await env.SCORES.put('board', JSON.stringify(board));
