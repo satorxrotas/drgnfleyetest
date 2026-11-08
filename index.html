@@ -2550,6 +2550,26 @@
     }
 
   </style>
+  <!-- ── EMBED MODE · ?embed (used when another site, e.g. David Maxwell's, shows this page in a lightbox).
+       Skips the intro and the 3D homepage, hides the logo + game button; ?view=index opens straight onto the
+       project index, whose X then asks the parent page to close. The normal site is untouched. ── -->
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search);
+      window.DRG_EMBED = q.has('embed');
+      window.DRG_VIEW = q.get('view');
+      if (window.DRG_EMBED) document.documentElement.classList.add('drg-embed');
+      // tell the parent page to close us (it decides whether to listen)
+      window.drgEmbedClose = function () { try { window.parent.postMessage({ type: 'drg-embed-close' }, '*'); } catch (e) {} };
+    })();
+  </script>
+  <style>
+    html.drg-embed #loader, html.drg-embed #counter, html.drg-embed #site-logo,
+    html.drg-embed #game-btn, html.drg-embed #viewer-wrap, html.drg-embed #glb-hint,
+    html.drg-embed #gallery-hint { display: none !important; }
+    html.drg-embed, html.drg-embed body { background: #000; }
+    html.drg-embed #pindex .pi-close { display: none !important; }   /* the parent page's X closes it */
+  </style>
   <!-- ── TEMPORARY PASSWORD GATE (whole site) · remove this block + #pwgate to open the site to everyone ── -->
   <script>
     (function () {
@@ -2917,7 +2937,7 @@
     setTimeout(() => animateOut(cols, rows), 800);
 
     /* ── THREE.JS GLB VIEWER WITH BAYER DITHER ── */
-    window.addEventListener('load', function() {
+    if (!window.DRG_EMBED) window.addEventListener('load', function() {   // (embed mode never shows the 3D home)
       // Wait until page is visible so dimensions are correct
       function initViewer() {
         const wrap   = document.getElementById('viewer-wrap');
@@ -6142,6 +6162,7 @@
     }
 
     function closeLightbox() {
+      const wasOpen = lightbox.classList.contains('open');
       lightbox.classList.remove('open');
       lightbox.style.pointerEvents = 'none';
       closeLbList();
@@ -6149,6 +6170,7 @@
       if (document.getElementById('side-nav').classList.contains('work-open')) {
         document.getElementById('gallery-hint').classList.add('visible');
       }
+      if (window.DRG_EMBED && wasOpen && typeof openIndex === 'function') openIndex();   // embedded: back to the index
     }
 
     function closeLbList() {
@@ -6309,7 +6331,8 @@
     }
     function piOpenProject(k) { closeIndex(); openLightbox(k); }
 
-    PI.el.querySelector('.pi-close').addEventListener('click', closeIndex);
+    const piDismiss = () => { if (window.DRG_EMBED) window.drgEmbedClose(); else closeIndex(); };
+    PI.el.querySelector('.pi-close').addEventListener('click', piDismiss);
     PI.tabs.addEventListener('click', e => { const t = e.target.closest('.pi-tab'); if (t) piBuild(t.dataset.cat); });
     // mouse wheel / trackpad rolls the list, then it settles on the nearest name
     PI.wheel.addEventListener('wheel', e => {
@@ -6364,12 +6387,14 @@
     PI.el.querySelector('.pi-img').style.cursor = 'pointer';
     document.addEventListener('keydown', e => {
       if (!PI.el.classList.contains('open')) return;
-      if (e.key === 'Escape') { e.stopImmediatePropagation(); closeIndex(); }
+      if (e.key === 'Escape') { e.stopImmediatePropagation(); piDismiss(); }
       else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); e.stopImmediatePropagation(); piGo(Math.round(PI.target) + 1); }
       else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); e.stopImmediatePropagation(); piGo(Math.round(PI.target) - 1); }
       else if (e.key === 'Enter' && document.activeElement === PI.wheel) { e.preventDefault(); piOpenProject(PI.list[PI.cur][0]); }
     }, true);
     window.addEventListener('resize', () => { if (PI.el.classList.contains('open')) { piMeasure(); piFrame(); } });
+    if (window.DRG_VIEW === 'index') openIndex();
+    if (window.DRG_EMBED) { const bv = document.getElementById('bg-video'); if (bv) { bv.removeAttribute('src'); bv.load(); } }
     // both hamburger buttons open this index
     [document.getElementById('lb-list-toggle'), document.getElementById('gallery-list-toggle')].forEach(b => b && b.addEventListener('click', e => {
       e.stopImmediatePropagation(); openIndex();
