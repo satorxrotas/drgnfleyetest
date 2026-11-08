@@ -1448,6 +1448,10 @@
       will-change: transform, opacity;
     }
     .lbs-beat--side { text-align: left; width: min(28rem, 32vw); }
+    /* scroll-lit text: grey until your scroll reaches each word */
+    .lbs-beat .lw { color: rgba(242, 239, 233, 0.24); transition: color .35s ease; }
+    .lbs-beat .lw.on { color: inherit; }
+    .lbs-beat strong .lw.on, .lbs-beat b .lw.on { color: inherit; }
     /* project text (description, case study, impact, team) can be selected and copied */
     .lbs-beat, .lbs-beat *, .lb-body-text, .lb-body-text * { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; cursor: text; }
     .lbs-beat a, .lb-body-text a { cursor: pointer; }
@@ -4276,6 +4280,7 @@
 
       // Position wheel blocks for the fresh page (no-op on non-wheel projects)
       if (useStage) stageVimeoThumbs(lbBody);
+      if (useStage) stageWrapWords(lbBody);
       requestAnimationFrame(() => { wheelRequest(); stageRequest(); });
 
       // TikTok's embed script only converts blockquotes present when it loads,
@@ -5016,7 +5021,9 @@
       else if (d.press) beats.push({ ch: 'PRESS', html: d.press, label: 'Press' });
 
       const T = {};
-      T.descOut = 0.9;                               // opening screen holds, then flies off
+      // opening screen holds while its description lights up word by word, then flies off
+      const descWords = (stageParas(d.description).join(' ').replace(/<[^>]+>/g, ' ').match(/\S+/g) || []).length;
+      T.descOut = 0.9 + Math.min(0.9, descWords / 140);
       // THE WORK (the flying gallery) plays first, straight after the opening screen;
       // the text / film / picture scenes follow it.
       // long clip lists fly in closer together so the gallery doesn't drag on
@@ -5043,6 +5050,7 @@
           const len = String(b.html).replace(/<[^>]+>/g, '').length;
           b.long = len > 560 && !b.isCase;
           if (!b.dur) b.dur = len > 1100 ? 1.6 : len > 560 ? 1.35 : len > 380 ? 1.15 : BEAT_GAP;   // longer sections hold a bit longer
+          b.dur += 0.25 + Math.min(0.6, len / 2400);      // extra hold so the words can light up before it flies off
         }
       });
       beats.forEach(b => { b.s = at; b.dur = b.dur || BEAT_GAP; at += b.dur; });   // song scenes hold a little longer
@@ -5217,6 +5225,39 @@
       else if (!on && !vid.paused) vid.pause();
     }
 
+    // ── scroll-lit text: every word starts grey and turns white as you scroll through its scene
+    function stageWrapWords(root) {
+      root.querySelectorAll('.lbs-beat').forEach(el => {
+        if (el.querySelector('video, iframe, img')) return;                 // media scenes keep their look
+        const nodes = [], tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+        while (tw.nextNode()) {
+          const n = tw.currentNode;
+          if (!n.nodeValue.trim() || n.parentElement.closest('h2, .lbs-sub, .lbs-beat-label, button')) continue;
+          nodes.push(n);
+        }
+        const words = [];
+        nodes.forEach(n => {
+          const frag = document.createDocumentFragment();
+          n.nodeValue.split(/(\s+)/).forEach(part => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            const w = document.createElement('span'); w.className = 'lw'; w.textContent = part;
+            frag.appendChild(w); words.push(w);
+          });
+          n.parentNode.replaceChild(frag, n);
+        });
+        if (words.length) { el._lw = words; el._lit = 0; }
+      });
+    }
+    function stageLight(el, r) {
+      const W = el._lw; if (!W) return;
+      const n = Math.max(0, Math.min(W.length, Math.ceil(r * W.length - 0.001)));
+      if (n === el._lit) return;
+      if (n > el._lit) for (let i = el._lit; i < n; i++) W[i].classList.add('on');
+      else for (let i = n; i < el._lit; i++) W[i].classList.remove('on');
+      el._lit = n;
+    }
+
     function stageFrame() {
       STAGE.raf = null;
       if (!lbBody.classList.contains('lb-stage') || !STAGE.plan) return;
@@ -5331,6 +5372,9 @@
         dEl.style.opacity = o.toFixed(3);
         dEl.style.visibility = o <= 0.005 ? 'hidden' : '';
         dEl.style.pointerEvents = o > 0.6 ? 'auto' : 'none';
+        // words light up across the opening scroll (phones: including the plain-scroll stretch); fully white before it flies off
+        const span = introExtra + Math.max(0.2, T.descOut - 0.1) * vh * STAGE_PACE;
+        stageLight(dEl, W > 0 ? 0 : Math.min(1, Math.max(0, (lbBody.scrollTop - 0.04 * vh * STAGE_PACE) / span)));
       }
 
       const exEl = stage.querySelector('.lbs-explore');
@@ -5382,6 +5426,7 @@
         const b = P.beats[k];
         const ein = sOut(sRange(t, b.s, b.s + 0.3));
         const exitAt = b.s + b.dur - 0.3;
+        if (el._lw) stageLight(el, sRange(t, b.s + 0.2, exitAt - 0.05));   // grey → white, then it flies off
         let g = ghost(exitAt);
         const vidKind = b.kind === 'song' || b.kind === 'film' || b.kind === 'embeds';
         if (vidKind) {
