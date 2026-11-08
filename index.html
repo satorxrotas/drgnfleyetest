@@ -1449,7 +1449,8 @@
     }
     .lbs-beat--side { text-align: left; width: min(28rem, 32vw); }
     /* scroll-lit text: grey until your scroll reaches each word */
-    .lbs-beat .lw { color: rgba(242, 239, 233, 0.24); transition: color .35s ease; }
+    .lbs-beat .lww { white-space: nowrap; }
+    .lbs-beat .lw { color: rgba(242, 239, 233, 0.24); transition: color .22s ease; }
     .lbs-beat .lw.on { color: inherit; }
     .lbs-beat strong .lw.on, .lbs-beat b .lw.on { color: inherit; }
     /* project text (description, case study, impact, team) can be selected and copied */
@@ -5241,8 +5242,10 @@
           n.nodeValue.split(/(\s+)/).forEach(part => {
             if (!part) return;
             if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
-            const w = document.createElement('span'); w.className = 'lw'; w.textContent = part;
-            frag.appendChild(w); words.push(w);
+            // each letter lights on its own; the word wrapper keeps letters from breaking across lines
+            const w = document.createElement('span'); w.className = 'lww';
+            for (const ch of part) { const c = document.createElement('span'); c.className = 'lw'; c.textContent = ch; w.appendChild(c); words.push(c); }
+            frag.appendChild(w);
           });
           n.parentNode.replaceChild(frag, n);
         });
