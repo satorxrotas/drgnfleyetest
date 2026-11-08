@@ -2577,7 +2577,9 @@
       window.DRG_PW_HASH = 'e4262fa30462e69ebe8e088fa15af6979beaf1f4910b3768384e1a629341a915';
       window.DRG_SITE_LOCK = true;           // set to false to switch the whole-site gate off (archived projects stay locked)
       var ok = false; try { ok = localStorage.getItem('drg_pw') === window.DRG_PW_HASH; } catch (e) {}
-      if (window.DRG_SITE_LOCK && !ok) document.documentElement.classList.add('pw-locked');
+      // TEMPORARY: embed mode (David Maxwell's Studio Work lightbox) skips the whole-site gate while the
+      // sites are being built. Remove "&& !window.DRG_EMBED" to put the gate back on embeds too.
+      if (window.DRG_SITE_LOCK && !ok && !window.DRG_EMBED) document.documentElement.classList.add('pw-locked');
     })();
   </script>
   <style>
