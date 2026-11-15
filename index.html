@@ -6237,7 +6237,9 @@
     PI.imgs = [...PI.el.querySelectorAll('.pi-img img')];
     PI.cap = PI.el.querySelector('.pi-cap');
     PI.fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-    const piPrev = k => `index_prev_${String(k).padStart(2, '0')}.jpg`;
+    // newer previews carry a version suffix so browsers don't show a cached old clip
+    const PI_PREV_VER = { 15: '_02' };
+    const piPrev = k => `index_prev_${String(k).padStart(2, '0')}${PI_PREV_VER[k] || ''}.jpg`;
     // projects whose hero is a video preview a short muted loop cut from it (index_prev_NN.mp4)
     const PI_VIDEO = new Set([1, 3, 4, 5, 9, 10, 11, 12, 13, 15]);
     PI.vid = PI.el.querySelector('.pi-vid');
@@ -6248,7 +6250,7 @@
       if (k == null || !PI_VIDEO.has(k)) { PI.vid.pause(); return; }
       // wait until the list settles so rolling past names doesn't start every clip
       PI.vidT = setTimeout(() => {
-        const src = `index_prev_${String(k).padStart(2, '0')}.mp4`;
+        const src = `index_prev_${String(k).padStart(2, '0')}${PI_PREV_VER[k] || ''}.mp4`;
         PI.vid.dataset.k = k;
         if (!PI.vid.src.endsWith(src)) PI.vid.src = src;
         try { PI.vid.currentTime = 0; } catch (e) {}
