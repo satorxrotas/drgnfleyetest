@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>𓆤 DRGNFLEYE 𓆤</title>
   <!-- About page (v2) type, self-hosted: Anton (tall condensed) + Archivo variable (expanded widths) -->
+  <link rel="preload" href="font_cereal_medium.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="font_cereal_bold.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="font_anton.woff2" as="font" type="font/woff2" crossorigin />
   <style>
+    /* Airbnb Cereal: Medium carries copy / regular text (the lighter of the two), Bold carries headings and labels */
+    @font-face { font-family: 'Cereal'; src: url(font_cereal_medium.woff2) format('woff2'); font-weight: 100 599; font-style: normal; font-display: swap; }
+    @font-face { font-family: 'Cereal'; src: url(font_cereal_bold.woff2) format('woff2'); font-weight: 600 900; font-style: normal; font-display: swap; }
     @font-face { font-family: 'Anton'; src: url(font_anton.woff2) format('woff2'); font-weight: 400; font-display: swap; }
     @font-face { font-family: 'Archivo'; src: url(font_archivo_wdth.woff2) format('woff2'); font-weight: 100 900; font-stretch: 62% 125%; font-display: swap; }
   </style>
@@ -27,7 +32,7 @@
       height: 100%;
       overflow: hidden;
       background: #e10600;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
 
     /* ── LOADER OVERLAY ── */
@@ -203,7 +208,7 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 9500;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 0.6rem;
       font-weight: 700;
       letter-spacing: 0.15em;
@@ -234,7 +239,7 @@
       transform: translateY(-50%);
       pointer-events: auto;
       text-decoration: none;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-weight: 700;
       font-size: clamp(1.1rem, 1.7vw, 1.6rem);
       letter-spacing: 0.02em;
@@ -439,7 +444,7 @@
       background: none;
       border: 2px solid #0a0a0a;
       color: #0a0a0a;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-weight: 700;
       font-size: 0.75rem;
       letter-spacing: 0.15em;
@@ -508,7 +513,7 @@
     #gallery-list a {
       display: block;
       padding: 1.1rem 0.25rem;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-weight: 700;
       font-size: clamp(0.95rem, 2vw, 1.35rem);
       letter-spacing: 0.02em;
@@ -581,7 +586,7 @@
       letter-spacing: 0.25em;
       text-transform: uppercase;
       color: #555;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
     }
     #contact-close {
       background: none;
@@ -593,7 +598,7 @@
       padding: 0.4rem 1rem;
       cursor: pointer;
       transition: background 0.2s, color 0.2s;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
     }
     #contact-close:hover { background: #f0ede6; color: #0a0a0a; }
 
@@ -615,7 +620,7 @@
       letter-spacing: 0.2em;
       text-transform: uppercase;
       color: #555;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
     }
     .contact-field input,
     .contact-field textarea {
@@ -624,7 +629,7 @@
       border-bottom: 1px solid #333;
       color: #f0ede6;
       font-size: 0.85rem;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
       padding: 0.5rem 0.25rem;
       outline: none;
       width: 100%;
@@ -643,7 +648,7 @@
       font-size: 0.75rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -708,7 +713,7 @@
       letter-spacing: 0.25em;
       text-transform: uppercase;
       color: #555;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
     }
     #about-close {
       width: 2.25rem;
@@ -780,7 +785,7 @@
     .logo-carousel-item {
       flex: 0 0 auto;
       padding: 0 2.5rem;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-weight: 700;
       font-size: 1rem;
       letter-spacing: 0.08em;
@@ -822,7 +827,7 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: #888;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
     }
     #about-subtitle span { display: block; margin-bottom: 0.2rem; }
 
@@ -843,13 +848,13 @@
       color: #e03030;
       margin-bottom: 0.5rem;
       font-weight: 600;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
     }
     .about-body-text {
       font-size: 0.88rem;
       line-height: 1.75;
       color: #999;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
     }
     #lightbox {
       position: fixed;
@@ -932,7 +937,7 @@
       background: none;
       border: 1px solid #f0ede6;
       color: #f0ede6;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-weight: 700;
       font-size: 0.7rem;
       letter-spacing: 0.15em;
@@ -994,7 +999,7 @@
     #lb-list a {
       display: block;
       padding: 1.1rem 0.25rem;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-weight: 700;
       font-size: clamp(0.95rem, 2vw, 1.35rem);
       letter-spacing: 0.02em;
@@ -1298,7 +1303,7 @@
       left: 50%; bottom: calc(4.7rem + 2.6rem + 0.6rem); transform: translateX(-50%);
       z-index: 9000; background: none; border: 0; padding: 0; cursor: pointer; color: #f0ede6;
       display: flex; flex-direction: column; align-items: center; gap: 0.85rem;
-      font: 400 0.68rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.02em; text-transform: uppercase;
+      font: 400 0.68rem/1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.02em; text-transform: uppercase;
       white-space: nowrap;
     }
     .lbs-explore .px { width: 15px; height: 18px; animation: lbs-explore-bob 1.8s ease-in-out infinite; }
@@ -1314,7 +1319,7 @@
     .lbs-media-cap {
       position: absolute; left: 0.6rem; bottom: 0.6rem;
       padding: 0.35rem 0.55rem; background: rgba(10, 10, 10, 0.72);
-      font: 700 0.62rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.14em;
+      font: 700 0.62rem/1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.14em;
       text-transform: uppercase; color: #f0ede6; white-space: nowrap;
       max-width: calc(100% - 1.2rem); overflow: hidden; text-overflow: ellipsis; box-sizing: border-box;
     }
@@ -1339,7 +1344,7 @@
     .lbs-songbg { inset: 0; z-index: 1; opacity: 0; pointer-events: none; }
     .lbs-beat.lbs-beat--song { width: auto; max-width: 94vw; }
     .lbs-song-logo { display: block; margin: 0 auto 1.4rem; height: 78px; width: auto; max-width: 80vw; object-fit: contain; }
-    .lbs-song-title { font: 700 1.4rem/1.1 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase; color: #fff; margin-bottom: 1.2rem; }
+    .lbs-song-title { font: 700 1.4rem/1.1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; text-transform: uppercase; color: #fff; margin-bottom: 1.2rem; }
     .lbs-song-video { margin: 0 auto; }
     .lbs-beat--song .lbs-beat-label, .lbs-beat--songx .lbs-beat-label { color: #fff; }
     @media (max-width: 750px) { .lbs-song-logo { height: 46px; margin-bottom: 1rem; } }
@@ -1407,7 +1412,7 @@
       transform: translateX(-50%);
       z-index: 9000;
       white-space: nowrap;
-      font: 700 0.62rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font: 700 0.62rem/1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       letter-spacing: 0.24em;
       text-transform: uppercase;
       color: rgba(240, 237, 230, 0.8);
@@ -1439,7 +1444,7 @@
       z-index: 5;
       width: min(31rem, 84vw);
       text-align: center;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: clamp(0.92rem, 1.05vw, 1.15rem);
       line-height: 1.6;
       color: #e8e5de;
@@ -1508,7 +1513,7 @@
       opacity: 0;
       pointer-events: none;
       color: #f0ede6;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
     .lbs-count { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.24em; transform: translateX(-50%); white-space: nowrap; }
 
@@ -1545,7 +1550,7 @@
       position: relative; z-index: 3;
       background: none; border: 0; padding: 0;
       color: #f0ede6;
-      font: 400 0.78rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font: 400 0.78rem/1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       letter-spacing: 0.02em;
       text-transform: uppercase;
       white-space: nowrap;
@@ -1673,7 +1678,7 @@
     .lb-bubble-nav:hover { color: #e10600; }
     #lb-bubble-prev:hover { transform: translateX(-3px); }
     #lb-bubble-next:hover { transform: translateX(3px); }
-    .lb-bn-label { font: 400 0.72rem/1.25 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.02em; text-transform: uppercase; text-align: left; }   /* PREV / NEXT stacked over PROJECT */
+    .lb-bn-label { font: 400 0.72rem/1.25 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 0.02em; text-transform: uppercase; text-align: left; }   /* PREV / NEXT stacked over PROJECT */
     .lb-bn-label--r { text-align: right; }
     @media (max-width: 750px) { .lb-bubble-nav-wrap { gap: 2rem; } .lb-bn-label { font-size: 0.62rem; } .lb-bubble-nav { gap: 0.55rem; } .lb-bubble-nav .px { width: 20px; height: 17px; } }   /* clear of the game button */
 
@@ -1696,7 +1701,7 @@
       letter-spacing: 0.15em;
       text-transform: uppercase;
       color: #555;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
     }
     #lb-breadcrumb.lb-breadcrumb-marquee {
       text-overflow: clip;
@@ -1732,7 +1737,7 @@
       letter-spacing: 0.04em;
       text-transform: none;
       color: #f0ede6;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
       white-space: normal;
       box-shadow: 0 10px 24px rgba(0,0,0,0.55);
       z-index: 50;
@@ -1881,7 +1886,7 @@
       font-size: 0.75rem;
       letter-spacing: 0.25em;
       text-transform: uppercase;
-      font-family: 'Helvetica Neue', sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', sans-serif;
       text-decoration: none;
       padding: 0.65rem 1.25rem;
       transition: background 0.2s, color 0.2s;
@@ -2080,7 +2085,7 @@
     }
     .lb-video-showcase-title {
       padding: 0.75rem 0.25rem 0;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.06em;
@@ -2216,7 +2221,7 @@
       left: 50%;
       transform: translateX(-50%);
       z-index: 99999;
-      font-family: 'Helvetica Neue', monospace;
+      font-family: 'Cereal', 'Helvetica Neue', monospace;
       font-size: 0.75rem;
       letter-spacing: 0.2em;
       color: #444;
@@ -2255,7 +2260,7 @@
       border-radius: 6px;
       box-shadow: 0 20px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.06);
       color: #fff; overflow: hidden;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       transform: translateY(16px) scale(.97); opacity: 0;
       transition: transform .55s cubic-bezier(.22,.61,.36,1) .12s, opacity .45s ease .12s;
     }
@@ -2282,7 +2287,7 @@
     }
     #inquire .iq-field input, #inquire .iq-field textarea {
       display: block; width: 100%; background: none; border: 0; outline: none; padding: 2px 0;
-      color: #fff; font: 14px/1.4 'Helvetica Neue', Helvetica, Arial, sans-serif; resize: none;
+      color: #fff; font: 14px/1.4 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; resize: none;
     }
     #inquire .iq-field textarea { height: 3.4em; font-size: 13px; }
     #inquire .iq-field textarea::placeholder { color: rgba(255,255,255,.75); font-size: 11px; }
@@ -2296,7 +2301,7 @@
       min-width: 138px; height: 34px; padding: 0 20px;
       border-radius: 999px; border: 1px solid rgba(255,255,255,.28);
       background: rgba(10,10,12,.55); color: #fff; cursor: pointer;
-      font: 700 12px/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase;
+      font: 700 12px/1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase;
       transition: background .2s, border-color .2s, color .2s;
     }
     #inquire .iq-send:hover { background: #e10600; border-color: #e10600; }
@@ -2352,7 +2357,7 @@
     #pindex {
       position: fixed; inset: 0; z-index: 9550;
       background: #000; color: #f0ede6;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       opacity: 0; pointer-events: none; visibility: hidden;
       transition: opacity .4s ease, visibility 0s linear .4s;
       overflow: hidden;
@@ -2372,7 +2377,7 @@
     }
     #pindex .pi-tab {
       background: none; border: 0; padding: .25rem 0; cursor: pointer;
-      color: rgba(240,237,230,.55); font: 400 .82rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: rgba(240,237,230,.55); font: 400 .82rem/1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       letter-spacing: .01em; text-transform: uppercase; transition: color .2s;
     }
     #pindex .pi-tab:hover, #pindex .pi-tab.is-on { color: #f0ede6; }
@@ -2392,7 +2397,7 @@
       position: absolute; left: calc(var(--pi-fs, 72px) * 0.8); top: 50%;
       display: block;
       background: none; border: 0; padding: 0; margin: 0; cursor: pointer;
-      color: #f0ede6; font: 400 var(--pi-fs, 72px)/1.08 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #f0ede6; font: 400 var(--pi-fs, 72px)/1.08 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       letter-spacing: -.01em; text-transform: uppercase; white-space: nowrap;
       transform-origin: 0 50%; will-change: transform, opacity;
       transition: color .18s;
@@ -2438,7 +2443,7 @@
       background: #050608; color: #f0ede6; overflow: hidden;
       opacity: 0; pointer-events: none; visibility: hidden;
       transition: opacity .3s ease, visibility 0s linear .3s;   /* closes quickly */
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
     /* nothing on the page is selectable or long-press-able (a thumb resting while you swipe kept
        selecting the form text on iPhone) — the form fields themselves still work normally */
@@ -2484,7 +2489,7 @@
     /* "scroll to explore" — pulses at the bottom of the first scene, fades once you scroll */
     #about2 .a2-hint {
       position: absolute; left: 50%; bottom: 2.2rem; transform: translateX(-50%); z-index: 4;
-      font: 700 .6rem/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .15em; text-transform: uppercase;
+      font: 700 .6rem/1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .15em; text-transform: uppercase;
       color: #f0ede6; text-shadow: 0 1px 6px rgba(0,0,0,.7); white-space: nowrap; pointer-events: none;
       animation: a2-pulse 2.4s ease-in-out infinite; transition: opacity .4s ease;
     }
@@ -2525,7 +2530,7 @@
     #about2 .a2-field { display: block; padding: 12px 18px 10px; border-bottom: 1px solid rgba(255,255,255,.22); }
     #about2 .a2-field label { display: block; font-size: 10px; text-transform: uppercase; margin-bottom: 5px; color: #fff; cursor: text; }
     #about2 .a2-field input, #about2 .a2-field textarea { display: block; width: 100%; background: none; border: 0; outline: none; padding: 2px 0;
-      color: #fff; font: 14px/1.4 'Helvetica Neue', Helvetica, Arial, sans-serif; resize: none; }
+      color: #fff; font: 14px/1.4 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; resize: none; }
     #about2 .a2-field textarea { height: 3.2em; font-size: 13px; }
     #about2 .a2-field textarea::placeholder { color: rgba(255,255,255,.75); font-size: 10px; }
     #about2 .a2-field:focus-within label, #about2 .a2-field.is-bad label { color: #e8141b; }
@@ -2533,7 +2538,7 @@
     #about2 .a2-foot { padding: 4px 18px 18px; display: flex; align-items: center; gap: 12px; }
     #about2 .a2-send { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 112px; height: 30px; padding: 0 18px;
       border-radius: 999px; border: 1px solid rgba(255,255,255,.28); background: rgba(10,10,12,.5); color: #fff; cursor: pointer;
-      font: 700 11px/1 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; transition: background .2s, border-color .2s; }
+      font: 700 11px/1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .14em; text-transform: uppercase; transition: background .2s, border-color .2s; }
     #about2 .a2-send:hover { background: #e10600; border-color: #e10600; }
     #about2 .a2-send .px-ne { width: 10px; height: 10px; }
     #about2 .a2-status { font-size: 10px; line-height: 1.3; color: rgba(255,255,255,.7); }
@@ -2586,7 +2591,7 @@
     html.pw-locked, html.pw-locked body { overflow: hidden !important; }
     html.pw-locked body > *:not(#pwgate) { visibility: hidden !important; }
     #pwgate { position: fixed; inset: 0; z-index: 2147483000; display: none; align-items: center; justify-content: center;
-      padding: 16px; background: #000; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #fff; }
+      padding: 16px; background: #000; font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #fff; }
     html.pw-locked #pwgate, #pwgate.open { display: flex; visibility: visible !important; }
     #pwgate.open { background: rgba(0,0,0,.82); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
     #pwgate .pw-card { width: min(340px, 100%); background: rgba(22,22,26,.6); border: 1px solid rgba(255,255,255,.16); border-radius: 6px;
@@ -2602,7 +2607,7 @@
     #pwgate .pw-field:focus-within label { color: #e10600; }
     #pwgate .pw-foot { padding: 16px 22px 22px; display: flex; align-items: center; gap: 14px; }
     #pwgate button.pw-go { min-width: 120px; height: 34px; padding: 0 20px; border-radius: 999px; border: 1px solid rgba(255,255,255,.28);
-      background: rgba(10,10,12,.55); color: #fff; cursor: pointer; font: 700 12px/1 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: rgba(10,10,12,.55); color: #fff; cursor: pointer; font: 700 12px/1 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
       letter-spacing: .14em; text-transform: uppercase; transition: background .2s, border-color .2s; }
     #pwgate button.pw-go:hover { background: #e10600; border-color: #e10600; }
     #pwgate .pw-msg { font-size: 12px; color: #e10600; }
