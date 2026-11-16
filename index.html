@@ -2424,6 +2424,32 @@
       font-size: .74rem; line-height: 1.3; letter-spacing: .03em; text-transform: uppercase; color: rgba(240,237,230,.6);
     }
     #pindex .pi-cap .pi-open { color: #f0ede6; margin-left: .6em; white-space: nowrap; }
+    /* black / white switch: a small square, bottom left (same as the home and Work toggles). It shows the colour it switches to */
+    #pindex { transition: opacity .4s ease, visibility 0s linear .4s, background-color .45s ease, color .45s ease; }
+    #pindex.open { transition: opacity .4s ease, background-color .45s ease, color .45s ease; }
+    #pindex .pi-theme {
+      position: absolute; left: 1.75rem; bottom: 1.75rem; z-index: 5; width: 18px; height: 18px; padding: 0;
+      border: 0; background: #f0ede6; cursor: pointer; transition: background .3s ease, transform .2s ease;
+    }
+    #pindex .pi-theme::before { content: ''; position: absolute; inset: -12px; }   /* bigger tap area */
+    #pindex .pi-theme:hover { transform: scale(1.18); }
+    #pindex .pi-theme:focus { outline: none; }
+    #pindex .pi-theme:focus-visible { outline: 1px solid #e10600; outline-offset: 4px; }
+    #pindex.is-light { background: #ffffff; color: #0a0a0a; }
+    #pindex.is-light .pi-theme { background: #0a0a0a; }
+    #pindex.is-light .pi-close { color: #0a0a0a; }
+    #pindex.is-light .pi-close:hover { color: #e10600; }
+    #pindex.is-light .pi-tab { color: rgba(10,10,10,.5); }
+    #pindex.is-light .pi-tab:hover, #pindex.is-light .pi-tab.is-on { color: #0a0a0a; }
+    #pindex.is-light .pi-item { color: #0a0a0a; }
+    #pindex.is-light .pi-item.is-cur { color: #e10600; }
+    #pindex.is-light .pi-img { background: #ececec; border-bottom-color: rgba(10,10,10,.3); }
+    #pindex.is-light .pi-cap { color: rgba(10,10,10,.6); }
+    #pindex.is-light .pi-cap .pi-open { color: #0a0a0a; }
+    #pindex .pi-tab, #pindex .pi-item, #pindex .pi-cap, #pindex .pi-close { transition: color .35s ease; }
+    /* the logo and the game controller sit above the index: black on the white version */
+    html:not(._):not(.__):has(#pindex.open.is-light) #site-logo img { filter: invert(1); }
+    html:not(._):not(.__):has(#pindex.open.is-light) #game-btn { color: #0a0a0a; }
     @media (max-width: 750px) {
       #pindex .pi-close { top: 1.5rem; right: 1.5rem; width: 2.25rem; height: 2.25rem; }
       #pindex .pi-tabs { top: 1.4rem; left: 1.25rem; right: 4rem; gap: .5rem; }
@@ -2673,6 +2699,7 @@
   <!-- ── PROJECT INDEX (opened by the hamburger buttons) ── -->
   <div id="pindex" role="dialog" aria-modal="true" aria-label="Project index" aria-hidden="true">
     <button class="pi-close" type="button" aria-label="Close index"><i class="px px-x" aria-hidden="true"></i></button>
+    <button class="pi-theme" type="button" aria-label="Switch to a white background" aria-pressed="false"></button>
     <nav class="pi-tabs" aria-label="Categories"></nav>
     <div class="pi-body">
       <div class="pi-wheel" tabindex="0" role="listbox" aria-label="Projects"></div>
@@ -6242,6 +6269,16 @@
     PI.imgs = [...PI.el.querySelectorAll('.pi-img img')];
     PI.cap = PI.el.querySelector('.pi-cap');
     PI.fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    // index black / white switch (remembered for the visitor)
+    PI.theme = PI.el.querySelector('.pi-theme');
+    function piSetLight(on) {
+      PI.el.classList.toggle('is-light', on);
+      PI.theme.setAttribute('aria-pressed', String(on));
+      PI.theme.setAttribute('aria-label', on ? 'Switch to a black background' : 'Switch to a white background');
+      try { localStorage.setItem('drg_pi_light', on ? '1' : '0'); } catch (e) {}
+    }
+    try { if (localStorage.getItem('drg_pi_light') === '1') piSetLight(true); } catch (e) {}
+    PI.theme.addEventListener('click', e => { e.stopPropagation(); piSetLight(!PI.el.classList.contains('is-light')); });
     // newer previews carry a version suffix so browsers don't show a cached old clip
     const PI_PREV_VER = { 15: '_02' };
     const piPrev = k => `index_prev_${String(k).padStart(2, '0')}${PI_PREV_VER[k] || ''}.jpg`;
