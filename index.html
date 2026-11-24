@@ -1290,6 +1290,10 @@
       line-height: 1;
       margin: 0 0 0.5rem;
     }
+    /* award / honour line under a project title (e.g. Grammy nominee) */
+    .lbs-honor { margin: .55rem 0 0; color: #e10600; font: 700 .7rem/1.35 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      letter-spacing: .16em; text-transform: uppercase; }
+    .lbs-beat--desc .lbs-honor { margin-bottom: 1.6rem; }
     .lbs-sub {
       font-size: 0.62rem;
       letter-spacing: 0.22em;
@@ -3898,13 +3902,14 @@
         breadcrumb: 'ALEX ISLEY :: WHEN THE CITY SLEEPS',
         artist: 'ALEX ISLEY',
         collaborators: 'WARNER RECORDS, FREE LUNCH RECORDS',
-        description: 'Born into one of R&B\u2019s most enduring musical legacies as the daughter of Ernie Isley of The Isley Brothers, Alex Isley spent more than a decade independently building a distinct voice and devoted audience of her own. With Warner Records and Free Lunch Records, she entered a new chapter culminating in When The City Sleeps, her major-label debut.<br><br>DRGNFLEYE led creative direction and brand development for the era, refreshing Alex\u2019s visual and digital identity while preserving the intimacy, sophistication and understated character that had already defined her work.',
-        execution: '<strong>Creative Direction / Creative Social / Film / Photography / Design / Campaign Strategy / Live</strong><br><br>We led creative direction and execution across the era, shaping campaign imagery, photography, video, design, album and single creative, social-first storytelling and digital content.<br><br>Alongside hero campaign moments, we developed an ongoing creative social system and weekly content planning, translating the album\u2019s visual language into a consistent stream of content that could sustain the brand between releases, performances and larger cultural moments.<br><br>The world expanded into moving-image concepts and music visuals for releases including Sweetest Lullabye and Westside, while the same creative language extended into physical spaces through stage and performance design for Apple Music and The Jennifer Hudson Show.<br><br>Across campaign imagery, social, music visuals and live environments, every touchpoint reinforced the same brand refresh\u2014introducing a more expansive chapter for Alex without losing the restraint and intimacy audiences already associated with her.',
-        impact: 'Major-Label Debut Era<br>Complete Artist Brand Refresh<br>Ongoing Creative Social Strategy<br>Weekly Content Programming<br>Multi-Single Campaign System<br>Apple Music Performance Design<br>The Jennifer Hudson Show<br>National When The City Sleeps Tour',
+        honor: '2027 GRAMMY NOMINEE \u2014 BEST R&amp;B ALBUM',   // red line under the title
+        description: 'DRGNFLEYE led creative direction and brand development for Alex Isley\u2019s Grammy-nominated major-label debut, <em>When The City Sleeps</em>, in collaboration with Warner Records and Free Lunch Records.<br><br>As the daughter of Ernie Isley of the legendary Isley Brothers, Alex carries a rich musical legacy while forging a distinct identity of her own. Rooted in the intimacy of late nights and the atmosphere of Los Angeles, the campaign introduced a refined visual world that honored her lineage while embracing her evolution as an artist, preserving the warmth, sophistication, and vulnerability that define her music.',
+        execution: 'DRGNFLEYE developed and directed a cohesive creative world spanning album artwork, visual identity, photography, music videos, digital content, campaign assets, and live performance environments.<br><br>From intimate portraits to cinematic storytelling, each expression expanded the album\u2019s nighttime narrative while maintaining a consistent aesthetic across platforms and formats.',
+        impact: '<strong>2027 GRAMMY NOMINATION \u2014 BEST R&amp;B ALBUM</strong><br><br><em>When The City Sleeps</em> earned a nomination for Best R&amp;B Album at the 69th Annual Grammy Awards, marking a significant milestone in Alex Isley\u2019s career and the album campaign.<br><br>DRGNFLEYE helped shape the visual identity and creative expression surrounding the acclaimed release, establishing a cohesive world across recorded music, film, design, and live performance.',
         press: '',
-        pressLogos: ['press_logo_rollingstone.png', 'press_logo_billboard.png', 'press_logo_npr.png', 'press_logo_essence.png', 'press_logo_elle.png', 'press_logo_vibe.png'],
+        pressLogos: ['press_logo_rollingstone.png', 'press_logo_recordingacademy.png', 'press_logo_billboard.png', 'press_logo_npr.png', 'press_logo_essence.png', 'press_logo_elle.png', 'press_logo_vibe.png'],
         extendedTeam: 'Warner Records<br>Free Lunch Records<br>Ericka Coulter<br>Todd Perry III<br>Gianni Gallant',
-        strategy: '<strong>EVOLVE THE WORLD WITHOUT LOSING WHAT MADE IT HERS.</strong><br><br>Alex already had a strong artistic identity, a deeply connected audience and a family name with generations of cultural significance. The opportunity wasn\u2019t reinvention, but expansion: honoring that lineage without being defined by it and preparing Alex\u2019s world for a larger, major-label stage.<br><br>We developed a cohesive visual language rooted in intimacy, timelessness and Los Angeles after dark, creating a system that could connect music, imagery, social storytelling, design and live performance throughout the album era.<br><br>Rather than treating each release as an isolated campaign, we paired the broader creative direction with an ongoing social strategy, allowing releases including \u201cSweetest Lullabye,\u201d \u201cWestside,\u201d and \u201cPCH\u201d featuring Syd to feel like individual chapters within the same recognizable world.',
+        strategy: '<strong>EVOLVE THE WORLD WITHOUT LOSING WHAT MADE IT HERS.</strong><br><br>Our approach was to build on that foundation, translating the album\u2019s themes of love, memory, and the city after dark into a cohesive visual language. The goal was to create an identity that felt both familiar and evolved, connecting every release through a singular cinematic point of view.',
         manifesto: '',
         video: { type: 'youtube', id: 'BiSCLrXoJSk' },   // "Westside" (Official Music Video)
         stageFilmLabel: 'VIDEOS', stageFilmTitle: 'Videos',   // VIDEOS chapter: Westside, then Sweetest Lullabye + The Jennifer Hudson Show (first rows of imageRows)
@@ -4174,7 +4179,8 @@
       }
 
       const artistLine    = d.artist ? `<div id="lb-artist-line"><span class="lb-label">Artist:</span> ${d.artist}</div>` : '';
-      const collabLine    = d.collaborators ? `<div id="lb-collab-line"><span class="lb-label">Collaborators:</span> ${d.collaborators}</div>` : '';
+      const collabLine    = (d.collaborators ? `<div id="lb-collab-line"><span class="lb-label">Collaborators:</span> ${d.collaborators}</div>` : '')
+        + (d.honor ? `<div class="lbs-honor">${d.honor}</div>` : '');
       const pressBlock    = (d.press && !d.pressLogos) ? `<p class="lb-section-label" style="margin-top:1.5rem">PRESS:</p><p class="lb-body-text">${d.press}</p>` : '';
       const pressLogosBlock = (d.pressLogos && d.pressLogos.length)
         ? `<div class="lb-press-logos">
@@ -5146,6 +5152,7 @@
             <div class="lbs-beat lbs-beat--side lbs-beat--desc">
               <h2 id="lb-title">${titleHTML(d.title)}</h2>
               ${sub ? `<div class="lbs-sub">${sub}</div>` : ''}
+              ${d.honor ? `<div class="lbs-honor">${d.honor}</div>` : ''}
               ${P.desc.length ? `<span class="lbs-beat-label">Description</span>${P.desc[0]}` : ''}
               <button class="lbs-down" type="button" aria-label="Scroll down"><span aria-hidden="true"></span></button>
             </div>
@@ -5287,7 +5294,7 @@
         const nodes = [], tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
         while (tw.nextNode()) {
           const n = tw.currentNode;
-          if (!n.nodeValue.trim() || n.parentElement.closest('h2, .lbs-sub, .lbs-beat-label, button')) continue;
+          if (!n.nodeValue.trim() || n.parentElement.closest('h2, .lbs-sub, .lbs-honor, .lbs-beat-label, button')) continue;
           nodes.push(n);
         }
         const words = [];
