@@ -326,6 +326,7 @@
       color: #ffffff; pointer-events: auto; transition: opacity .2s; user-select: none;
     }
     #home-clock .hc-face { width: 2.25rem; height: 2.25rem; display: block; }   /* pixel clock: 15×15 grid like the other pixel icons */
+    #home-clock .hc-s { transform-box: view-box; transform-origin: 7.5px 7.5px; }   /* very thin seconds hand */
     #side-nav.work-open #home-clock, #side-nav.about-open #home-clock, #side-nav.contact-open #home-clock { opacity: 0; pointer-events: none; }
     #side-nav.work-open #bg-toggle, #side-nav.about-open #bg-toggle, #side-nav.contact-open #bg-toggle { opacity: 0; pointer-events: none; }
     /* Work gallery: the same square, same spot — black on the white video, white on the dark (About) video */
@@ -2772,6 +2773,7 @@
       <svg class="hc-face" viewBox="0 0 15 15" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
         <g><rect x="0" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="0" y="7" width="1" height="1"/><rect x="0" y="8" width="1" height="1"/><rect x="0" y="9" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="1" y="11" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="3" y="1" width="1" height="1"/><rect x="3" y="13" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/><rect x="4" y="13" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/><rect x="5" y="14" width="1" height="1"/><rect x="6" y="0" width="1" height="1"/><rect x="6" y="14" width="1" height="1"/><rect x="7" y="0" width="1" height="1"/><rect x="7" y="1" width="1" height="1"/><rect x="7" y="13" width="1" height="1"/><rect x="7" y="14" width="1" height="1"/><rect x="8" y="0" width="1" height="1"/><rect x="8" y="14" width="1" height="1"/><rect x="9" y="0" width="1" height="1"/><rect x="9" y="14" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/><rect x="10" y="13" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/><rect x="11" y="13" width="1" height="1"/><rect x="12" y="2" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/><rect x="13" y="3" width="1" height="1"/><rect x="13" y="4" width="1" height="1"/><rect x="13" y="7" width="1" height="1"/><rect x="13" y="10" width="1" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="14" y="5" width="1" height="1"/><rect x="14" y="6" width="1" height="1"/><rect x="14" y="7" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="14" y="9" width="1" height="1"/></g>
         <g class="hc-hands"></g>
+        <line class="hc-s" x1="7.5" y1="8.6" x2="7.5" y2="1.9" stroke="currentColor" stroke-width=".32" stroke-linecap="round" shape-rendering="geometricPrecision"/>
       </svg>
     </div>
   </nav>
@@ -3132,7 +3134,7 @@
     // ── home clock: hands follow the visitor's local time (their device's time zone); no text, just the clock
     (function homeClock() {
       const el = document.getElementById('home-clock'); if (!el) return;
-      const hands = el.querySelector('.hc-hands');
+      const hands = el.querySelector('.hc-hands'), sec = el.querySelector('.hc-s');
       // pixel line from the centre pixel outward (Bresenham), so the hands step around like a pixel sprite
       const line = (deg, len) => {
         const a = deg * Math.PI / 180, x0 = 7, y0 = 7, x1 = Math.round(7 + Math.sin(a) * len), y1 = Math.round(7 - Math.cos(a) * len);
@@ -3145,7 +3147,8 @@
       const fmt = (() => { try { return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }); } catch (e) { return null; } })();
       function tick() {
         const d = new Date(), s = d.getSeconds(), mi = d.getMinutes() + s / 60, hr = (d.getHours() % 12) + mi / 60;
-        hands.innerHTML = line(s * 6, 5.4) + line(mi * 6, 5) + line(hr * 30, 3.2);   // seconds, minutes, hours: all the same colour
+        hands.innerHTML = line(mi * 6, 5) + line(hr * 30, 3.2);   // pixel minute + hour hands
+        sec.style.transform = `rotate(${s * 6}deg)`;              // thin seconds hand ticks once a second
         el.setAttribute('aria-label', 'Local time ' + (fmt ? fmt.format(d) : d.toLocaleTimeString()) + (place ? ' in ' + place.toLowerCase() : ''));
         setTimeout(tick, 1000 - d.getMilliseconds() + 5);
       }
