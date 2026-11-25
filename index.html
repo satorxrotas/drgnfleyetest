@@ -320,13 +320,14 @@
     #home-index:focus { outline: none; }
     #home-index:focus-visible { outline: 1px solid #f0ede6; }
     #side-nav.work-open #home-index, #side-nav.about-open #home-index, #side-nav.contact-open #home-index { opacity: 0; pointer-events: none; }
-    /* analogue clock, top right: the visitor's own local time (their device's time zone) */
+    /* pixel digital clock, top right: the visitor's own local time (their device's time zone), with seconds */
     #home-clock {
       position: absolute; top: 1.5rem; right: 1.5rem; height: 2.25rem; display: flex; align-items: center; gap: .6rem;
       color: #ffffff; pointer-events: auto; transition: opacity .2s; user-select: none;
     }
-    #home-clock .hc-face { width: 2.25rem; height: 2.25rem; display: block; }   /* pixel clock: 15×15 grid like the other pixel icons */
-    #home-clock .hc-s { transform-box: view-box; transform-origin: 7.5px 7.5px; }   /* very thin seconds hand */
+    #home-clock .hc-txt { height: 15px; width: auto; display: block; }   /* pixel digits: 3×5 glyphs, 3px per pixel, like the pixel icons */
+    @media (max-width: 600px) { #home-clock .hc-txt { height: 10px; } }   /* 2px per pixel on phones so it clears the logo */
+    @media (max-width: 360px) { #home-clock .hc-txt { height: 7.5px; } }   /* smallest phones */
     #side-nav.work-open #home-clock, #side-nav.about-open #home-clock, #side-nav.contact-open #home-clock { opacity: 0; pointer-events: none; }
     #side-nav.work-open #bg-toggle, #side-nav.about-open #bg-toggle, #side-nav.contact-open #bg-toggle { opacity: 0; pointer-events: none; }
     /* Work gallery: the same square, same spot — black on the white video, white on the dark (About) video */
@@ -2770,11 +2771,7 @@
     <button id="work-bg-toggle" type="button" aria-label="Switch background video"></button>
     <button id="home-index" type="button" aria-label="Project index"><i class="px px-menu" aria-hidden="true"></i></button>
     <div id="home-clock" role="img" aria-label="Local time">
-      <svg class="hc-face" viewBox="0 0 15 15" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true">
-        <g><rect x="0" y="5" width="1" height="1"/><rect x="0" y="6" width="1" height="1"/><rect x="0" y="7" width="1" height="1"/><rect x="0" y="8" width="1" height="1"/><rect x="0" y="9" width="1" height="1"/><rect x="1" y="3" width="1" height="1"/><rect x="1" y="4" width="1" height="1"/><rect x="1" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="1" y="8" width="1" height="1"/><rect x="1" y="9" width="1" height="1"/><rect x="1" y="10" width="1" height="1"/><rect x="1" y="11" width="1" height="1"/><rect x="2" y="2" width="1" height="1"/><rect x="2" y="3" width="1" height="1"/><rect x="2" y="4" width="1" height="1"/><rect x="2" y="7" width="1" height="1"/><rect x="2" y="10" width="1" height="1"/><rect x="2" y="11" width="1" height="1"/><rect x="2" y="12" width="1" height="1"/><rect x="3" y="1" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="3" y="3" width="1" height="1"/><rect x="3" y="11" width="1" height="1"/><rect x="3" y="12" width="1" height="1"/><rect x="3" y="13" width="1" height="1"/><rect x="4" y="1" width="1" height="1"/><rect x="4" y="2" width="1" height="1"/><rect x="4" y="12" width="1" height="1"/><rect x="4" y="13" width="1" height="1"/><rect x="5" y="0" width="1" height="1"/><rect x="5" y="1" width="1" height="1"/><rect x="5" y="13" width="1" height="1"/><rect x="5" y="14" width="1" height="1"/><rect x="6" y="0" width="1" height="1"/><rect x="6" y="1" width="1" height="1"/><rect x="6" y="13" width="1" height="1"/><rect x="6" y="14" width="1" height="1"/><rect x="7" y="0" width="1" height="1"/><rect x="7" y="1" width="1" height="1"/><rect x="7" y="2" width="1" height="1"/><rect x="7" y="12" width="1" height="1"/><rect x="7" y="13" width="1" height="1"/><rect x="7" y="14" width="1" height="1"/><rect x="8" y="0" width="1" height="1"/><rect x="8" y="1" width="1" height="1"/><rect x="8" y="13" width="1" height="1"/><rect x="8" y="14" width="1" height="1"/><rect x="9" y="0" width="1" height="1"/><rect x="9" y="1" width="1" height="1"/><rect x="9" y="13" width="1" height="1"/><rect x="9" y="14" width="1" height="1"/><rect x="10" y="1" width="1" height="1"/><rect x="10" y="2" width="1" height="1"/><rect x="10" y="12" width="1" height="1"/><rect x="10" y="13" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="11" y="11" width="1" height="1"/><rect x="11" y="12" width="1" height="1"/><rect x="11" y="13" width="1" height="1"/><rect x="12" y="2" width="1" height="1"/><rect x="12" y="3" width="1" height="1"/><rect x="12" y="4" width="1" height="1"/><rect x="12" y="7" width="1" height="1"/><rect x="12" y="10" width="1" height="1"/><rect x="12" y="11" width="1" height="1"/><rect x="12" y="12" width="1" height="1"/><rect x="13" y="3" width="1" height="1"/><rect x="13" y="4" width="1" height="1"/><rect x="13" y="5" width="1" height="1"/><rect x="13" y="6" width="1" height="1"/><rect x="13" y="7" width="1" height="1"/><rect x="13" y="8" width="1" height="1"/><rect x="13" y="9" width="1" height="1"/><rect x="13" y="10" width="1" height="1"/><rect x="13" y="11" width="1" height="1"/><rect x="14" y="5" width="1" height="1"/><rect x="14" y="6" width="1" height="1"/><rect x="14" y="7" width="1" height="1"/><rect x="14" y="8" width="1" height="1"/><rect x="14" y="9" width="1" height="1"/></g>
-        <g class="hc-hands"></g>
-        <line class="hc-s" x1="7.5" y1="8.4" x2="7.5" y2="2.8" stroke="currentColor" stroke-width=".32" stroke-linecap="round" shape-rendering="geometricPrecision"/>
-      </svg>
+      <svg class="hc-txt" viewBox="0 0 1 5" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"></svg>
     </div>
   </nav>
 
@@ -3131,25 +3128,38 @@
       document.getElementById('game-btn').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openGame(); });
 
 
-    // ── home clock: hands follow the visitor's local time (their device's time zone); no text, just the clock
+    // ── home clock: the visitor's local time (their device's time zone) as pixel digits, ticking every second
     (function homeClock() {
       const el = document.getElementById('home-clock'); if (!el) return;
-      const hands = el.querySelector('.hc-hands'), sec = el.querySelector('.hc-s');
-      // pixel line from the centre pixel outward (Bresenham), so the hands step around like a pixel sprite
-      const line = (deg, len) => {
-        const a = deg * Math.PI / 180, x0 = 7, y0 = 7, x1 = Math.round(7 + Math.sin(a) * len), y1 = Math.round(7 - Math.cos(a) * len);
-        let x = x0, y = y0, dx = Math.abs(x1 - x0), dy = -Math.abs(y1 - y0), sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, err = dx + dy, out = '';
-        for (;;) { out += `<rect x="${x}" y="${y}" width="1" height="1"/>`; if (x === x1 && y === y1) break; const e2 = 2 * err; if (e2 >= dy) { err += dy; x += sx; } if (e2 <= dx) { err += dx; y += sy; } }
-        return out;
+      const svg = el.querySelector('.hc-txt');
+      const G = {   // 3×5 pixel glyphs (colon is 1 wide)
+        '0': ['111','101','101','101','111'], '1': ['010','110','010','010','111'], '2': ['111','001','111','100','111'],
+        '3': ['111','001','111','001','111'], '4': ['101','101','111','001','001'], '5': ['111','100','111','001','111'],
+        '6': ['111','100','111','101','111'], '7': ['111','001','001','001','001'], '8': ['111','101','111','101','111'],
+        '9': ['111','101','111','001','111'], ':': ['0','1','0','1','0'], 'A': ['010','101','111','101','101'],
+        'P': ['110','101','110','100','100'], 'M': ['101','111','111','101','101'], ' ': ['0','0','0','0','0']
       };
-      let tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
-      const place = (tz.split('/').pop() || '').replace(/_/g, ' ').toUpperCase();
-      const fmt = (() => { try { return new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' }); } catch (e) { return null; } })();
+      let h12 = true; try { const o = new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).resolvedOptions(); h12 = o.hourCycle ? /h1[12]/.test(o.hourCycle) : !!o.hour12; } catch (e) {}
+      const two = n => String(n).padStart(2, '0');
+      const narrow = window.matchMedia('(max-width: 600px)');   // phones: no AM/PM so the time clears the logo
+      let last = '';
+      function draw(text) {
+        if (text === last) return; last = text;
+        let x = 0, out = '';
+        for (const ch of text) {
+          const g = G[ch] || G[' '];
+          g.forEach((row, y) => { for (let i = 0; i < row.length; i++) if (row[i] === '1') out += `<rect x="${x + i}" y="${y}" width="1" height="1"/>`; });
+          x += g[0].length + 1;
+        }
+        svg.setAttribute('viewBox', `0 0 ${x - 1} 5`); svg.innerHTML = out;
+      }
       function tick() {
-        const d = new Date(), s = d.getSeconds(), mi = d.getMinutes() + s / 60, hr = (d.getHours() % 12) + mi / 60;
-        hands.innerHTML = line(mi * 6, 4.3) + line(hr * 30, 2.8);   // pixel minute + hour hands
-        sec.style.transform = `rotate(${s * 6}deg)`;              // thin seconds hand ticks once a second
-        el.setAttribute('aria-label', 'Local time ' + (fmt ? fmt.format(d) : d.toLocaleTimeString()) + (place ? ' in ' + place.toLowerCase() : ''));
+        const d = new Date(); let hr = d.getHours();
+        let txt;
+        if (h12) { const ap = hr < 12 ? 'AM' : 'PM'; hr = hr % 12 || 12; txt = `${hr}:${two(d.getMinutes())}:${two(d.getSeconds())}` + (narrow.matches ? '' : ` ${ap}`); }
+        else txt = `${two(hr)}:${two(d.getMinutes())}:${two(d.getSeconds())}`;
+        draw(txt);
+        el.setAttribute('aria-label', 'Local time ' + txt);
         setTimeout(tick, 1000 - d.getMilliseconds() + 5);
       }
       tick();
