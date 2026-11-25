@@ -320,14 +320,18 @@
     #home-index:focus { outline: none; }
     #home-index:focus-visible { outline: 1px solid #f0ede6; }
     #side-nav.work-open #home-index, #side-nav.about-open #home-index, #side-nav.contact-open #home-index { opacity: 0; pointer-events: none; }
-    /* pixel digital clock, top right: the visitor's own local time (their device's time zone), with seconds */
+    /* digital clock, top right: the visitor's own local time (their device's time zone), with seconds */
     #home-clock {
       position: absolute; top: 1.5rem; right: 1.5rem; height: 2.25rem; display: flex; align-items: center; gap: .6rem;
       color: #ffffff; pointer-events: auto; transition: opacity .2s; user-select: none;
     }
-    #home-clock .hc-txt { height: 15px; width: auto; display: block; }   /* pixel digits: 3×5 glyphs, 3px per pixel, like the pixel icons */
-    @media (max-width: 600px) { #home-clock .hc-txt { height: 10px; } }   /* 2px per pixel on phones so it clears the logo */
-    @media (max-width: 360px) { #home-clock .hc-txt { height: 7.5px; } }   /* smallest phones */
+    /* same face as WORK / ABOUT (Cereal, uppercase, same size) but the lighter Medium weight; fixed-width digits so it doesn't jiggle */
+    #home-clock .hc-txt { font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 500;
+      font-size: clamp(1.1rem, 1.7vw, 1.6rem); letter-spacing: 0.02em; text-transform: uppercase; line-height: 1;
+      font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #home-clock .hc-txt .d { display: inline-block; width: .62em; text-align: center; }
+    @media (max-width: 600px) { #home-clock .hc-txt { font-size: .95rem; } }
+    @media (max-width: 360px) { #home-clock { right: .9rem; } #home-clock .hc-txt { font-size: .72rem; } }
     #side-nav.work-open #home-clock, #side-nav.about-open #home-clock, #side-nav.contact-open #home-clock { opacity: 0; pointer-events: none; }
     #side-nav.work-open #bg-toggle, #side-nav.about-open #bg-toggle, #side-nav.contact-open #bg-toggle { opacity: 0; pointer-events: none; }
     /* Work gallery: the same square, same spot — black on the white video, white on the dark (About) video */
@@ -2771,7 +2775,7 @@
     <button id="work-bg-toggle" type="button" aria-label="Switch background video"></button>
     <button id="home-index" type="button" aria-label="Project index"><i class="px px-menu" aria-hidden="true"></i></button>
     <div id="home-clock" role="img" aria-label="Local time">
-      <svg class="hc-txt" viewBox="0 0 1 5" shape-rendering="crispEdges" fill="currentColor" aria-hidden="true"></svg>
+      <span class="hc-txt" aria-hidden="true"></span>
     </div>
   </nav>
 
@@ -3128,30 +3132,18 @@
       document.getElementById('game-btn').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); openGame(); });
 
 
-    // ── home clock: the visitor's local time (their device's time zone) as pixel digits, ticking every second
+    // ── home clock: the visitor's local time (their device's time zone), ticking every second
     (function homeClock() {
       const el = document.getElementById('home-clock'); if (!el) return;
-      const svg = el.querySelector('.hc-txt');
-      const G = {   // 3×5 pixel glyphs (colon is 1 wide)
-        '0': ['111','101','101','101','111'], '1': ['010','110','010','010','111'], '2': ['111','001','111','100','111'],
-        '3': ['111','001','111','001','111'], '4': ['101','101','111','001','001'], '5': ['111','100','111','001','111'],
-        '6': ['111','100','111','101','111'], '7': ['111','001','001','001','001'], '8': ['111','101','111','101','111'],
-        '9': ['111','101','111','001','111'], ':': ['0','1','0','1','0'], 'A': ['010','101','111','101','101'],
-        'P': ['110','101','110','100','100'], 'M': ['101','111','111','101','101'], ' ': ['0','0','0','0','0']
-      };
+      const svg = el.querySelector('.hc-txt');   // text holder
       let h12 = true; try { const o = new Intl.DateTimeFormat(undefined, { hour: 'numeric' }).resolvedOptions(); h12 = o.hourCycle ? /h1[12]/.test(o.hourCycle) : !!o.hour12; } catch (e) {}
       const two = n => String(n).padStart(2, '0');
       const narrow = window.matchMedia('(max-width: 600px)');   // phones: no AM/PM so the time clears the logo
       let last = '';
       function draw(text) {
         if (text === last) return; last = text;
-        let x = 0, out = '';
-        for (const ch of text) {
-          const g = G[ch] || G[' '];
-          g.forEach((row, y) => { for (let i = 0; i < row.length; i++) if (row[i] === '1') out += `<rect x="${x + i}" y="${y}" width="1" height="1"/>`; });
-          x += g[0].length + 1;
-        }
-        svg.setAttribute('viewBox', `0 0 ${x - 1} 5`); svg.innerHTML = out;
+        // each digit in its own fixed-width box so the time doesn't shift as the numbers change
+        svg.innerHTML = text.replace(/[0-9]/g, c => `<span class="d">${c}</span>`);
       }
       function tick() {
         const d = new Date(); let hr = d.getHours();
