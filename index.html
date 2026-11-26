@@ -327,11 +327,11 @@
     }
     /* same face as WORK / ABOUT (Cereal, uppercase, same size) but the lighter Medium weight; fixed-width digits so it doesn't jiggle */
     #home-clock .hc-txt { font-family: 'Cereal', 'Helvetica Neue', Helvetica, Arial, sans-serif; font-weight: 500;
-      font-size: clamp(1.1rem, 1.7vw, 1.6rem); letter-spacing: 0.02em; text-transform: uppercase; line-height: 1;
+      font-size: clamp(.77rem, 1.19vw, 1.12rem); letter-spacing: 0.02em; text-transform: uppercase; line-height: 1;   /* ~30% smaller than WORK / ABOUT */
       font-variant-numeric: tabular-nums; white-space: nowrap; }
     #home-clock .hc-txt .d { display: inline-block; width: .62em; text-align: center; }
-    @media (max-width: 600px) { #home-clock .hc-txt { font-size: .95rem; } }
-    @media (max-width: 360px) { #home-clock { right: .9rem; } #home-clock .hc-txt { font-size: .72rem; } }
+    @media (max-width: 600px) { #home-clock .hc-txt { font-size: .67rem; } }
+    @media (max-width: 360px) { #home-clock .hc-txt { font-size: .6rem; } }
     #side-nav.work-open #home-clock, #side-nav.about-open #home-clock, #side-nav.contact-open #home-clock { opacity: 0; pointer-events: none; }
     #side-nav.work-open #bg-toggle, #side-nav.about-open #bg-toggle, #side-nav.contact-open #bg-toggle { opacity: 0; pointer-events: none; }
     /* Work gallery: the same square, same spot — black on the white video, white on the dark (About) video */
